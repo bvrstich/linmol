@@ -45,6 +45,10 @@ class TPM : public BlockMatrix {
       //geef M terug
       int gM() const;
 
+      double operator()(int B,int a,int b,int c,int d) const;
+
+      double operator()(int,int,int,int,int,int,int,int,int,int) const;
+
       static void init(int,int);
 
       static void clear();

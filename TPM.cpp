@@ -128,7 +128,7 @@ void TPM::clear(){
 }
 
 /**
- * standard constructor for a spinsymmetrical tp matrix: constructs BlockMatrix object with 2 blocks, for S = 0 or 1,
+ * standard constructor for a spin and axial symmetrical tp matrix.
  */
 TPM::TPM() : BlockMatrix(B2SM.size()) {
 
@@ -138,8 +138,7 @@ TPM::TPM() : BlockMatrix(B2SM.size()) {
 }
 
 /**
- * copy constructor: constructs Matrix object of dimension M*(M - 1)/2 and fills it with the content of matrix tpm_c
- * if counter == 0, the lists containing the relationship between sp and tp basis.
+ * copy constructor:
  * @param tpm_c object that will be copied into this.
  */
 TPM::TPM(const TPM &tpm_c) : BlockMatrix(tpm_c){ }
@@ -200,5 +199,80 @@ ostream &operator<<(ostream &output,const TPM &tpm_p){
    }
 
    return output;
+
+}
+
+/**
+ * access the elements of the the blocks in sp mode, the symmetry or antisymmetry of the blocks is automatically accounted for:\n\n
+ * Antisymmetrical for S = 1, symmetrical in the sp orbitals for S = 0\n\n
+ * @param B The block index
+ * @param a first sp index that forms the tp row index i of spin S, together with b
+ * @param b second sp index that forms the tp row index i of spin S, together with a
+ * @param c first sp index that forms the tp column index j of spin S, together with d
+ * @param d second sp index that forms the tp column index j of spin S, together with c
+ * @return the number on place TPM(B,i,j) with the right phase.
+ */
+double TPM::operator()(int B,int a,int b,int c,int d) const{
+
+   return (*this)(B2SM[B][0],B2SM[B][1],SPM::gg2ms(a,0),SPM::gg2ms(a,1),SPM::gg2ms(b,0),SPM::gg2ms(b,1),
+   
+         SPM::gg2ms(c,0),SPM::gg2ms(c,1),SPM::gg2ms(d,0),SPM::gg2ms(d,1));
+
+}
+
+/**
+ * access the elements of the the blocks in sp mode, the symmetry or antisymmetry of the blocks is automatically accounted for:\n\n
+ * Antisymmetrical for S = 1, symmetrical in the sp orbitals for S = 0\n\n
+ * @param S the two-particle spin
+ * @param L_z the two-particle angularmomentum projection
+ * @param m_a angular momentum projection of first index
+ * @param a first index
+ * @param m_b angular momentum projection of second index
+ * @param b second index
+ * @param m_c angular momentum projection of third index
+ * @param c third index
+ * @param m_d angular momentum projection of fourth index
+ * @param d fourth index
+ * @return the number on place TPM(B,i,j) with the right phase.
+ */
+double TPM::operator()(int S,int L_z,int m_a,int a,int m_b,int b,int m_c,int c,int m_d,int d) const{
+
+   if(m_a + m_b != m_c + m_d)
+      return 0.0;
+
+   if(L_z != m_a + m_b)
+      return 0.0;
+
+   int B = SM2B[S][L_z + 2*l_max];
+
+   if(S == 0){
+
+      int i = s2t[B][a][b];
+      int j = s2t[B][c][d];
+
+      return (*this)(B,i,j);
+
+   }
+   else{
+
+      if( (a == b) || (c == d) )
+         return 0;
+      else{
+
+         int i = s2t[B][a][b];
+         int j = s2t[B][c][d];
+
+         int phase = 1;
+
+         if(a > b)
+            phase *= -1;
+         if(c > d)
+            phase *= -1;
+
+         return phase*(*this)(B,i,j);
+
+      }
+
+   }
 
 }
