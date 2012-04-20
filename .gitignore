@@ -1,0 +1,14 @@
+*~
+*.swp
+*.o
+*.txt
+*.pdf
+*.out
+*.png
+*.gif
+callgrind.out.*
+pr_sdp
+pd_sdp
+bp_sdp
+tags
+docs/
