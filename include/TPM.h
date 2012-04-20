@@ -49,6 +49,8 @@ class TPM : public BlockMatrix {
 
       double operator()(int,int,int,int,int,int,int,int,int,int) const;
 
+      void molecule();
+
       static void init(int,int);
 
       static void clear();

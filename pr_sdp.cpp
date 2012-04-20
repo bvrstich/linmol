@@ -49,18 +49,11 @@ int main(void){
    SPM::init(M,N);
    TPM::init(M,N);
 
-   TPM tpm;
-
-   tpm.fill_Random();
-
-   cout << tpm;
+   //hamiltoniaan
+   TPM ham;
+   ham.molecule();
 
 /*
-   //hamiltoniaan
-   TPM ham(M,N);
-
-   ham.hubbard(1.0);
-
    TPM rdm(M,N);
    rdm.unit();
 

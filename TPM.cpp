@@ -276,3 +276,12 @@ double TPM::operator()(int S,int L_z,int m_a,int a,int m_b,int b,int m_c,int c,i
    }
 
 }
+
+/**
+ * fill the (*this) object with the Hamiltonian that defines the molecular system.
+ */
+void TPM::molecule(){
+
+   *this = 0.0;
+
+}
