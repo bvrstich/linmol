@@ -47,11 +47,13 @@ int main(void){
    Tools::init(M,N);
 
    SPM::init(M,N);
+   TPM::init(M,N);
 
-   SPM spm;
-   spm.fill_Random();
+   TPM tpm;
 
-   cout << spm;
+   tpm.fill_Random();
+
+   cout << tpm;
 
 /*
    //hamiltoniaan
@@ -127,6 +129,7 @@ int main(void){
 
    }
 */
+   TPM::clear();
    SPM::clear();
 
    Tools::clear();

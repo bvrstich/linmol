@@ -51,10 +51,16 @@ class TPM : public BlockMatrix {
 
    private:
 
-      //!
-      static int ***t2s;
+      //!list that relates the blockindex to physical two-particle quantumnumbers
+      static vector< vector<int> > B2SM;
 
-      //!
+      //!list that relates the physical two-particle quantumnumbers S and M to the blockindex B
+      static int **SM2B;
+
+      //!static lists that translates the two-particle indices to single-particle ones
+      static vector< vector< vector<int> > > t2s;
+
+      //!inverse of the t2s list
       static int ***s2t;
 
       //!nr of particles
