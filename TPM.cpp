@@ -17,6 +17,30 @@ int ***TPM::s2t;
 int TPM::M;
 int TPM::N;
 
+int TPM::l_max;
+
+/**
+ * initialize the static lists and variables
+ * @param M_in input dimension of sp space
+ * @param N_in input nr of particles
+ */
+void TPM::init(int M_in,int N_in){
+
+   M = M_in;
+   N = N_in;
+
+   l_max = SphInt::gl_max();
+
+}
+
+/**
+ * deallocate the static lists
+ */
+void TPM::clear(){
+   
+
+}
+
 /**
  * standard constructor for a spinsymmetrical tp matrix: constructs BlockMatrix object with 2 blocks, for S = 0 or 1,
  */

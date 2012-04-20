@@ -48,11 +48,23 @@ class SPM : public BlockMatrix {
 
       static int gs2inl(int,int,int);
 
+      static int ginl2s(int,int,int,int);
+
+      static int gms2g(int,int);
+
+      static int gg2ms(int,int);
+
       static void init(int,int);
 
       static void clear();
 
    private:
+
+      //!list translating the single-particle index s and the block index m to a global single-particle index g
+      static int **ms2g;
+
+      //! and the inverse list
+      static vector< vector<int> > g2ms;
 
       //!list translating the single-particle index to the quantumnumbers inl
       static vector< vector<int> > *s2inl;

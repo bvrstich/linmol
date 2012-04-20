@@ -10,6 +10,9 @@ using std::endl;
 vector< vector<int> > *SPM::s2inl;
 int ****SPM::inl2s;
 
+vector< vector<int> > SPM::g2ms;
+int **SPM::ms2g;
+
 int SPM::M;
 int SPM::N;
 
@@ -74,6 +77,28 @@ void SPM::init(int M_in,int N_in) {
 
    }
 
+   ms2g = new int * [2*l_max + 1];
+
+   for(int m = 0;m < 2*l_max + 1;++m)
+      ms2g[m] = new int [s2inl[m].size()];
+
+   vector<int> vg(2);
+
+   int iter = 0;
+
+   for(int m = -l_max;m <= l_max;++m)
+      for(unsigned int s = 0;s < s2inl[m + l_max].size();++s){
+
+         vg[0] = m;
+         vg[1] = s;
+
+         g2ms.push_back(vg);
+         ms2g[m + l_max][s] = iter;
+
+         ++iter;
+
+      }
+
 }
 
 /**
@@ -96,9 +121,13 @@ void SPM::clear(){
 
       delete [] inl2s[m];
 
+      delete [] ms2g[m];
+
    }
 
    delete [] inl2s;
+
+   delete [] ms2g;
 
 }
 
@@ -198,5 +227,42 @@ int SPM::gl_max(){
 int SPM::gs2inl(int m,int s,int option) {
 
    return s2inl[m + l_max][s][option];
+
+}
+
+/**
+ * static function that allows for access to the private lists.
+ * @param m block index corresponding to the z projection of angular momentum
+ * @param i index of core location
+ * @param n main quantumnumber of orbital
+ * @param l orbital angular momentum quantumnumber
+ */
+int SPM::ginl2s(int m,int i,int n,int l){
+
+   return inl2s[m + l][i][n - l - 1][l];
+
+}
+
+/**
+ * function the gives acces to the private ms2g list
+ * @param m the l_z projection
+ * @param s the single-particle index inside the "m"-block
+ */
+int SPM::gms2g(int m,int s) {
+
+   return ms2g[m][s];
+
+}
+
+/**
+ * function the gives acces to the private g2ms list
+ * @param g the global single-particle index
+ * @param option determines what quantumnumber is returned
+ * if option == 0 : return m
+ * if option == 1 : return s
+ */
+int SPM::gg2ms(int g,int option) {
+
+   return g2ms[g][option];
 
 }

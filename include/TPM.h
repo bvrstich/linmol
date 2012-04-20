@@ -51,10 +51,10 @@ class TPM : public BlockMatrix {
 
    private:
 
-      //!static list of dimension [2][dim[i]][2] that takes in a tp index i and a spinquantumnumber S, and returns two sp indices: a = t2s[S][i][0] and b = t2s[S][i][1]
+      //!
       static int ***t2s;
 
-      //!static list of dimension [2][M/2][M/2] that takes two sp indices a,b and a spinquantumnumber S, and returns a tp index i: i = s2t[S][a][b]
+      //!
       static int ***s2t;
 
       //!nr of particles
@@ -62,6 +62,9 @@ class TPM : public BlockMatrix {
 
       //!dimension of sp hilbert space
       static int M;
+
+      //!maximal orbital angular momentum in basisset
+      static int l_max;
 
 };
 
