@@ -13,7 +13,6 @@ CPPSRC	= pr_sdp.cpp\
             Matrix.cpp\
             BlockMatrix.cpp\
             Vector.cpp\
-            TPM.cpp\
             R.cpp\
             Gauss.cpp\
             MxElemFiller.cpp\
@@ -22,7 +21,9 @@ CPPSRC	= pr_sdp.cpp\
             CartInt.cpp\
             SphInt.cpp\
             Transform.cpp\
-            SPM.cpp
+            SPM.cpp\
+            TPM.cpp\
+            SUP.cpp
 
 OBJ	= $(CPPSRC:.cpp=.o)
 
@@ -53,7 +54,7 @@ all:
 	@echo
 	@echo '  +++ Building $(BINNAME)...'
 	@echo	
-	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQG"
+	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) 
 	@if test $?; then \
 	   echo; echo '*************** FAILED! ***************' ; echo; \
 	 else \
@@ -64,6 +65,18 @@ all:
 #------------------------------------------------------------------------------
 #  Compile with only P and Q conditions activated
 #------------------------------------------------------------------------------
+
+P:
+	@echo
+	@echo '  +++ Building $(BINNAME) with P conditions'
+	@echo	
+	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) 
+	@if test $?; then \
+	   echo; echo '*************** FAILED! ***************' ; echo; \
+	 else \
+	   echo; echo '  +++ $(BINNAME) has been built with P conditions successfully!'; \
+	   echo; \
+	 fi
 
 PQ:
 	@echo

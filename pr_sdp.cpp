@@ -49,6 +49,8 @@ int main(void){
    SPM::init(M,N);
    TPM::init(M,N);
 
+   SUP::init(M,N);
+
    CartInt ci;
    ci.norm();
 
@@ -58,9 +60,6 @@ int main(void){
    //hamiltoniaan
    TPM ham;
    ham.molecule(si);
-
-   BlockVector<TPM> v(ham);
-   cout << v;
 
 /*
    TPM rdm(M,N);
