@@ -279,9 +279,77 @@ double TPM::operator()(int S,int L_z,int m_a,int a,int m_b,int b,int m_c,int c,i
 
 /**
  * fill the (*this) object with the Hamiltonian that defines the molecular system.
+ * @param si the input SphInt object containing the spherical matrixelements
  */
-void TPM::molecule(){
+void TPM::molecule(const SphInt &si){
 
-   *this = 0.0;
+   int a,b,c,d;
+   int sign;
+
+   int a_me,b_me,c_me,d_me;
+
+   int S;
+
+   double norm;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      sign = 1 - 2*S;
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = t2s[B][i][0];
+         b = t2s[B][i][1];
+
+         a_me = SphInt::gg2s(a);
+         b_me = SphInt::gg2s(b);
+
+         for(int j = i;j < gdim(B);++j){
+
+            c = t2s[B][j][0];
+            d = t2s[B][j][1];
+
+            c_me = SphInt::gg2s(c);
+            d_me = SphInt::gg2s(d);
+
+            //determine the norm for the basisset
+            norm = 1.0;
+
+            if(S == 0){
+
+               if(a == b)
+                  norm /= std::sqrt(2.0);
+
+               if(c == d)
+                  norm /= std::sqrt(2.0);
+
+            }
+
+            (*this)(B,i,j) = 0.0;
+
+            if(b == d)
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * (si.gT(a_me,c_me) + si.gU(a_me,c_me));
+
+            if(a == d)
+               (*this)(B,i,j) +=  sign /(N - 1.0) * (si.gT(b_me,c_me) + si.gU(b_me,c_me));
+
+            if(b == c)
+               (*this)(B,i,j) +=  sign /(N - 1.0) * (si.gT(a_me,d_me) + si.gU(a_me,d_me));
+
+            if(a == c)
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * (si.gT(b_me,d_me) + si.gU(b_me,d_me));
+
+            (*this)(B,i,j) += si.gV(a_me,b_me,c_me,d_me) + sign * si.gV(a_me,b_me,d_me,c_me);
+
+            (*this)(B,i,j) *= norm;
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
 
 }

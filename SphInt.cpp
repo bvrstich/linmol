@@ -685,3 +685,20 @@ int SphInt::gn_max() {
    return n_max;
 
 }
+
+/**
+ * @param g input SPM single-particle index
+ * @return the matrixelement single particle index s when given a SPM single-particle index g
+ */
+int SphInt::gg2s(int g){
+
+   int m = SPM::gg2ms(g,0);
+   int sp_in = SPM::gg2ms(g,1);
+
+   int i = SPM::gs2inl(m,sp_in,0);
+   int n = SPM::gs2inl(m,sp_in,1);
+   int l = SPM::gs2inl(m,sp_in,2);
+
+   return ginlm2s(i,n,l,m);
+
+}
