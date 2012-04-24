@@ -4,6 +4,5 @@ RotationSymmetry=z
 
 Distances=0
 
-Cores=2
-1 H 0 0 0
-2 H 0 0 1.403310519
+Cores=1
+1 Be 0 0 0

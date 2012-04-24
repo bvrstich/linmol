@@ -74,9 +74,9 @@ void TPM::init(int M_in,int N_in){
 
             SM2B[S][L_z + 2*l_max] = B;
 
-         }
+            ++B;
 
-         ++B;
+         }
 
       }
 
@@ -243,30 +243,37 @@ double TPM::operator()(int S,int L_z,int m_a,int a,int m_b,int b,int m_c,int c,i
    if(L_z != m_a + m_b)
       return 0.0;
 
-   int B = SM2B[S][L_z + 2*l_max];
+   int ga = SPM::gms2g(m_a,a);
+   int gb = SPM::gms2g(m_b,b);
+   int gc = SPM::gms2g(m_c,c);
+   int gd = SPM::gms2g(m_d,d);
 
    if(S == 0){
 
-      int i = s2t[B][a][b];
-      int j = s2t[B][c][d];
+      int B = SM2B[S][L_z + 2*l_max];
+
+      int i = s2t[B][ga][gb];
+      int j = s2t[B][gc][gd];
 
       return (*this)(B,i,j);
 
    }
    else{
 
-      if( (a == b) || (c == d) )
+      if( ( ga == gb ) || ( gc == gd ) )
          return 0;
       else{
 
-         int i = s2t[B][a][b];
-         int j = s2t[B][c][d];
+         int B = SM2B[S][L_z + 2*l_max];
+
+         int i = s2t[B][ga][gb];
+         int j = s2t[B][gc][gd];
 
          int phase = 1;
 
-         if(a > b)
+         if(ga > gb)
             phase *= -1;
-         if(c > d)
+         if(gc > gd)
             phase *= -1;
 
          return phase*(*this)(B,i,j);

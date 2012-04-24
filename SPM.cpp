@@ -250,7 +250,7 @@ int SPM::ginl2s(int m,int i,int n,int l){
  */
 int SPM::gms2g(int m,int s) {
 
-   return ms2g[m][s];
+   return ms2g[m + l_max][s];
 
 }
 
@@ -264,5 +264,58 @@ int SPM::gms2g(int m,int s) {
 int SPM::gg2ms(int g,int option) {
 
    return g2ms[g][option];
+
+}
+
+/**
+ * map a TPM object on an SPM object by tracing one pair of indices
+ * @param scale number with which to scale the TPM with
+ * @param tpm the input TPM object
+ */
+void SPM::bar(double scale,const TPM &tpm) {
+
+   double ward,hard;
+
+   for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a)
+         for(int c = a;c < gdim(m + l_max);++c){
+
+            (*this)(l_max + m,a,c) = 0.0;
+
+            for(int S = 0;S < 2;++S){
+
+               hard = 0.0;
+
+               for(int m_b = -l_max;m_b <= l_max;++m_b)
+                  for(int b = 0;b < gdim(m_b + l_max);++b){
+
+                     ward = tpm(S,m + m_b,m,a,m_b,b,m,c,m_b,b);
+
+                     if(m == m_b){
+
+                        if(a == b)
+                           ward *= std::sqrt(2.0);
+
+                        if(c == b)
+                           ward *= std::sqrt(2.0);
+
+                     }
+
+                     hard += ward;
+
+                  }
+
+               (*this)(l_max + m,a,c) += (2.0*S + 1.0) * hard;
+
+            }
+
+            (*this)(l_max + m,a,c) *= scale * 0.5;
+
+         }
+
+   }
+
+   this->symmetrize();
 
 }
