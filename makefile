@@ -23,7 +23,8 @@ CPPSRC	= pr_sdp.cpp\
             Transform.cpp\
             SPM.cpp\
             TPM.cpp\
-            SUP.cpp
+            SUP.cpp\
+            EIG.cpp
 
 OBJ	= $(CPPSRC:.cpp=.o)
 

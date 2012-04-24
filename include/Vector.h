@@ -91,7 +91,7 @@ class Vector{
       
       double max() const;
 
-      double centerpot(double ) const;
+      double lsfunc(double alpha) const;
 
    private:
 

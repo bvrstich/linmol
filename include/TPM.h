@@ -7,6 +7,7 @@
 using std::ostream;
 
 class SphInt;
+class SUP;
 
 #include "BlockMatrix.h"
 
@@ -53,6 +54,22 @@ class TPM : public BlockMatrix {
 
       void molecule(const SphInt &);
 
+      void unit();
+
+      void constr_grad(double,const TPM &,const SUP &);
+
+      void proj_Tr();
+      
+      void min_unit(double scale);
+
+      int solve(double, const SUP &,TPM &);
+
+      void H(double t,const TPM &b,const SUP &P);
+
+      double line_search(double t,SUP &P,const TPM &ham);
+
+      double line_search(double t,const TPM &rdm,const TPM &ham);
+   
       static void init(int,int);
 
       static void clear();

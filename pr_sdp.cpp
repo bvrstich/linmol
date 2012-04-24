@@ -61,8 +61,7 @@ int main(void){
    TPM ham;
    ham.molecule(si);
 
-/*
-   TPM rdm(M,N);
+   TPM rdm;
    rdm.unit();
 
    TPM backup_rdm(rdm);
@@ -73,30 +72,32 @@ int main(void){
    //outer iteration: scaling of the potential barrier
    while(t > 1.0e-12){
 
-      cout << t << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) << endl;
+      cout << t << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << "\t";
 
       double convergence = 1.0;
+
+      int iter = 0;
+      int nr_ci = 0;
 
       //inner iteration: 
       //Newton's method for finding the minimum of the current potential
       while(convergence > tolerance){
 
-         SUP P(M,N);
+         SUP P;
 
          P.fill(rdm);
 
          P.invert();
 
          //eerst -gradient aanmaken:
-         TPM grad(M,N);
-
+         TPM grad;
          grad.constr_grad(t,ham,P);
 
          //dit wordt de stap:
-         TPM delta(M,N);
+         TPM delta;
 
          //los het hessiaan stelsel op:
-         cout << delta.solve(t,P,grad) << endl;
+         nr_ci += delta.solve(t,P,grad);
 
          //line search
          double a = delta.line_search(t,P,ham);
@@ -106,7 +107,11 @@ int main(void){
 
          convergence = a*a*delta.ddot(delta);
 
+         iter++;
+
       }
+
+      cout << iter << "\t" << nr_ci << endl;
 
       t /= 2.0;
 
@@ -129,7 +134,12 @@ int main(void){
       rdm.daxpy(a,extrapol);
 
    }
-*/
+
+   cout << endl;
+   cout << "Groundstate energy =\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
+
+   cout << rdm;
+
    TPM::clear();
    SPM::clear();
 

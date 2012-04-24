@@ -353,3 +353,303 @@ void TPM::molecule(const SphInt &si){
    this->symmetrize();
 
 }
+
+/**
+ * initialize this onto the unitmatrix with trace N*(N - 1)/2
+ */
+void TPM::unit(){
+
+   double ward = N*(N - 1.0)/(M*(M - 1.0));
+
+   for(int B = 0;B < gnr();++B){
+
+      for(int i = 0;i < gdim(B);++i){
+
+         (*this)(B,i,i) = ward;
+
+         for(int j = i + 1;j < gdim(B);++j)
+            (*this)(B,i,j) = (*this)(B,j,i) = 0.0;
+
+      }
+   }
+
+}
+
+/**
+ * Construct the right hand side of the Newton equation for the determination of the search direction, 
+ * the gradient of the potential:
+ * @param t scaling factor of the potential
+ * @param ham Hamiltonian of the current problem
+ * @param P SUP matrix containing the inverse of the constraint matrices (carrier space matrices).
+ */
+void TPM::constr_grad(double t,const TPM &ham,const SUP &P){
+
+   //eerst P conditie 
+   *this = P.gI();
+
+#ifdef __Q_CON
+   //de Q conditie toevoegen
+   TPM hulp;
+
+   hulp.Q(1,P.gQ());
+
+   *this += hulp;
+#endif
+
+#ifdef __G_CON
+   hulp.G(P.gG());
+
+   *this += hulp;
+#endif
+
+#ifdef __T1_CON
+   hulp.T(P.gT1());
+
+   *this += hulp;
+#endif
+
+#ifdef __T2_CON
+   hulp.T(P.gT2());
+
+   *this +=hulp;
+#endif
+
+   this->dscal(t);
+
+   *this -= ham;
+
+   this->proj_Tr();
+
+}
+
+/**
+ * orthogonal projection onto the space of traceless matrices
+ */
+void TPM::proj_Tr(){
+
+   double ward = (2.0 * this->trace())/(M*(M - 1));
+
+   this->min_unit(ward);
+
+}
+
+/**
+ * Deduct the unitmatrix times a constant (scale) from this.\n\n
+ * this -= scale* 1
+ * @param scale the constant
+ */
+
+void TPM::min_unit(double scale){
+
+   for(int B = 0;B < gnr();++B)
+      for(int i = 0;i < gdim(B);++i)
+         (*this)(B,i,i) -= scale;
+
+}
+
+/**
+ * solve the Newton equations for the determination of the search direction,
+ * @param t scaling factor of the potential
+ * @param P SUP matrix containing the inverse of the constraint matrices (carrier space matrices).
+ * @param b right hand side (the gradient constructed int TPM::constr_grad)
+ * @return nr of iterations needed to converge to the desired accuracy
+ */
+int TPM::solve(double t,const SUP &P,TPM &b){
+
+   int iter = 0;
+
+   //delta = 0
+   *this = 0;
+
+   //residu:
+   TPM r(b);
+
+   //norm van het residu
+   double rr = r.ddot(r);
+
+   //enkele variabelen
+   double rr_old,ward;
+
+   TPM Hb;
+
+   while(rr > 1.0e-10){ 
+
+      Hb.H(t,b,P);
+
+      ward = rr/b.ddot(Hb);
+
+      //delta += ward*b
+      this->daxpy(ward,b);
+
+      //r -= ward*Hb
+      r.daxpy(-ward,Hb);
+
+      //nieuwe variabelen berekenen en oude overdragen
+      rr_old = rr;
+      rr = r.ddot(r);
+
+      //nieuwe b nog:
+      b.dscal(rr/rr_old);
+
+      b += r;
+
+      ++iter;
+
+   }
+
+   return iter;
+
+}
+
+/**
+ * The hessian-map of the Newton system:
+ * @param t potential scaling factor
+ * @param b the TPM on which the hamiltonian will work, the image will be put in (*this)
+ * @param P the SUP matrix containing the constraints, (can be seen as the metric).
+ */
+void TPM::H(double t,const TPM &b,const SUP &P){
+
+   //eerst de P conditie:
+   this->L_map(P.gI(),b);
+
+#ifdef __Q_CON
+   TPM hulp;
+
+   //maak Q(b)
+   TPM Q_b;
+   Q_b.Q(1,b);
+
+   //stop Q(rdm)^{-1}Q(b)Q(rdm)^{-1} in hulp
+   hulp.L_map(P.gQ(),Q_b);
+
+   //maak Q(hulp) en stop in Q_b
+   Q_b.Q(1,hulp);
+
+   //en tel op bij this
+   *this += Q_b;
+#endif
+
+#ifdef __G_CON
+   //hulpje voor het PHM stuk
+   PHM hulp_ph;
+   PHM G_b;
+
+   //stop G(b) in G_b
+   G_b.G(b);
+
+   //bereken G(rdm)^{-1}G(b)G(rdm)^{-1} en stop in hulp_ph
+   hulp_ph.L_map(P.gG(),G_b);
+
+   //tenslotte nog de antisymmetrische G hierop:
+   hulp.G(hulp_ph);
+
+   //en optellen bij this
+   *this += hulp;
+#endif
+   
+#ifdef __T1_CON
+   //hulpjes voor het DPM stuk
+   DPM hulp_dp;
+   DPM T1_b;
+
+   //stop T1(b) in T1_b
+   T1_b.T(b);
+
+   hulp_dp.L_map(P.gT1(),T1_b);
+
+   hulp.T(hulp_dp);
+
+   *this += hulp;
+#endif
+
+#ifdef __T2_CON
+   PPHM hulp_pph;
+   PPHM T2_b;
+
+   T2_b.T(b);
+
+   hulp_pph.L_map(P.gT2(),T2_b);
+
+   hulp.T(hulp_pph);
+
+   *this+=hulp;
+#endif
+
+   //nog schalen met t:
+   this->dscal(t);
+
+   //en projecteren op spoorloze ruimte
+   this->proj_Tr();
+
+}
+
+/**
+ * perform a line search what step size in along the Newton direction is ideal.
+ * @param t potential scaling factor
+ * @param P SUP matrix containing the inverse of the constraints (carrier space matrices)
+ * @param ham Hamiltonian of the problem
+ * @return the steplength
+ */
+double TPM::line_search(double t,SUP &P,const TPM &ham){
+
+   double tolerance = 1.0e-5*t;
+
+   if(tolerance < 1.0e-12)
+      tolerance = 1.0e-12;
+
+   //neem de wortel uit P
+   P.sqrt(1);
+
+   //maak eerst een SUP van delta
+   SUP S_delta;
+
+   S_delta.fill(*this);
+
+   //hulpje om dingskes in te steken:
+   SUP hulp;
+
+   hulp.L_map(P,S_delta);
+
+   EIG eigen(hulp);
+
+   double a = 0;
+
+   double b = -1.0/eigen.min();
+
+   double c(0);
+
+   double ham_delta = ham.ddot(*this);
+
+   while(b - a > tolerance){
+
+      c = (b + a)/2.0;
+
+      if( (ham_delta - t*eigen.lsfunc(c)) < 0.0)
+         a = c;
+      else
+         b = c;
+
+   }
+
+   return c;
+
+}
+
+/**
+ * perform a line search what step size in along the Newton direction is ideal, this one is used for extrapolation.
+ * @param t potential scaling factor
+ * @param rdm TPM containing the current approximation of the rdm.
+ * @param ham Hamiltonian of the problem
+ * @return the steplength
+ */
+double TPM::line_search(double t,const TPM &rdm,const TPM &ham){
+
+   SUP P;
+
+   P.fill(rdm);
+
+   P.invert();
+
+   return this->line_search(t,P,ham);
+
+}
