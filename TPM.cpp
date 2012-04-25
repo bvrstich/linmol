@@ -144,8 +144,7 @@ TPM::TPM() : BlockMatrix(B2SM.size()) {
 TPM::TPM(const TPM &tpm_c) : BlockMatrix(tpm_c){ }
 
 /**
- * destructor: if counter == 1 the memory for the static lists t2s en s2t will be deleted.
- * 
+ * destructor
  */
 TPM::~TPM(){ }
 
@@ -759,6 +758,96 @@ void TPM::Q(int option,double A,double B,double C,const TPM &tpm_d){
                (*this)(B,i,j) -= norm * spm(m_a + l_max,a,c);
 
          }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
+ * The G down map, maps a PHM object onto a TPM object using the G map.
+ * @param phm input PHM
+ */
+void TPM::G(const PHM &phm){
+
+   SPM spm;
+   spm.bar(1.0/(N - 1.0),phm);
+
+   int sign;
+
+   int ga,gb,gc,gd;
+
+   int a,b,c,d;
+   int m_a,m_b,m_c,m_d;
+
+   int S;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      sign = 1 - 2*S;
+
+      for(int i = 0;i < gdim(B);++i){
+
+         ga = t2s[B][i][0];
+         gb = t2s[B][i][1];
+
+         m_a = SPM::gg2ms(ga,0);
+         a = SPM::gg2ms(ga,1);
+
+         m_b = SPM::gg2ms(gb,0);
+         b = SPM::gg2ms(gb,1);
+
+         for(int j = i;j < gdim(B);++j){
+
+            gc = t2s[B][j][0];
+            gd = t2s[B][j][1];
+
+            m_c = SPM::gg2ms(gc,0);
+            c = SPM::gg2ms(gc,1);
+
+            m_d = SPM::gg2ms(gd,0);
+            d = SPM::gg2ms(gd,1);
+
+            //init
+            (*this)(B,i,j) = 0.0;
+
+            //ph part
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(B,i,j) -= (2*Z + 1.0) * Tools::g6j(0,0,S,Z) * ( phm(Z,m_a-m_d,m_a,a,-m_d,d,m_c,c,-m_b,b)
+               
+                     + phm(Z,m_b-m_c,m_b,b,-m_c,c,m_d,d,-m_a,a) + sign * phm(Z,m_b-m_d,m_b,b,-m_d,d,m_c,c,-m_a,a)
+                     
+                     + sign * phm(Z,m_a-m_c,m_a,a,-m_c,c,m_d,d,-m_b,b) );
+
+            }
+
+            //4 sp parts
+            if(gb == gd)
+               (*this)(B,i,j) += spm(m_a+l_max,a,c);
+
+            if(ga == gc)
+               (*this)(B,i,j) += spm(m_b+l_max,b,d);
+
+            if(ga == gd)
+               (*this)(B,i,j) += sign * spm(m_b+l_max,b,c);
+
+            if(gb == gc)
+               (*this)(B,i,j) += sign * spm(m_a+l_max,a,d);
+
+            //norm of the basisset:
+            if(ga == gb)
+               (*this)(B,i,j) /= std::sqrt(2.0);
+
+            if(gc == gd)
+               (*this)(B,i,j) /= std::sqrt(2.0);
+
+         }
+
       }
 
    }

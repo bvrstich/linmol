@@ -1,42 +1,41 @@
-#ifndef TPM_H
-#define TPM_H
+#ifndef PHM_H
+#define PHM_H
 
 #include <iostream>
 #include <fstream>
 
 using std::ostream;
 
-class SphInt;
-class SUP;
-
 #include "BlockMatrix.h"
+
+class TPM;
 
 /**
  * @author Brecht Verstichel
- * @date 20-04-2012\n\n
- * This class TPM is a class written for two-particle matrices with spin and axial rotation symmetry included.
+ * @date 25-04-2012\n\n
+ * This class PHM is a class written for particle-hole matrices with spin and axial rotation symmetry included.
  * It inherits alle the function from its mother BlockMatrix, some special member functions 
  * and two lists that give the relationship between the sp and the tp basis.
  */
-class TPM : public BlockMatrix {
+class PHM : public BlockMatrix {
 
    /**
     * Output stream operator overloaded
     * @param output The stream to which you are writing (e.g. cout)
-    * @param tpm_p the TPM you want to print
+    * @param phm_p the PHM you want to print
     */
-   friend ostream &operator<<(ostream &output,const TPM &tpm_p);
+   friend ostream &operator<<(ostream &output,const PHM &phm_p);
 
    public:
       
       //constructor
-      TPM();
+      PHM();
 
       //copy constructor
-      TPM(const TPM &);
+      PHM(const PHM &);
 
       //destructor
-      virtual ~TPM();
+      virtual ~PHM();
 
       using BlockMatrix::operator=;
 
@@ -52,32 +51,7 @@ class TPM : public BlockMatrix {
 
       double operator()(int,int,int,int,int,int,int,int,int,int) const;
 
-      void molecule(const SphInt &);
-
-      void unit();
-
-      void constr_grad(double,const TPM &,const SUP &);
-
-      void proj_Tr();
-      
-      void min_unit(double scale);
-
-      int solve(double, const SUP &,TPM &);
-
-      void H(double t,const TPM &b,const SUP &P);
-
-      double line_search(double t,SUP &P,const TPM &ham);
-
-      double line_search(double t,const TPM &rdm,const TPM &ham);
-
-      //Q afbeelding en zijn inverse
-      void Q(int option,const TPM &);
-
-      //Q like afbeelding Q(A,B,C,tpm_d)
-      void Q(int option,double A,double B,double C,const TPM &);
-
-      //G down
-      void G(const PHM &);
+      void G(const TPM &);
 
       static void init(int,int);
 
@@ -92,10 +66,10 @@ class TPM : public BlockMatrix {
       static int **SM2B;
 
       //!static lists that translates the two-particle indices to single-particle ones
-      static vector< vector< vector<int> > > t2s;
+      static vector< vector< vector<int> > > ph2s;
 
       //!inverse of the t2s list
-      static int ***s2t;
+      static int ***s2ph;
 
       //!nr of particles
       static int N;

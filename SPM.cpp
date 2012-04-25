@@ -319,3 +319,41 @@ void SPM::bar(double scale,const TPM &tpm) {
    this->symmetrize();
 
 }
+
+/**
+ * Trace out a set of indices to create the "bar" matrix of a PHM, slight difference from the bar(TPM) function (normalization of the tp basisset).
+ * @param scale the factor u want the SPM to be scaled with
+ * @param phm the PHM out of which the SPM will be filled
+ */
+void SPM::bar(double scale,const PHM &phm){
+
+   double ward;
+
+   for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a)
+         for(int c = a;c < gdim(m + l_max);++c){
+
+            (*this)(l_max + m,a,c) = 0.0;
+
+            for(int S = 0;S < 2;++S){
+
+               ward = 0.0;
+
+               for(int m_b = -l_max;m_b <= l_max;++m_b)
+                  for(int b = 0;b < gdim(m_b + l_max);++b)
+                     ward += phm(S,m + m_b,m,a,m_b,b,m,c,m_b,b);
+
+               (*this)(l_max + m,a,c) += (2.0*S + 1.0) * ward;
+
+            }
+
+            (*this)(l_max + m,a,c) *= scale * 0.5;
+
+         }
+
+   }
+
+   this->symmetrize();
+
+}

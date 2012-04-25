@@ -48,6 +48,7 @@ int main(void){
 
    SPM::init(M,N);
    TPM::init(M,N);
+   PHM::init(M,N);
 
    SUP::init(M,N);
 
@@ -140,6 +141,7 @@ int main(void){
 
    cout << rdm;
 
+   PHM::clear();
    TPM::clear();
    SPM::clear();
 

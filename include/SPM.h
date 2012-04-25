@@ -9,6 +9,7 @@ using std::ostream;
 using std::vector;
 
 class TPM;
+class PHM;
 
 #include "Matrix.h"
 
@@ -47,6 +48,8 @@ class SPM : public BlockMatrix {
       int gM() const;
 
       void bar(double,const TPM &);
+
+      void bar(double,const PHM &);
 
       static int gl_max();
 
