@@ -1,5 +1,5 @@
-#ifndef PHM_H
-#define PHM_H
+#ifndef DPM_H
+#define DPM_H
 
 #include <iostream>
 #include <fstream>
@@ -13,29 +13,29 @@ class TPM;
 /**
  * @author Brecht Verstichel
  * @date 25-04-2012\n\n
- * This class PHM is a class written for particle-hole matrices with spin and axial rotation symmetry included.
+ * This class DPM is a class written for three-particle matrices with spin and axial-rotation symmetry included.
  * It inherits alle the function from its mother BlockMatrix, some special member functions 
- * and two lists that give the relationship between the sp and the ph basis.
+ * and two lists that give the relationship between the sp and the dp basis.
  */
-class PHM : public BlockMatrix {
+class DPM : public BlockMatrix {
 
    /**
     * Output stream operator overloaded
     * @param output The stream to which you are writing (e.g. cout)
-    * @param phm_p the PHM you want to print
+    * @param dpm_p the DPM you want to print
     */
-   friend ostream &operator<<(ostream &output,const PHM &phm_p);
+   friend ostream &operator<<(ostream &output,const DPM &phm_p);
 
    public:
       
       //constructor
-      PHM();
+      DPM();
 
       //copy constructor
-      PHM(const PHM &);
+      DPM(const DPM &);
 
       //destructor
-      virtual ~PHM();
+      virtual ~DPM();
 
       using BlockMatrix::operator=;
 
@@ -47,11 +47,9 @@ class PHM : public BlockMatrix {
       //geef M terug
       int gM() const;
 
-      double operator()(int,int,int,int,int) const;
+      double operator()(int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int) const;
 
-      double operator()(int,int,int,int,int,int,int,int,int,int) const;
-
-      void G(const TPM &);
+      int get_inco(int S,int Lz,int S_ab,int a,int b,int c,int *i,double *coef) const;
 
       static void init(int,int);
 
@@ -59,17 +57,17 @@ class PHM : public BlockMatrix {
 
    private:
 
-      //!list that relates the blockindex to physical particle-hole quantumnumbers
+      //!list that relates the blockindex to physical three-particle quantumnumbers
       static vector< vector<int> > B2SM;
 
-      //!list that relates the physical particle-hole quantumnumbers S and M to the blockindex B
+      //!list that relates the physical three-particle quantumnumbers S and M to the blockindex B
       static int **SM2B;
 
-      //!static lists that translates the particle-particle indices to single-particle ones
-      static vector< vector< vector<int> > > ph2s;
+      //!static lists that translates the three-particle indices to single-particle ones
+      static vector< vector< vector<int> > > d2s;
 
       //!inverse of the t2s list
-      static int ***s2ph;
+      static int *****s2d;
 
       //!nr of particles
       static int N;

@@ -46,6 +46,7 @@
 #include "SPM.h"
 #include "TPM.h"
 #include "PHM.h"
+#include "DPM.h"
 
 #include "R.h"
 #include "Gauss.h"

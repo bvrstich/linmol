@@ -24,6 +24,7 @@ CPPSRC	= pr_sdp.cpp\
             SPM.cpp\
             TPM.cpp\
             PHM.cpp\
+            DPM.cpp\
             SUP.cpp\
             EIG.cpp
 
