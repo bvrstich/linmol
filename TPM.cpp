@@ -660,3 +660,109 @@ double TPM::line_search(double t,const TPM &rdm,const TPM &ham){
    return this->line_search(t,P,ham);
 
 }
+
+/**
+ * The spincoupled and axially symmetric Q map
+ * @param option = 1, regular Q map , = -1 inverse Q map
+ * @param tpm_d the TPM of which the Q map is taken and saved in this.
+ */
+void TPM::Q(int option,const TPM &tpm_d){
+
+   double a = 1;
+   double b = 1.0/(N*(N - 1.0));
+   double c = 1.0/(N - 1.0);
+
+   this->Q(option,a,b,c,tpm_d);
+
+}
+
+/**
+ * The spincoupled and axially symmetric Q-like map: see primal-dual.pdf for more info (form: Q^S(A,B,C)(TPM) )
+ * @param option = 1, regular Q-like map , = -1 inverse Q-like map
+ * @param A factor in front of the two particle piece of the map
+ * @param B factor in front of the no particle piece of the map
+ * @param C factor in front of the single particle piece of the map
+ * @param tpm_d the TPM of which the Q-like map is taken and saved in this.
+ */
+void TPM::Q(int option,double A,double B,double C,const TPM &tpm_d){
+
+   //for inverse
+   if(option == -1){
+
+      B = (B*A + B*C*M - 2.0*C*C)/( A * (C*(M - 2.0) -  A) * ( A + B*M*(M - 1.0) - 2.0*C*(M - 1.0) ) );
+      C = C/(A*(C*(M - 2.0) - A));
+      A = 1.0/A;
+
+   }
+
+   SPM spm;
+   spm.bar(C,tpm_d);
+
+   //de trace*2 omdat mijn definitie van trace in berekeningen over alle (alpha,beta) loopt
+   double ward = B*tpm_d.trace()*2.0;
+
+   int ga,gb,gc,gd;
+
+   int a,b,c,d;
+   int m_a,m_b;
+
+   int sign;
+
+   double norm;
+
+   for(int B = 0;B < gnr();++B){
+
+      sign = 1 - 2*B2SM[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         ga = t2s[B][i][0];
+         gb = t2s[B][i][1];
+
+         m_a = SPM::gg2ms(ga,0);
+         a = SPM::gg2ms(ga,1);
+
+         m_b = SPM::gg2ms(gb,0);
+         b = SPM::gg2ms(gb,1);
+
+         for(int j = i;j < gdim(B);++j){
+
+            gc = t2s[B][j][0];
+            gd = t2s[B][j][1];
+
+            c = SPM::gg2ms(gc,1);
+            d = SPM::gg2ms(gd,1);
+
+            norm = 1.0;
+
+            if(ga == gb)
+               norm /= std::sqrt(2.0);
+
+            if(gc == gd)
+               norm /= std::sqrt(2.0);
+
+            (*this)(B,i,j) = A * tpm_d(B,i,j);
+
+            if(i == j)
+               (*this)(B,i,j) += ward;
+
+            if(ga == gc)
+               (*this)(B,i,j) -= norm * spm(m_b + l_max,b,d);
+
+            if(gb == gc)
+               (*this)(B,i,j) -= norm * sign * spm(m_a + l_max,a,d);
+
+            if(ga == gd)
+               (*this)(B,i,j) -= norm * sign * spm(m_b + l_max,b,c);
+
+            if(gb == gd)
+               (*this)(B,i,j) -= norm * spm(m_a + l_max,a,c);
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}

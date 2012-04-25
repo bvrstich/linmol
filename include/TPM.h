@@ -69,7 +69,13 @@ class TPM : public BlockMatrix {
       double line_search(double t,SUP &P,const TPM &ham);
 
       double line_search(double t,const TPM &rdm,const TPM &ham);
-   
+
+      //Q afbeelding en zijn inverse
+      void Q(int option,const TPM &);
+
+      //Q like afbeelding Q(A,B,C,tpm_d)
+      void Q(int option,double A,double B,double C,const TPM &);
+
       static void init(int,int);
 
       static void clear();

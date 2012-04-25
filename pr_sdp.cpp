@@ -64,11 +64,6 @@ int main(void){
    TPM rdm;
    rdm.unit();
 
-   SPM spm;
-   spm.bar(1.0/(N - 1.0),rdm);
-
-   cout << spm;
-/*
    TPM backup_rdm(rdm);
 
    double t = 1.0;
@@ -142,7 +137,9 @@ int main(void){
 
    cout << endl;
    cout << "Groundstate energy =\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
-*/
+
+   cout << rdm;
+
    TPM::clear();
    SPM::clear();
 
