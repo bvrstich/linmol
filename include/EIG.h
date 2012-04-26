@@ -42,7 +42,7 @@ using std::ostream;
 #ifdef PQGT
 
 #define __Q_CON
-h#define __G_CON
+#define __G_CON
 #define __T1_CON
 #define __T2_CON
 

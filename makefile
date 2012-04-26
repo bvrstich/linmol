@@ -57,7 +57,7 @@ all:
 	@echo
 	@echo '  +++ Building $(BINNAME)...'
 	@echo	
-	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQG"
+	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQGT1"
 	@if test $?; then \
 	   echo; echo '*************** FAILED! ***************' ; echo; \
 	 else \
