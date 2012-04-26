@@ -389,3 +389,17 @@ void BlockMatrix::out(const char *filename) const{
    output << *this;
 
 }
+
+/**
+ * @return the total dimension of the matrix
+ */
+int BlockMatrix::total_dim() const {
+
+   double ward = 0.0;
+
+   for(int i = 0;i < gnr();++i)
+      ward += dim[i] * degen[i];
+
+   return ward;
+
+}

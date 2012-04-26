@@ -96,6 +96,8 @@ class BlockMatrix{
 
       void out(const char *) const;
 
+      int total_dim() const;
+
    private:
 
       //!pointer to Matrix objects, will contain the different blocks

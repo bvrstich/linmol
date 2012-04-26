@@ -8,6 +8,8 @@ using std::ostream;
 
 class SphInt;
 class SUP;
+class DPM;
+class PHM;
 
 #include "BlockMatrix.h"
 
@@ -78,6 +80,13 @@ class TPM : public BlockMatrix {
 
       //G down
       void G(const PHM &);
+
+      void bar(const DPM &dpm);
+
+      //T1 down
+      void T(const DPM &);
+
+      void printnax(const char *) const;
 
       static void init(int,int);
 

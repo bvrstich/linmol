@@ -855,3 +855,171 @@ void TPM::G(const PHM &phm){
    this->symmetrize();
 
 }
+
+/**
+ * Construct a spincoupled TPM matrix out of a spincoupled DPM matrix, for the definition and derivation see symmetry.pdf
+ * @param dpm input DPM
+ */
+void TPM::bar(const DPM &dpm){
+
+   int ga,gb,gc,gd;
+
+   int a,b,c,d,l;
+   int m_a,m_b,m_c,m_d,m_l;
+
+   double ward;
+
+   int S;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      if(S == 0){
+
+         //first the S = 0 part, easiest:
+         for(int i = 0;i < gdim(B);++i){
+
+            ga = t2s[B][i][0];
+            gb = t2s[B][i][1];
+
+            m_a = SPM::gg2ms(ga,0);
+            a = SPM::gg2ms(ga,1);
+
+            m_b = SPM::gg2ms(gb,0);
+            b = SPM::gg2ms(gb,1);
+
+            for(int j = i;j < gdim(B);++j){
+
+               gc = t2s[B][j][0];
+               gd = t2s[B][j][1];
+
+               m_c = SPM::gg2ms(gc,0);
+               c = SPM::gg2ms(gc,1);
+
+               m_d = SPM::gg2ms(gd,0);
+               d = SPM::gg2ms(gd,1);
+
+               (*this)(B,i,j) = 0.0;
+
+               //only total S = 1/2 can remain because cannot couple to S = 3/2 with intermediate S = 0
+               for(int gl = 0;gl < M/2;++gl){
+
+                  m_l = SPM::gg2ms(gl,0);
+                  l = SPM::gg2ms(gl,1);
+
+                  (*this)(B,i,j) += 2.0 * dpm(0,m_a+m_b+m_l,0,m_a,a,m_b,b,m_l,l,0,m_c,c,m_d,d,m_l,l);
+
+               }
+
+            }
+         }
+
+      }
+      else{
+
+         //then the S = 1 part:
+         for(int i = 0;i < gdim(B);++i){
+
+            ga = t2s[B][i][0];
+            gb = t2s[B][i][1];
+
+            m_a = SPM::gg2ms(ga,0);
+            a = SPM::gg2ms(ga,1);
+
+            m_b = SPM::gg2ms(gb,0);
+            b = SPM::gg2ms(gb,1);
+
+            for(int j = i;j < gdim(B);++j){
+
+               gc = t2s[B][j][0];
+               gd = t2s[B][j][1];
+
+               m_c = SPM::gg2ms(gc,0);
+               c = SPM::gg2ms(gc,1);
+
+               m_d = SPM::gg2ms(gd,0);
+               d = SPM::gg2ms(gd,1);
+
+               (*this)(B,i,j) = 0.0;
+
+               for(int Z = 0;Z < 2;++Z){//loop over the dpm blocks: S = 1/2 and 3/2 = Z + 1/2
+
+                  ward = 0.0;
+
+                  for(int gl = 0;gl < M/2;++gl){
+
+                     m_l = SPM::gg2ms(gl,0);
+                     l = SPM::gg2ms(gl,1);
+
+                     ward += dpm(Z,m_a+m_b+m_l,1,m_a,a,m_b,b,m_l,l,1,m_c,c,m_d,d,m_l,l);
+
+                  }
+
+                  ward *= (2 * (Z + 0.5) + 1.0)/3.0;
+
+                  (*this)(B,i,j) += ward;
+
+               }
+
+            }
+         }
+
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/** 
+ * The T1-down map that maps a DPM on TPM. This is just a Q-like map using the TPM::bar (dpm) as input.
+ * @param dpm the input DPM matrix
+ */
+void TPM::T(const DPM &dpm){
+
+   TPM tpm;
+   tpm.bar(dpm);
+
+   double a = 1;
+   double b = 1.0/(3.0*N*(N - 1.0));
+   double c = 0.5/(N - 1.0);
+
+   this->Q(1,a,b,c,tpm);
+
+}
+
+/**
+ * print the TPM object in a non-axially symmetric form
+ */
+void TPM::printnax(const char *filename) const {
+
+   ofstream out(filename);
+   out.precision(15);
+
+   int S;
+
+   int ga,gb,gc,gd;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         ga = t2s[B][i][0];
+         gb = t2s[B][i][1];
+
+         for(int j = i;j < gdim(B);++j){
+
+            gc = t2s[B][j][0];
+            gd = t2s[B][j][1];
+
+            out << S << "\t" << ga << "\t" << gb << "\t" << gc << "\t" << gd << "\t" << (*this)(B,i,j) << endl;
+
+         }
+      }
+
+   }
+}

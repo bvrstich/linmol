@@ -381,7 +381,7 @@ double DPM::operator()(int S,int Lz,int S_ab,int m_a,int a,int m_b,int b,int m_c
 
    for(int I = 0;I < dim_i;++I)
       for(int J = 0;J < dim_j;++J)
-         ward += coef_i[I] * coef_j[J] * (*this)(S,i[I],j[J]);
+         ward += coef_i[I] * coef_j[J] * (*this)(SM2B[S][Lz + 3*l_max],i[I],j[J]);
 
    delete [] i;
    delete [] j;
@@ -419,7 +419,7 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
          if(S_ab == 1)//spin has to be zero for a == b
             return 0;
 
-         i[0] = s2d[SM2B[S][Lz]][0][ga][gb][gc];
+         i[0] = s2d[SM2B[S][Lz + 3*l_max]][0][ga][gb][gc];
          coef[0] = 1;
 
          return 1;
@@ -427,7 +427,7 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
       }
       else if (ga < gb && gb < gc){
 
-         i[0] = s2d[SM2B[S][Lz]][S_ab][ga][gb][gc];
+         i[0] = s2d[SM2B[S][Lz + 3*l_max]][S_ab][ga][gb][gc];
          coef[0] = 1;
 
          return 1;
@@ -455,7 +455,7 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
 
             if(gc > max){//we still have one simple dim = 1 term left: b < a < c
 
-               i[0] = s2d[SM2B[S][Lz]][S_ab][gb][ga][gc];
+               i[0] = s2d[SM2B[S][Lz + 3*l_max]][S_ab][gb][ga][gc];
                coef[0] = phase;
 
                return 1;
@@ -473,11 +473,11 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
          if(gc < min){//gc < min < max
 
             //the S_ca == 0 part:
-            i[0] = s2d[SM2B[S][Lz]][0][gc][min][max];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][0][gc][min][max];
             coef[0] = phase * std::sqrt(2.0*S_ab + 1) * (1 - 2*S_ab) * Tools::g6j(0,0,0,S_ab);
 
             //the S_ca == 1 part:
-            i[1] = s2d[SM2B[S][Lz]][1][gc][min][max];
+            i[1] = s2d[SM2B[S][Lz + 3*l_max]][1][gc][min][max];
             coef[1] = phase * std::sqrt(2.0*S_ab + 1) * (1 - 2*S_ab) * std::sqrt(3.0) * Tools::g6j(0,0,1,S_ab);
 
             return 2;
@@ -485,7 +485,7 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
          }
          else if(gc == min){//gc == min < max: this will also be a 1 dim list, because S_ac can only be 0 if ga == gc.
 
-            i[0] = s2d[SM2B[S][Lz]][0][gc][min][max];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][0][gc][min][max];
             coef[0] = std::sqrt(2.0) * phase * std::sqrt(2.0*S_ab + 1) * (1 - 2*S_ab) * Tools::g6j(0,0,0,S_ab);
 
             return 1;
@@ -494,11 +494,11 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
          else if(gc < max){//min < gc < max
 
             //S_ac == 0 part:
-            i[0] = s2d[SM2B[S][Lz]][0][min][gc][max];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][0][min][gc][max];
             coef[0] = phase * std::sqrt(2.0*S_ab + 1.0) * (1 - 2*S_ab) * Tools::g6j(0,0,0,S_ab);
 
             //S_ac == 1 part:
-            i[1] = s2d[SM2B[S][Lz]][1][min][gc][max];
+            i[1] = s2d[SM2B[S][Lz + 3*l_max]][1][min][gc][max];
             coef[1] = - phase * std::sqrt(2.0*S_ab + 1.0) * (1 - 2*S_ab) * std::sqrt(3.0) * Tools::g6j(0,0,1,S_ab);
 
             return 2;
@@ -506,7 +506,7 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
          }
          else{// min < gc == max: also a 1 dim list, s_bc can only be 0 if gb == gc
 
-            i[0] = s2d[SM2B[S][Lz]][0][max][gc][min];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][0][max][gc][min];
             coef[0] = phase * std::sqrt(2.0) * std::sqrt(2.0*S_ab + 1.0) * Tools::g6j(0,0,0,S_ab);
 
             return 1;
@@ -530,19 +530,19 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
 
          if(gb < gc){//ga < gb < gc
 
-            i[0] = s2d[SM2B[S][Lz]][0][ga][gb][gc];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][1][ga][gb][gc];
             coef[0] = 1;
 
          }
          else if(gc < ga){//gc < ga < gb
 
-            i[0] = s2d[SM2B[S][Lz]][0][gc][ga][gb];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][1][gc][ga][gb];
             coef[0] = 1;
 
          }
          else{//ga < gc < gb
 
-            i[0] = s2d[SM2B[S][Lz]][0][ga][gc][gb];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][1][ga][gc][gb];
             coef[0] = -1;
 
          }
@@ -552,19 +552,19 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
 
          if(ga < gc){//gb < ga < gc
 
-            i[0] = s2d[SM2B[S][Lz]][0][gb][ga][gc];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][1][gb][ga][gc];
             coef[0] = -1;
 
          }
          else if(gc < gb){//gc < gb < ga
 
-            i[0] = s2d[SM2B[S][Lz]][0][gc][gb][ga];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][1][gc][gb][ga];
             coef[0] = -1;
 
          }
          else{//gb < gc < ga
 
-            i[0] = s2d[SM2B[S][Lz]][0][gb][gc][ga];
+            i[0] = s2d[SM2B[S][Lz + 3*l_max]][1][gb][gc][ga];
             coef[0] = 1;
 
          }
@@ -820,7 +820,7 @@ void DPM::T(double A,double B,double C,const TPM &tpm){
                if(gc == gd){
 
                   //tp(7)
-                  if(e == z)
+                  if(ge == gz)
                      (*this)(B,i,j) += std::sqrt(2.0) * A * norm_de * sign_ab * hard * tpm(S_ab,m_a+m_b,m_a,a,m_b,b,m_e,e,m_z,z);
                   else
                      (*this)(B,i,j) += A * norm_de * sign_ab * hard * tpm(S_ab,m_a+m_b,m_a,a,m_b,b,m_e,e,m_z,z);
@@ -846,7 +846,7 @@ void DPM::T(double A,double B,double C,const TPM &tpm){
 
                }
 
-               if(a == d){
+               if(ga == gd){
 
                   //tp(8)
                   double hulp = 0.0;
