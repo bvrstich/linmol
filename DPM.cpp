@@ -41,86 +41,126 @@ void DPM::init(int M_in,int N_in){
       SM2B[S] = new int [6*l_max + 1];
 
    vector<int> v(4);
-   
+
    vector<int> bq(2);
 
    int B = 0;
 
-   for(int S = 0;S < 2;++S)//three-particle spin
-      for(int L_z = -3*l_max;L_z <= 3*l_max;++L_z){
+   //first S == 1/2
+   for(int L_z = -3*l_max;L_z <= 3*l_max;++L_z){
 
-         vector< vector<int> > bv;
+      vector< vector<int> > bv;
 
-         //first S_ab = 0 and ga == gb != gc
-         for(int ga = 0;ga < M/2;++ga){
+      //first S_ab = 0 and ga == gb != gc
+      for(int ga = 0;ga < M/2;++ga){
 
-            for(int gc = 0;gc < ga;++gc){
+         for(int gc = 0;gc < ga;++gc){
 
-               if(L_z == 2*SPM::gg2ms(ga,0) + SPM::gg2ms(gc,0)){//correct L_z projection
+            if(L_z == 2*SPM::gg2ms(ga,0) + SPM::gg2ms(gc,0)){//correct L_z projection
 
-                  v[0] = 0;//S_ab
-                  v[1] = ga;
-                  v[2] = ga;
-                  v[3] = gc;
+               v[0] = 0;//S_ab
+               v[1] = ga;
+               v[2] = ga;
+               v[3] = gc;
 
-                  bv.push_back(v);
-
-               }
-
-            }
-
-            for(int gc = ga + 1;gc < M/2;++gc){
-
-               if(L_z == 2*SPM::gg2ms(ga,0) + SPM::gg2ms(gc,0)){//correct L_z projection
-
-                  v[0] = 0;//S_ab
-                  v[1] = ga;
-                  v[2] = ga;
-                  v[3] = gc;
-
-                  bv.push_back(v);
-
-               }
+               bv.push_back(v);
 
             }
 
          }
 
-         //then the rest, i.e. S_ab = 0/1 ga < gb < gc
-         for(int S_ab = 0;S_ab < 2;++S_ab)
-            for(int ga = 0;ga < M/2;++ga)
-               for(int gb = ga + 1;gb < M/2;++gb)
-                  for(int gc = gb + 1;gc < M/2;++gc){
+         for(int gc = ga + 1;gc < M/2;++gc){
 
-                     if(L_z == SPM::gg2ms(ga,0) + SPM::gg2ms(gb,0) + SPM::gg2ms(gc,0)){//correct L_z projection
+            if(L_z == 2*SPM::gg2ms(ga,0) + SPM::gg2ms(gc,0)){//correct L_z projection
 
-                        v[0] = S_ab;
-                        v[1] = ga;
-                        v[2] = gb;
-                        v[3] = gc;
+               v[0] = 0;//S_ab
+               v[1] = ga;
+               v[2] = ga;
+               v[3] = gc;
 
-                        bv.push_back(v);
+               bv.push_back(v);
 
-                     }
-
-                  }
-
-         if(bv.size() != 0){
-
-            d2s.push_back(bv);
-
-            bq[0] = S;
-            bq[1] = L_z;
-
-            B2SM.push_back(bq);
-
-            SM2B[S][L_z + 3*l_max] = B;
-
-            ++B;
+            }
 
          }
 
       }
+
+      //then the rest, i.e. S_ab = 0/1 ga < gb < gc
+      for(int S_ab = 0;S_ab < 2;++S_ab)
+         for(int ga = 0;ga < M/2;++ga)
+            for(int gb = ga + 1;gb < M/2;++gb)
+               for(int gc = gb + 1;gc < M/2;++gc){
+
+                  if(L_z == SPM::gg2ms(ga,0) + SPM::gg2ms(gb,0) + SPM::gg2ms(gc,0)){//correct L_z projection
+
+                     v[0] = S_ab;
+                     v[1] = ga;
+                     v[2] = gb;
+                     v[3] = gc;
+
+                     bv.push_back(v);
+
+                  }
+
+               }
+
+      if(bv.size() != 0){
+
+         d2s.push_back(bv);
+
+         bq[0] = 0;
+         bq[1] = L_z;
+
+         B2SM.push_back(bq);
+
+         SM2B[0][L_z + 3*l_max] = B;
+
+         ++B;
+
+      }
+
+   }
+
+   //then S == 3/2
+   for(int L_z = -3*l_max;L_z <= 3*l_max;++L_z){
+
+      vector< vector<int> > bv;
+
+      //only S_ab = 1 ; ga < gb < gc
+      for(int ga = 0;ga < M/2;++ga)
+         for(int gb = ga + 1;gb < M/2;++gb)
+            for(int gc = gb + 1;gc < M/2;++gc){
+
+               if(L_z == SPM::gg2ms(ga,0) + SPM::gg2ms(gb,0) + SPM::gg2ms(gc,0)){//correct L_z projection
+
+                  v[0] = 1;
+                  v[1] = ga;
+                  v[2] = gb;
+                  v[3] = gc;
+
+                  bv.push_back(v);
+
+               }
+
+            }
+
+      if(bv.size() != 0){
+
+         d2s.push_back(bv);
+
+         bq[0] = 1;
+         bq[1] = L_z;
+
+         B2SM.push_back(bq);
+
+         SM2B[1][L_z + 3*l_max] = B;
+
+         ++B;
+
+      }
+
+   }
 
    s2d = new int **** [B2SM.size()];
 
@@ -154,7 +194,7 @@ void DPM::init(int M_in,int N_in){
  */
 void DPM::clear(){
 
-  for(unsigned int B = 0;B < B2SM.size();++B){
+   for(unsigned int B = 0;B < B2SM.size();++B){
 
       for(int S_ab = 0;S_ab < 2;++S_ab){
 
@@ -175,12 +215,12 @@ void DPM::clear(){
 
    }
 
-  delete [] s2d;
+   delete [] s2d;
 
-  for(int S = 0;S < 2;++S)
-     delete [] SM2B[S];
+   for(int S = 0;S < 2;++S)
+      delete [] SM2B[S];
 
-  delete [] SM2B;
+   delete [] SM2B;
 
 }
 
@@ -251,11 +291,11 @@ ostream &operator<<(ostream &output,const DPM &dpm_p){
             gz = dpm_p.d2s[B][d_j][3];
 
             output << "[ " << S_ab << "\t(" << SPM::gg2ms(ga,0) << "," << SPM::gg2ms(ga,1) << ")\t"
-            
+
                << "(" << SPM::gg2ms(gb,0) << "," << SPM::gg2ms(gb,1) << ")\t(" <<  SPM::gg2ms(gc,0) << "," << SPM::gg2ms(gc,1) << ") ]"
 
                << "\t|\t[ " << S_de << "\t(" << SPM::gg2ms(gd,0) << "," << SPM::gg2ms(gd,1) << ")\t"
-               
+
                << "(" << SPM::gg2ms(ge,0) << "," << SPM::gg2ms(ge,1) << ")\t(" << SPM::gg2ms(gz,0) << "," << SPM::gg2ms(gz,1) << ") ]"
 
                << "\t||\t" << dpm_p(B,d_i,d_j) << endl;
@@ -534,5 +574,454 @@ int DPM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int *i,double *coef
       return 1;
 
    }
+
+}
+
+/**
+ * The spincoupled T1-like (generalized T1) map: maps a TPM object (tpm) on a DPM object (*this)
+ * @param A term before the tp part of the map
+ * @param B term before the np part of the map
+ * @param C term before the sp part of the map
+ * @param tpm input TPM
+ */
+void DPM::T(double A,double B,double C,const TPM &tpm){
+
+   //make sp matrix out of tpm
+   SPM spm;
+   spm.bar(C,tpm);
+
+   double ward = 2.0*B*tpm.trace();
+
+   int ga,gb,gc,gd,ge,gz;
+   int S_ab,S_de;
+
+   int a,b,c,d,e,z;
+   int m_a,m_b,m_c,m_d,m_e,m_z;
+
+   int S;
+
+   int sign_ab,sign_de;
+
+   double norm_ab,norm_de;
+
+   double hard;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      //start with the S = 1/2 block, this is the most difficult one:
+      if(S == 0){
+
+         for(int i = 0;i < gdim(B);++i){
+
+            S_ab = d2s[B][i][0];
+
+            ga = d2s[B][i][1];
+            gb = d2s[B][i][2];
+            gc = d2s[B][i][3];
+
+            m_a = SPM::gg2ms(ga,0);
+            a = SPM::gg2ms(ga,1);
+
+            m_b = SPM::gg2ms(gb,0);
+            b = SPM::gg2ms(gb,1);
+
+            m_c = SPM::gg2ms(gc,0);
+            c = SPM::gg2ms(gc,1);
+
+            sign_ab = 1 - 2*S_ab;
+
+            norm_ab = 1.0;
+
+            if(ga == gb)
+               norm_ab /= std::sqrt(2.0);
+
+            for(int j = i;j < gdim(B);++j){
+
+               S_de = d2s[B][j][0];
+
+               gd = d2s[B][j][1];
+               ge = d2s[B][j][2];
+               gz = d2s[B][j][3];
+
+               m_d = SPM::gg2ms(gd,0);
+               d = SPM::gg2ms(gd,1);
+
+               m_e = SPM::gg2ms(ge,0);
+               e = SPM::gg2ms(ge,1);
+
+               m_z = SPM::gg2ms(gz,0);
+               z = SPM::gg2ms(gz,1);
+
+               sign_de = 1 - 2*S_de;
+
+               norm_de = 1.0;
+
+               if(gd == ge)
+                  norm_de /= std::sqrt(2.0);
+
+               hard = std::sqrt( (2*S_ab + 1.0) * (2*S_de + 1.0) ) * Tools::g6j(0,0,S_ab,S_de);
+
+               //init
+               (*this)(B,i,j) = 0.0;
+
+               //the np part
+               if(i == j)
+                  (*this)(B,i,j) = ward;
+
+               //other parts are a bit more difficult.
+               if(gc == gz){
+
+                  if(S_ab == S_de){
+
+                     //tp(1)
+                     (*this)(B,i,j) += A * tpm(S_ab,m_a + m_b,m_a,a,m_b,b,m_d,d,m_e,e);
+
+                     //sp(1) first term
+                     if(gb == ge)
+                        (*this)(B,i,j) -= norm_ab * norm_de * spm(m_a+l_max,a,d);
+
+                     //sp(2) first term
+                     if(ga == ge)
+                        (*this)(B,i,j) -= sign_ab * norm_ab * norm_de * spm(m_b+l_max,b,d);
+
+                     //sp(4) first term
+                     if(gb == gd)
+                        (*this)(B,i,j) -= sign_de * norm_ab * norm_de * spm(m_a+l_max,a,e);
+
+                     //sp(5) first term
+                     if(ga == gd)
+                        (*this)(B,i,j) -= norm_ab * norm_de * spm(m_b+l_max,b,e);
+
+                  }
+
+               }
+
+               if(gb == gz){
+
+                  //tp(2)
+                  if(ga == gc)
+                     (*this)(B,i,j) += std::sqrt(2.0) * A * norm_ab * sign_ab * sign_de * hard * tpm(S_de,m_a+m_c,m_a,a,m_c,c,m_d,d,m_e,e);
+                  else
+                     (*this)(B,i,j) += A * norm_ab * sign_ab * sign_de * hard * tpm(S_de,m_a+m_c,m_a,a,m_c,c,m_d,d,m_e,e);
+
+                  //sp(1) second term
+                  if(gc == ge)
+                     (*this)(B,i,j) -= sign_ab * sign_de * norm_ab * norm_de * hard * spm(m_a+l_max,a,d);
+
+                  //sp(3)
+                  if(ga == ge)
+                     (*this)(B,i,j) -= sign_ab * norm_ab * norm_de * hard * spm(m_c+l_max,c,d);
+
+                  //sp(4) second term
+                  if(gc == gd)
+                     (*this)(B,i,j) -= sign_ab * norm_ab * norm_de * hard * spm(m_a+l_max,a,e);
+
+                  //sp(6)
+                  if(ga == gd)
+                     (*this)(B,i,j) -= sign_ab * sign_de * norm_ab * norm_de * hard * spm(m_c+l_max,c,e);
+
+               }
+
+               if(ga == gz){
+
+                  //tp(3)
+                  if(gb == gc)
+                     (*this)(B,i,j) += std::sqrt(2.0) * A * norm_ab * sign_de * hard * tpm(S_de,m_b+m_c,m_b,b,m_c,c,m_d,d,m_e,e);
+                  else
+                     (*this)(B,i,j) += A * norm_ab * sign_de * hard * tpm(S_de,m_b+m_c,m_b,b,m_c,c,m_d,d,m_e,e);
+
+                  //sp(2) second term
+                  if(gc == ge)
+                     (*this)(B,i,j) -= sign_de * norm_ab * norm_de * hard * spm(m_b+l_max,b,d);
+
+                  //sp(5) second term
+                  if(gc == gd)
+                     (*this)(B,i,j) -= norm_ab * norm_de * hard * spm(m_b+l_max,b,e);
+
+               }
+
+               if(gc == ge){
+
+                  //tp(4)
+                  if(gd == gz)
+                     (*this)(B,i,j) += std::sqrt(2.0) * A * norm_de * sign_ab * sign_de * hard * tpm(S_ab,m_a+m_b,m_a,a,m_b,b,m_d,d,m_z,z);
+                  else
+                     (*this)(B,i,j) += A * norm_de * sign_ab * sign_de * hard * tpm(S_ab,m_a+m_b,m_a,a,m_b,b,m_d,d,m_z,z);
+
+                  //sp(7) first term
+                  if(gb == gd)
+                     (*this)(B,i,j) -= norm_ab * norm_de * sign_de * hard * spm(m_a+l_max,a,z);
+
+                  //sp(8) first term
+                  if(ga == gd)
+                     (*this)(B,i,j) -= norm_ab * norm_de * sign_ab * sign_de * hard * spm(m_b+l_max,b,z);
+
+               }
+
+               if(gb == ge){
+
+                  //tp(5)
+                  double hulp = 0.0;
+
+                  //sum over intermediate spin
+                  for(int Z = 0;Z < 2;++Z)
+                     hulp += (2*Z + 1.0) * Tools::g6j(0,0,Z,S_ab) * Tools::g6j(0,0,Z,S_de) * tpm(Z,m_a+m_c,m_a,a,m_c,c,m_d,d,m_z,z);
+
+                  //correct for norms of the tpm
+                  if(ga == gc)
+                     hulp *= std::sqrt(2.0);
+
+                  if(gd == gz)
+                     hulp *= std::sqrt(2.0);
+
+                  (*this)(B,i,j) += A * norm_ab * norm_de * sign_ab * sign_de * std::sqrt( (2*S_ab + 1.0) * (2*S_de + 1.0) ) * hulp;
+
+                  //sp(7) second term
+                  if(gc == gd)
+                     (*this)(B,i,j) -= norm_ab * norm_de * hard * spm(m_a+l_max,a,z);
+
+                  //sp(9) first term
+                  if(ga == gd)
+                     if(S_ab == S_de)
+                        (*this)(B,i,j) -= norm_ab * norm_de * spm(m_c+l_max,c,z);
+
+               }
+
+               if(ga == ge){
+
+                  //tp(6)
+                  double hulp = 0.0;
+
+                  //sum over intermediate spin
+                  for(int Z = 0;Z < 2;++Z)
+                     hulp += (2*Z + 1.0) * Tools::g6j(0,0,Z,S_ab) * Tools::g6j(0,0,Z,S_de) * tpm(Z,m_b+m_c,m_b,b,m_c,c,m_d,d,m_z,z);
+
+                  if(gb == gc)
+                     hulp *= std::sqrt(2.0);
+
+                  if(gd == gz)
+                     hulp *= std::sqrt(2.0);
+
+                  (*this)(B,i,j) += A * sign_de * std::sqrt( (2*S_ab + 1) * (2*S_de + 1.0) ) * norm_ab * norm_de * hulp;
+
+                  //sp(8) second term
+                  if(gc == gd)
+                     (*this)(B,i,j) -= sign_ab * norm_ab * norm_de * hard * spm(m_b+l_max,b,z);
+
+                  //sp(9) second term
+                  if(gb == gd)
+                     if(S_ab == S_de)
+                        (*this)(B,i,j) -= sign_ab * norm_ab * norm_de * spm(m_c+l_max,c,z);
+
+               }
+
+               if(gc == gd){
+
+                  //tp(7)
+                  if(e == z)
+                     (*this)(B,i,j) += std::sqrt(2.0) * A * norm_de * sign_ab * hard * tpm(S_ab,m_a+m_b,m_a,a,m_b,b,m_e,e,m_z,z);
+                  else
+                     (*this)(B,i,j) += A * norm_de * sign_ab * hard * tpm(S_ab,m_a+m_b,m_a,a,m_b,b,m_e,e,m_z,z);
+
+               }
+
+               if(gb == gd){
+
+                  //tp(8)
+                  double hulp = 0.0;
+
+                  //sum over intermediate spin
+                  for(int Z = 0;Z < 2;++Z)
+                     hulp += (2*Z + 1.0) * Tools::g6j(0,0,Z,S_ab) * Tools::g6j(0,0,Z,S_de) * tpm(Z,m_a+m_c,m_a,a,m_c,c,m_e,e,m_z,z);
+
+                  if(ga == gc)
+                     hulp *= std::sqrt(2.0);
+
+                  if(ge == gz)
+                     hulp *= std::sqrt(2.0);
+
+                  (*this)(B,i,j) += A * sign_ab * std::sqrt( (2*S_ab + 1) * (2*S_de + 1.0) ) * norm_ab * norm_de * hulp;
+
+               }
+
+               if(a == d){
+
+                  //tp(8)
+                  double hulp = 0.0;
+
+                  //sum over intermediate spin
+                  for(int Z = 0;Z < 2;++Z)
+                     hulp += (2*Z + 1.0) * Tools::g6j(0,0,Z,S_ab) * Tools::g6j(0,0,Z,S_de) * tpm(Z,m_b+m_c,m_b,b,m_c,c,m_e,e,m_z,z);
+
+                  if(gb == gc)
+                     hulp *= std::sqrt(2.0);
+
+                  if(ge == gz)
+                     hulp *= std::sqrt(2.0);
+
+                  (*this)(B,i,j) += A * std::sqrt( (2*S_ab + 1) * (2*S_de + 1.0) ) * norm_ab * norm_de * hulp;
+
+               }
+
+            }
+         }
+
+      }
+      else{//then the S = 3/2 block, this should be easy, totally antisymmetrical 
+
+         for(int i = 0;i < gdim(B);++i){
+
+            ga = d2s[B][i][1];
+            gb = d2s[B][i][2];
+            gc = d2s[B][i][3];
+
+            m_a = SPM::gg2ms(ga,0);
+            a = SPM::gg2ms(ga,1);
+
+            m_b = SPM::gg2ms(gb,0);
+            b = SPM::gg2ms(gb,1);
+
+            m_c = SPM::gg2ms(gc,0);
+            c = SPM::gg2ms(gc,1);
+
+            for(int j = i;j < gdim(B);++j){
+
+               gd = d2s[B][j][1];
+               ge = d2s[B][j][2];
+               gz = d2s[B][j][3];
+
+               m_d = SPM::gg2ms(gd,0);
+               d = SPM::gg2ms(gd,1);
+
+               m_e = SPM::gg2ms(ge,0);
+               e = SPM::gg2ms(ge,1);
+
+               m_z = SPM::gg2ms(gz,0);
+               z = SPM::gg2ms(gz,1);
+
+               (*this)(B,i,j) = 0.0;
+
+               if(i == j)
+                  (*this)(B,i,j) += ward;
+
+               if(gc == gz){
+
+                  //tp(1)
+                  (*this)(B,i,j) += A * tpm(1,m_a+m_b,m_a,a,m_b,b,m_d,d,m_e,e);
+
+                  //sp(1) first part
+                  if(gb == ge)
+                     (*this)(B,i,j) -= spm(m_a+l_max,a,d);
+
+                  //sp(4) first part
+                  if(gb == gd)
+                     (*this)(B,i,j) += spm(m_a+l_max,a,e);
+
+                  //sp(5)
+                  if(ga == gd)
+                     (*this)(B,i,j) -= spm(m_b+l_max,b,e);
+
+               }
+
+               if(gb == gz){
+
+                  //tp(2)
+                  (*this)(B,i,j) -= A * tpm(1,m_a+m_c,m_a,a,m_c,c,m_d,d,m_e,e);
+
+                  //sp(1) second part
+                  if(gc == ge)
+                     (*this)(B,i,j) += spm(m_a+l_max,a,d);
+
+                  //sp(4) second part
+                  if(gc == gd)
+                     (*this)(B,i,j) -= spm(m_a+l_max,a,e);
+
+                  //sp(6)
+                  if(ga == gd)
+                     (*this)(B,i,j) += spm(m_c+l_max,c,e);
+
+               }
+
+               if(gc == ge){
+
+                  //tp(4)
+                  (*this)(B,i,j) -= A * tpm(1,m_a+m_b,m_a,a,m_b,b,m_d,d,m_z,z);
+
+                  //sp(7) first part
+                  if(gb == gd)
+                     (*this)(B,i,j) -= spm(m_a+l_max,a,z);
+
+                  //sp(8) first part
+                  if(ga == gd)
+                     (*this)(B,i,j) += spm(m_b+l_max,b,z);
+
+               }
+
+               if(gb == ge){
+
+                  //tp(5)
+                  (*this)(B,i,j) += A * tpm(1,m_a+m_c,m_a,a,m_c,c,m_d,d,m_z,z);
+
+                  //sp(7) second part
+                  if(gc == gd)
+                     (*this)(B,i,j) += spm(m_a+l_max,a,z);
+
+                  //sp(9) first part
+                  if(ga == gd)
+                     (*this)(B,i,j) -= spm(m_c+l_max,c,z);
+
+               }
+
+               //tp(7)
+               if(gc == gd)
+                  (*this)(B,i,j) += A * tpm(1,m_a+m_b,m_a,a,m_b,b,m_e,e,m_z,z);
+
+               //tp(8)
+               if(gb == gd)
+                  (*this)(B,i,j) -= A * tpm(1,m_a+m_c,m_a,a,m_c,c,m_e,e,m_z,z);
+
+               //tp(9)
+               if(ga == gd)
+                  (*this)(B,i,j) += A * tpm(1,m_b+m_c,m_b,b,m_c,c,m_e,e,m_z,z);
+
+            }
+         }
+
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
+ * The T1-map: maps a TPM object (tpm) on a DPM object (*this). 
+ * @param tpm input TPM
+ */
+void DPM::T(const TPM &tpm){
+
+   double a = 1.0;
+   double b = 1.0/(N*(N - 1.0));
+   double c = 1.0/(N - 1.0);
+
+   this->T(a,b,c,tpm);
+
+}
+
+/** 
+ * The hat function maps a TPM object tpm to a DPM object (*this) so that bar(this) = tpm,
+ * The inverse of the TPM::bar function. It is a T1-like map.
+ * @param tpm input TPM
+ */
+void DPM::hat(const TPM &tpm){
+
+   double a = 1.0/(M - 4.0);
+   double b = 1.0/((M - 4.0)*(M - 3.0)*(M - 2.0));
+   double c = 1.0/((M - 4.0)*(M - 3.0));
+
+   this->T(a,b,c,tpm);
 
 }

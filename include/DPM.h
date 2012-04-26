@@ -51,6 +51,15 @@ class DPM : public BlockMatrix {
 
       int get_inco(int S,int Lz,int S_ab,int a,int b,int c,int *i,double *coef) const;
 
+      //generalized T1 map
+      void T(double,double,double,const TPM &);
+
+      //maak een DPM van een TPM via de T1 conditie
+      void T(const TPM &);
+
+      //maak een DPM van een TPM via de hat functie
+      void hat(const TPM &);
+
       static void init(int,int);
 
       static void clear();

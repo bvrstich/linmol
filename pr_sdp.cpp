@@ -53,11 +53,6 @@ int main(void){
 
    SUP::init(M,N);
 
-   DPM dpm;
-   dpm.fill_Random();
-
-   cout << dpm;
-/*
    CartInt ci;
    ci.norm();
 
@@ -146,7 +141,7 @@ int main(void){
    cout << "Groundstate energy =\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
    cout << rdm;
-*/
+
    DPM::clear();
    PHM::clear();
    TPM::clear();
