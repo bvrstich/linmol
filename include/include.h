@@ -47,6 +47,7 @@
 #include "TPM.h"
 #include "PHM.h"
 #include "DPM.h"
+#include "PPHM.h"
 
 #include "R.h"
 #include "Gauss.h"
