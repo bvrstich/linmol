@@ -47,6 +47,12 @@ class PPHM : public BlockMatrix {
       //geef M terug
       int gM() const;
 
+      double operator()(int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int) const;
+
+      static int get_inco(int S,int Lz,int S_ab,int a,int b,int c,int &i);
+
+      void T(const TPM &);
+
       static void init(int,int);
 
       static void clear();

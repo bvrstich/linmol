@@ -273,3 +273,311 @@ ostream &operator<<(ostream &output,const PPHM &pphm_p){
    return output;
 
 }
+
+/**
+ * access the elements of the matrix in sp mode, special symmetry and antisymmetry relations are automatically accounted for:\n\n
+ * @param S the pph-spin index
+ * @param Lz the pph angular momentum projection index
+ * @param S_ab The intermediate spinquantumnumber of a and b.
+ * @param m_a angular momentum projection of the first particle of the row
+ * @param a spatial index of the first particle of the row 
+ * @param m_b angular momentum projection of the second particle of the row 
+ * @param b spatial index of the second particle of the row 
+ * @param m_c angular momentum projection of the hole of the row 
+ * @param c spatial index of the hole of the row 
+ * @param S_de The intermediate spinquantumnumber of d and e.
+ * @param m_d angular momentum projection of the first particle of the column
+ * @param d spatial index of the first particle of the column
+ * @param m_e angular momentum projection of the second particle of the column
+ * @param e spatial index of the second particle of the column
+ * @param m_z angular momentum projection of the hole of the column
+ * @param z spatial index of the hole of the column
+ * @return the number on place PPHM(S,i,j) with the right phase.
+ */
+double PPHM::operator()(int S,int Lz,int S_ab,int m_a,int a,int m_b,int b,int m_c,int c,int S_de,int m_d,int d,int m_e,int e,int m_z,int z) const {
+
+   if(m_a + m_b + m_c != m_d + m_e + m_z)
+      return 0.0;
+
+   if(m_a + m_b + m_c != Lz)
+      return 0.0;
+
+   int i,j;
+
+   int ga = SPM::gms2g(m_a,a);
+   int gb = SPM::gms2g(m_b,b);
+   int gc = SPM::gms2g(m_c,c);
+
+   int phase_i = get_inco(S,Lz,S_ab,ga,gb,gc,i);
+
+   if(phase_i == 0)
+      return 0;
+
+   int gd = SPM::gms2g(m_d,d);
+   int ge = SPM::gms2g(m_e,e);
+   int gz = SPM::gms2g(m_z,z);
+
+   int phase_j = get_inco(S,Lz,S_de,gd,ge,gz,j);
+
+   if(phase_j == 0)
+      return 0;
+
+   return phase_i*phase_j* (*this)(S,i,j);
+
+}
+
+/** 
+ * Static member function that gets the pph-index and phase corresponding to the sp indices S,Lz,S_ab,ga,gb,gc.
+ * @param S pph-spin index of the state, 0 -> S = 1/2, 1 -> S = 3/2
+ * @param Lz pph angular momentum index of the state, 0 -> S = 1/2, 1 -> S = 3/2
+ * @param S_ab intermediate spincoupling of a and b. = 0 or 1
+ * @param ga first sp orbital
+ * @param gb second sp orbital
+ * @param gc third sp orbital
+ * @param i the corresponding pph index will be stored in this int after calling the function
+ * @return the phase needed to get to a normal ordering of indices that corresponds to a pph index i
+ */
+int PPHM::get_inco(int S,int Lz,int S_ab,int ga,int gb,int gc,int &i){
+
+   if(S == 0){//S = 1/2
+
+      if(S_ab == 0){//symmetric in spatial sp's
+
+         if(ga <= gb)
+            i = s2pph[SM2B[S][Lz + 3*l_max]][0][ga][gb][gc];
+         else
+            i = s2pph[SM2B[S][Lz + 3*l_max]][0][gb][ga][gc];
+
+         return 1;
+
+      }
+      else{//antisymmetric in spatial sp's
+
+         if(ga == gb)
+            return 0;
+
+         if(ga < gb){
+
+            i = s2pph[SM2B[S][Lz + 3*l_max]][1][ga][gb][gc];
+
+            return 1;
+
+         }
+         else{
+
+            i = s2pph[SM2B[S][Lz + 3*l_max]][1][gb][ga][gc];
+
+            return -1;
+
+         }
+
+      }
+
+   }
+   else{//S = 3/2
+
+      if(S_ab == 0)
+         return 0;
+
+      if(ga == gb)
+         return 0;
+
+      if(ga < gb){
+
+         i = s2pph[SM2B[S][Lz + 3*l_max]][1][ga][gb][gc];
+
+         return 1;
+
+      }
+      else{
+
+         i = s2pph[SM2B[S][Lz + 3*l_max]][1][gb][ga][gc];
+
+         return -1;
+
+      }
+
+   }
+
+}
+
+/**
+ * The spincoupled T2 map, maps a TPM onto a PPHM object. See notes for more info
+ * @param tpm Input TPM matrix
+ */
+void PPHM::T(const TPM &tpm){
+
+   SPM spm;
+   spm.bar(1.0/(N - 1.0),tpm);
+
+   int ga,gb,gc,gd,ge,gz;
+
+   int a,b,c,d,e,z;
+   int m_a,m_b,m_c,m_d,m_e,m_z;
+
+   int S_ab,S_de;
+
+   double norm_ab,norm_de;
+   int sign_ab,sign_de;
+
+   int S;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         S_ab = pph2s[B][i][0];
+
+         ga = pph2s[B][i][1];
+         gb = pph2s[B][i][2];
+         gc = pph2s[B][i][3];
+
+         m_a = SPM::gg2ms(ga,0);
+         a = SPM::gg2ms(ga,1);
+
+         m_b = SPM::gg2ms(gb,0);
+         b = SPM::gg2ms(gb,1);
+
+         m_c = SPM::gg2ms(gc,0);
+         c = SPM::gg2ms(gc,1);
+
+         sign_ab = 1 - 2*S_ab;
+
+         norm_ab = 1.0;
+
+         if(ga == gb)
+            norm_ab /= std::sqrt(2.0);
+
+         for(int j = i;j < gdim(B);++j){
+
+            S_de = pph2s[B][j][0];
+
+            gd = pph2s[B][j][1];
+            ge = pph2s[B][j][2];
+            gz = pph2s[B][j][3];
+
+            m_d = SPM::gg2ms(gd,0);
+            d = SPM::gg2ms(gd,1);
+
+            m_e = SPM::gg2ms(ge,0);
+            e = SPM::gg2ms(ge,1);
+
+            m_z = SPM::gg2ms(gz,0);
+            z = SPM::gg2ms(gz,1);
+
+            sign_de = 1 - 2*S_de;
+
+            norm_de = 1.0;
+
+            if(gd == ge)
+               norm_de /= std::sqrt(2.0);
+
+            //start the map:
+            (*this)(B,i,j) = 0.0;
+
+            //tp(1)
+            if(gc == gz)
+               if(S_ab == S_de)
+                  (*this)(B,i,j) += tpm(S_ab,m_a+m_b,m_a,a,m_b,b,m_d,d,m_e,e);
+
+            if(ga == gd){
+
+               //sp(1) first term
+               if(gb == ge)
+                  if(S_ab == S_de)
+                     (*this)(B,i,j) += norm_ab * norm_de * spm(-m_c + l_max,c,z);
+
+               //tp(2)
+               double ward = 0.0;
+
+               for(int Z = 0;Z < 2;++Z)
+                  ward += (2*Z + 1.0) * Tools::g9j(S,Z,S_ab,S_de) * tpm(Z,-m_c+m_e,-m_c,c,m_e,e,-m_z,z,m_b,b);
+
+               ward *= norm_ab * norm_de * std::sqrt( (2.0*S_ab + 1.0) * (2.0*S_de + 1.0) );
+
+               if(c == e && -m_c == m_e)
+                  ward *= std::sqrt(2.0);
+
+               if(z == b && -m_z == m_b)
+                  ward *= std::sqrt(2.0);
+
+               (*this)(B,i,j) -= ward;
+
+            }
+
+            if(gb == gd){
+
+               //sp(1) second term
+               if(ga == ge)
+                  if(S_ab == S_de)
+                     (*this)(B,i,j) += sign_ab * norm_ab * norm_de * spm(-m_c +l_max,c,z);
+
+               //tp(3)
+               double ward = 0.0;
+
+               for(int Z = 0;Z < 2;++Z)
+                  ward += (2*Z + 1.0) * Tools::g9j(S,Z,S_ab,S_de) * tpm(Z,-m_c+m_e,-m_c,c,m_e,e,-m_z,z,m_a,a);
+
+               ward *= norm_ab * norm_de * std::sqrt( (2.0*S_ab + 1.0) * (2.0*S_de + 1.0) );
+
+               if(c == e && -m_c == m_e)
+                  ward *= std::sqrt(2.0);
+
+               if(z == a && -m_z == m_a)
+                  ward *= std::sqrt(2.0);
+
+               (*this)(B,i,j) -= sign_ab * ward;
+
+            }
+
+            //tp(4)
+            if(ga == ge){
+
+               double ward = 0.0;
+
+               for(int Z = 0;Z < 2;++Z)
+                  ward += (2*Z + 1.0) * Tools::g9j(S,Z,S_ab,S_de) * tpm(Z,-m_c+m_d,-m_c,c,m_d,d,-m_z,z,m_b,b);
+
+               ward *= norm_ab * norm_de * std::sqrt( (2.0*S_ab + 1.0) * (2.0*S_de + 1.0) );
+
+               if(c == d && -m_c == m_d)
+                  ward *= std::sqrt(2.0);
+
+               if(z == b && -m_z == m_b)
+                  ward *= std::sqrt(2.0);
+
+               (*this)(B,i,j) -= sign_de * ward;
+
+            }
+
+            //tp(5)
+            if(gb == ge){
+
+               double ward = 0.0;
+
+               for(int Z = 0;Z < 2;++Z)
+                  ward += (2.0*Z + 1.0) * Tools::g9j(S,Z,S_ab,S_de) * tpm(Z,-m_c+m_d,-m_c,c,m_d,d,-m_z,z,m_a,a);
+
+               ward *= norm_ab * norm_de * std::sqrt( (2.0*S_ab + 1.0) * (2.0*S_de + 1.0) );
+
+               if(c == d && -m_c == m_d)
+                  ward *= std::sqrt(2.0);
+
+               if(z == a && -m_z == m_a)
+                  ward *= std::sqrt(2.0);
+
+               (*this)(B,i,j) -= sign_ab * sign_de * ward;
+
+            }
+
+         }
+
+      }
+
+   }
+
+   this->symmetrize();
+
+}
