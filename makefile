@@ -7,8 +7,8 @@
 # -----------------------------------------------------------------------------
 #   Sources for all modules
 # -----------------------------------------------------------------------------
-BINNAME = pr_sdp
-CPPSRC	= pr_sdp.cpp\
+BINNAME = pd_sdp
+CPPSRC	= pd_sdp.cpp\
             Tools.cpp\
             Matrix.cpp\
             BlockMatrix.cpp\

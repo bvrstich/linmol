@@ -88,11 +88,12 @@ class BlockVector{
 
       void dscal(double alpha);
 
-      double lsfunc(double alpha) const;
-
       double min() const;
       
       double max() const;
+
+      double centerpot(double ) const;
+
 
    private:
 
@@ -465,16 +466,17 @@ void BlockVector<BlockMatrixType>::diagonalize(BlockMatrixType &MT){
 }
 
 /**
- * Function used by the EIG::lsfunc function, used in the line search algorithm.
- * @param alpha steplenght in the search direction.
+ * A function needed in the calcalation of the distance from the center, used the Vector::centerpot function 
+ * but weighed with the degeneracies of the different blocks.
+ * @return the result of the function
  */
 template<class BlockMatrixType>
-double BlockVector<BlockMatrixType>::lsfunc(double alpha) const{
+double BlockVector<BlockMatrixType>::centerpot(double alpha) const{
 
    double ward = 0.0;
 
-   for(int i = 0;i < nr;i++)
-      ward += degen[i] * blockvector[i]->lsfunc(alpha);
+   for(int i = 0;i < nr;++i)
+      ward += degen[i]*blockvector[i]->centerpot(alpha);
 
    return ward;
 

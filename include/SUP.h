@@ -144,6 +144,29 @@ class SUP{
       const PPHM &gT2() const;
 #endif
 
+      //initialiseer S
+      void init_S();
+
+      //initialiseer Z
+      void init_Z(double alpha,const TPM &ham,const SUP &u_0);
+
+      void proj_C(const TPM &);
+
+      double center_dev(const SUP &Z) const;
+
+      //maak de matrix D, nodig voor de hessiaan van het stelsel
+      void D(const SUP &S,const SUP &Z);
+
+      void proj_U();
+
+      void proj_C();
+
+      int solve(SUP &B,const SUP &D);
+
+      void H(const SUP &B,const SUP &D);
+
+      double line_search(const SUP &DZ,const SUP &S,const SUP &Z,double max_dev) const;
+
       static void init(int,int);
 
    private:

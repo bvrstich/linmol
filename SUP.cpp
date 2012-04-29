@@ -665,3 +665,287 @@ ostream &operator<<(ostream &output,const SUP &sup_p){
    return output;
 
 }
+
+/**
+ * Initialization of the SUP matrix S, is just u^0: see primal_dual.pdf for more information
+ */
+void SUP::init_S(){
+
+   I->unit();
+
+   this->fill();
+
+}
+
+/**
+ * Initialisation for dual SUP matrix Z, see primal_dual.pdf for info.
+ */
+void SUP::init_Z(double alpha,const TPM &ham,const SUP &u_0) {
+
+   this->fill_Random();
+
+   this->proj_C(ham);
+
+   //nog een eenheidsmatrix maal constante bijtellen zodat Z positief definiet is:
+   this->daxpy(alpha,u_0); 
+
+}
+
+/**
+ * Project the general SUP matrix (*this) orthogonally onto the linear space for which\n\n
+ * Tr(Z u^i) = h^i      with h^i = Tr(tpm f^i)\n\n
+ * is valid.
+ * @param tpm input TPM (mostly the hamiltonian of the problem)
+ */
+void SUP::proj_C(const TPM &tpm) {
+
+   TPM hulp;
+
+   hulp.collaps(0,*this);
+
+   hulp -= tpm;
+
+   hulp.proj_Tr();
+
+   //Z_res is the orthogonal piece of this that will be deducted,
+   //so the piece of this in the U-space - ham
+   SUP Z_res;
+
+   //apply iverse S to it and put it in Z_res.tpm(0)
+   Z_res.gI().S(-1,hulp);
+
+   //and fill it up Johnny
+   Z_res.fill();
+
+   *this -= Z_res;
+
+}
+
+
+/**
+ * @return Deviation from the central path measured through the logarithmic potential, it's a measure for
+ * the deviation of the product of the primal with the dual matrix (SZ) from the unit matrix.\n
+ * Usage of the function: S.center_dev(Z) gives returns the deviation.\n\n
+ * (*this) = S = primal matrix of the problem
+ * @param Z = dual matrix of the problem
+ */
+double SUP::center_dev(const SUP &Z) const {
+
+   SUP sqrt_S(*this);
+
+   sqrt_S.sqrt(1);
+
+   SUP SZ;
+   SZ.L_map(sqrt_S,Z);
+
+   EIG eig(SZ);
+
+   return eig.center_dev();
+
+}
+
+/**
+ * Construct the D matrix and put it in this, D is the matrix matrix of the hessian, see primal_dual.pdf for more information
+ * @param S The primal SUP matrix S
+ * @param Z The dual SUP matrix Z
+ */
+void SUP::D(const SUP &S,const SUP &Z) {
+
+   //positieve vierkantswortel uit Z
+   SUP Z_copy(Z);
+
+   Z_copy.sqrt(1);
+
+   //links en rechts vermenigvuldigen met wortel Z
+   SUP hulp;
+
+   hulp.L_map(Z_copy,S);
+
+   hulp.sqrt(1);
+
+   //negatieve vierkantswortel uit Z
+   Z_copy = Z;
+
+   Z_copy.sqrt(-1);
+
+   //en links en rechts hulp vermenigvuldigen met die wortel, en in this steken:
+   this->L_map(Z_copy,hulp);
+
+}
+
+/**
+ * Orthogonal projection of a general SUP matrix [ M M_Q ( M_G M_T1 M_T2 ) ] onto the orthogonal complement of the U space (C space)
+ * See primal_dual.pdf for more information
+ */
+void SUP::proj_C(){
+
+   SUP Z_copy(*this);
+
+   //projecteer op de U ruimte
+   Z_copy.proj_U();
+
+   //en het orthogonaal complement nemen:
+   *this -= Z_copy;
+
+}
+
+/**
+ * Orthogonal projection of a general SUP matrix diag[ M M_Q ( M_G M_T1 M_T2 ) ] onto U space: diag[ M_u Q(M_u) ( G(M_u) T1(M_u) T2(M_u) ) ]
+ * for more information see primal_dual.pdf
+ */
+void SUP::proj_U(){
+  
+   //eerst M_Gamma + Q(M_Q) + ( G(M_G) + T1(M_T1) + T2(M_T2) ) in O stoppen
+   TPM O;
+
+   O.collaps(1,*this);
+
+   //dan de inverse overlapmatrix hierop laten inwerken en in this[0] stoppen
+   I->S(-1,O);
+
+   //fill up the rest with the right maps
+   this->fill();
+
+}
+
+/**
+ * Implementation of the linear conjugate gradient algorithm for the solution of the dual Newton system\n\n
+ * H(*this) = B in which H is the dual hessian map
+ * @param B right hand side of the equation
+ * @param D SUP matrix that defines the structure of the hessian map (the metric) (inverse of the primal Newton equation hessian)
+ * @return return the number of iteration required to converge
+ */
+int SUP::solve(SUP &B,const SUP &D) {
+
+   SUP HB;
+   HB.H(*this,D);
+
+   B -= HB;
+
+   //de r initialiseren op B - H DZ
+   SUP r(B);
+
+   double rr = r.ddot(r);
+   double rr_old,ward;
+
+   int cg_iter = 0;
+
+   while(rr > 1.0e-5){
+
+      ++cg_iter;
+
+      HB.H(B,D);
+
+      ward = rr/B.ddot(HB);
+
+      //delta += ward*b
+      this->daxpy(ward,B);
+
+      //r -= ward*HB
+      r.daxpy(-ward,HB);
+
+      //nieuwe r_norm maken
+      rr_old = rr;
+      rr = r.ddot(r);
+
+      //eerst herschalen van b
+      B.dscal(rr/rr_old);
+
+      //dan r er bijtellen
+      B += r;
+
+   }
+   
+   return cg_iter;
+
+}
+
+/**
+ * The dual hessian map:\n\n
+ * HB = DBD (dus SUP::L_map), projected onto C-space (SUP::proj_C)
+ * @param B SUP matrix onto which the hessian works.
+ * @param D SUP matrix that defines the structure of the map (metric)
+ */
+void SUP::H(const SUP &B,const SUP &D) {
+
+   this->L_map(D,B);
+
+   this->proj_C();
+
+}
+
+/**
+ * Line search function that checks how large a step you can take in a given primal dual predictor direction (DS,DZ), starting from 
+ * the current primal dual point (S,Z), before deviating beyond max_dev from the central path.\n\n
+ * (*this) = DS --> primal search direction
+ * @param DZ dual search direction
+ * @param S Current primal point
+ * @param Z Current dual point
+ * @param max_dev number (double) input by which you can tell the function how far you want to deviate from the central path after the step.
+ */
+double SUP::line_search(const SUP &DZ,const SUP &S,const SUP &Z,double max_dev) const
+{
+   //eerst de huidige deviatie van het centraal pad nemen:
+   double center_dev = S.center_dev(Z);
+
+   //eigenwaarden zoeken van S^{-1/2} DS S^{-1/2} en Z^{-1/2} DZ Z^{-1/2}
+
+   //kopieer S in de zogeheten wortel:
+   SUP wortel(S);
+
+   //maak negatieve vierkantswortel uit S
+   wortel.sqrt(-1);
+
+   //de L_map
+   SUP hulp;
+   hulp.L_map(wortel,*this);
+
+   //eigenwaarden in eigen_S stoppen
+   EIG eigen_S(hulp);
+
+   //nu idem voor Z
+   wortel = Z;
+
+   wortel.sqrt(-1);
+
+   hulp.L_map(wortel,DZ);
+
+   EIG eigen_Z(hulp);
+
+   //nog c_S en c_Z uitrekenen:
+   double pd_gap = S.ddot(Z);
+
+   //c_S = Tr (DS Z)/Tr (SZ)
+   double c_S = this->ddot(Z)/pd_gap;
+
+   //c_Z = Tr (S DZ)/Tr (SZ)
+   double c_Z = S.ddot(DZ)/pd_gap;
+
+   //waar zitten de singulariteiten: tot waar mag ik zoeken?
+   double a_max = -1.0/eigen_S.min();
+   double b_max = -1.0/eigen_Z.min();
+
+   //a_max is de waarde tot waar ik zal zoeken:
+   if(b_max < a_max)
+      a_max = b_max;
+
+   double a = 0.0;
+   double b = a_max;
+
+   double c = (a + b)/2.0;
+
+   //bissectiemethode om stapgrootte te bepalen:
+   while(b - a > 1.0e-5){
+
+      c = (a + b)/2.0;
+
+      if( (center_dev + eigen_S.centerpot(c,eigen_Z,c_S,c_Z) - max_dev) < 0.0 )
+         a = c;
+      else
+         b = c;
+
+   }
+
+   return c;
+
+}

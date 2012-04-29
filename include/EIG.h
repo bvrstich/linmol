@@ -119,9 +119,11 @@ class EIG{
 
    double max() const;
 
-   static void init(int,int);
+   double centerpot(double,const EIG &,double,double) const;
 
-   double lsfunc(double alpha) const;
+   double center_dev() const;
+
+   static void init(int,int);
 
    private:
 
