@@ -319,3 +319,95 @@ void PHM::G(const TPM &tpm){
    this->symmetrize();
 
 }
+
+/**
+ * The bar function that maps a PPHM object onto a PHM object by tracing away the first pair of incdices of the PPHM
+ * @param pphm Input PPHM object
+ */
+void PHM::bar(const PPHM &pphm){
+
+   int ga,gb,gc,gd;
+   int a,b,c,d,l;
+
+   int m_a,m_b,m_c,m_d,m_l;
+
+   int S;
+
+   double ward,hard;
+
+   for(int B = 0;B < gnr();++B){//loop over blocks of PHM
+
+      S = B2SM[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         ga = ph2s[B][i][0];
+         gb = ph2s[B][i][1];
+
+         m_a = SPM::gg2ms(ga,0);
+         a = SPM::gg2ms(ga,1);
+
+         m_b = SPM::gg2ms(gb,0);
+         b = SPM::gg2ms(gb,1);
+
+         for(int j = i;j < gdim(B);++j){
+
+            gc = ph2s[B][j][0];
+            gd = ph2s[B][j][1];
+
+            m_c = SPM::gg2ms(gc,0);
+            c = SPM::gg2ms(gc,1);
+
+            m_d = SPM::gg2ms(gd,0);
+            d = SPM::gg2ms(gd,1);
+
+            (*this)(B,i,j) = 0.0;
+
+            //first the S = 1/2 block of the PPHM matrix
+            for(int S_ab = 0;S_ab < 2;++S_ab)
+               for(int S_de = 0;S_de < 2;++S_de){
+
+                  ward = 2.0 * std::sqrt( (2.0*S_ab + 1.0) * (2.0*S_de + 1.0) ) * Tools::g6j(0,0,S,S_ab) * Tools::g6j(0,0,S,S_de);
+
+                  for(int gl = 0;gl < M/2;++gl){
+
+                     m_l = SPM::gg2ms(gl,0);
+                     l = SPM::gg2ms(gl,1);
+
+                     hard = ward * pphm(0,m_l+m_a+m_b,S_ab,m_l,l,m_a,a,m_b,b,S_de,m_l,l,m_c,c,m_d,d);
+
+                     //norms
+                     if(gl == ga)
+                        hard *= std::sqrt(2.0);
+
+                     if(gl == gc)
+                        hard *= std::sqrt(2.0);
+
+                     (*this)(B,i,j) += hard;
+
+                  }
+
+               }
+
+            //then the S = 3/2 block
+            if(S == 1){
+
+               for(int gl = 0;gl < M/2;++gl){
+
+                  m_l = SPM::gg2ms(gl,0);
+                  l = SPM::gg2ms(gl,1);
+
+                  (*this)(B,i,j) += 4.0/3.0 * pphm(1,m_a+m_b+m_l,1,m_l,l,m_a,a,m_b,b,1,m_l,l,m_c,c,m_d,d);
+
+               }
+
+            }
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}

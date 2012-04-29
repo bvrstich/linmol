@@ -10,6 +10,7 @@ class SphInt;
 class SUP;
 class DPM;
 class PHM;
+class PPHM;
 
 #include "BlockMatrix.h"
 
@@ -85,6 +86,10 @@ class TPM : public BlockMatrix {
 
       //T1 down
       void T(const DPM &);
+
+      void bar(const PPHM &);
+
+      void T(const PPHM &);
 
       void printnax(const char *) const;
 

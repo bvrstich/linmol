@@ -10,6 +10,7 @@ using std::vector;
 
 class TPM;
 class PHM;
+class PPHM;
 
 #include "Matrix.h"
 
@@ -50,6 +51,8 @@ class SPM : public BlockMatrix {
       void bar(double,const TPM &);
 
       void bar(double,const PHM &);
+      
+      void bar(double,const PPHM &);
 
       static int gl_max();
 

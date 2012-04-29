@@ -1023,3 +1023,176 @@ void TPM::printnax(const char *filename) const {
 
    }
 }
+
+/**
+ * The bar function that maps a PPHM object onto a TPM object by tracing away the last pair of incdices of the PPHM
+ * @param pphm Input PPHM object
+ */
+void TPM::bar(const PPHM &pphm){
+
+   int ga,gb,gc,gd;
+
+   int a,b,c,d,l;
+   int m_a,m_b,m_c,m_d,m_l;
+
+   double ward;
+
+   int Z;
+
+   for(int B = 0;B < gnr();++B){
+
+      Z = B2SM[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         ga = t2s[B][i][0];
+         gb = t2s[B][i][1];
+
+         m_a = SPM::gg2ms(ga,0);
+         a = SPM::gg2ms(ga,1);
+
+         m_b = SPM::gg2ms(gb,0);
+         b = SPM::gg2ms(gb,1);
+
+         for(int j = i;j < gdim(B);++j){
+
+            gc = t2s[B][j][0];
+            gd = t2s[B][j][1];
+
+            m_c = SPM::gg2ms(gc,0);
+            c = SPM::gg2ms(gc,1);
+
+            m_d = SPM::gg2ms(gd,0);
+            d = SPM::gg2ms(gd,1);
+
+            (*this)(B,i,j) = 0.0;
+
+            for(int S = 0;S < 2;++S){//loop over three particle spin: 1/2 and 3/2
+
+               ward = (2.0*(S + 0.5) + 1.0)/(2.0*Z + 1.0);
+
+               for(int gl = 0;gl < M/2;++gl){
+
+                  m_l = SPM::gg2ms(gl,0);
+                  l = SPM::gg2ms(gl,1);
+
+                  (*this)(B,i,j) += ward * pphm(S,m_a + m_b + m_l,Z,m_a,a,m_b,b,m_l,l,Z,m_c,c,m_d,d,m_l,l);
+
+               }
+
+            }
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+
+/**
+ * The spincoupled and axially symmetric T2-down map that maps a PPHM on a TPM object.
+ * @param pphm input PPHM object
+ */
+void TPM::T(const PPHM &pphm){
+
+   //first make the bar tpm
+   TPM tpm;
+   tpm.bar(pphm);
+
+   //then make the bar phm
+   PHM phm;
+   phm.bar(pphm);
+
+   //also make the bar spm with the correct scale factor
+   SPM spm;
+   spm.bar(0.5/(N - 1.0),pphm);
+
+   int ga,gb,gc,gd;
+
+   int a,b,c,d;
+   int m_a,m_b,m_c,m_d;
+
+   int S;
+
+   int sign;
+
+   double norm;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      sign = 1 - 2*S;
+
+      for(int i = 0;i < gdim(B);++i){
+
+         ga = t2s[B][i][0];
+         gb = t2s[B][i][1];
+
+         m_a = SPM::gg2ms(ga,0);
+         a = SPM::gg2ms(ga,1);
+
+         m_b = SPM::gg2ms(gb,0);
+         b = SPM::gg2ms(gb,1);
+
+         for(int j = i;j < gdim(B);++j){
+
+            gc = t2s[B][j][0];
+            gd = t2s[B][j][1];
+
+            m_c = SPM::gg2ms(gc,0);
+            c = SPM::gg2ms(gc,1);
+
+            m_d = SPM::gg2ms(gd,0);
+            d = SPM::gg2ms(gd,1);
+
+            //determine the norm for the basisset
+            norm = 1.0;
+
+            if(S == 0){
+
+               if(ga == gb)
+                  norm /= std::sqrt(2.0);
+
+               if(gc == gd)
+                  norm /= std::sqrt(2.0);
+
+            }
+
+            //first the tp part
+            (*this)(B,i,j) = tpm(B,i,j);
+
+            //sp part, 4 terms:
+            if(gb == gd)
+               (*this)(B,i,j) += norm * spm(m_a+l_max,a,c);
+
+            if(ga == gd)
+               (*this)(B,i,j) += sign * norm * spm(m_b+l_max,b,c);
+
+            if(gb == gc)
+               (*this)(B,i,j) += sign * norm * spm(m_a+l_max,a,d);
+
+            if(ga == gc)
+               (*this)(B,i,j) += norm * spm(m_b+l_max,b,d);
+
+            for(int Z = 0;Z < 2;++Z){
+
+               (*this)(B,i,j) -= norm * (2.0 * Z + 1.0) * Tools::g6j(0,0,S,Z) * ( phm(Z,m_d-m_a,m_d,d,-m_a,a,m_b,b,-m_c,c) 
+               
+                     + sign * phm(Z,m_d-m_b,m_d,d,-m_b,b,m_a,a,-m_c,c) + sign * phm(Z,m_c-m_a,m_c,c,-m_a,a,m_b,b,-m_d,d)
+                     
+                     + phm(Z,m_c-m_b,m_c,c,-m_b,b,m_a,a,-m_d,d) );
+
+            }
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}

@@ -47,6 +47,8 @@ class PPHM : public BlockMatrix {
       //geef M terug
       int gM() const;
 
+      void printnax(const char *) const;
+
       double operator()(int,int,int,int,int,int,int,int,int,int,int,int,int,int,int,int) const;
 
       static int get_inco(int S,int Lz,int S_ab,int a,int b,int c,int &i);

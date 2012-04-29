@@ -357,3 +357,70 @@ void SPM::bar(double scale,const PHM &phm){
    this->symmetrize();
 
 }
+
+/** 
+ * This bar function maps a PPHM object directly onto a SPM object, scaling it with a factor scale
+ * @param scale the scalefactor
+ * @param pphm Input PPHM object
+ */
+void SPM::bar(double scale,const PPHM &pphm){
+
+   int l,k;
+   int m_l,m_k;
+
+   for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a)
+         for(int c = a;c < gdim(m + l_max);++c){
+
+            (*this)(m + l_max,a,c) = 0.0;
+
+            //first S = 1/2 part
+            for(int S_lk = 0;S_lk < 2;++S_lk){
+
+               for(int gl = 0;gl < M/2;++gl){
+
+                  m_l = g2ms[gl][0];
+                  l = g2ms[gl][1];
+
+                  for(int gk = 0;gk < M/2;++gk){
+
+                     m_k = g2ms[gk][0];
+                     k = g2ms[gk][1];
+
+                     if(k == l && m_k == m_l)
+                        (*this)(m + l_max,a,c) += 2.0 * pphm(0,m_l+m_k-m,S_lk,m_l,l,m_k,k,-m,a,S_lk,m_l,l,m_k,k,-m,c);
+                     else
+                        (*this)(m + l_max,a,c) += pphm(0,m_l+m_k-m,S_lk,m_l,l,m_k,k,-m,a,S_lk,m_l,l,m_k,k,-m,c);
+
+                  }
+               }
+
+            }
+
+            //then S = 3/2 part:
+            for(int gl = 0;gl < M/2;++gl){
+
+               m_l = g2ms[gl][0];
+               l = g2ms[gl][1];
+
+               for(int gk = 0;gk < M/2;++gk){
+
+                  m_k = g2ms[gk][0];
+                  k = g2ms[gk][1];
+
+                  (*this)(m+l_max,a,c) += 2.0 * pphm(1,m_l+m_k-m,1,m_l,l,m_k,k,-m,a,1,m_l,l,m_k,k,-m,c);
+
+               }
+            }
+
+            //scaling
+            (*this)(m+l_max,a,c) *= scale;
+
+         }
+
+   }
+
+   this->symmetrize();
+
+}

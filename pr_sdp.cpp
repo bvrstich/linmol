@@ -55,18 +55,6 @@ int main(void){
    SUP::init(M,N);
    EIG::init(M,N);
 
-   TPM tpm;
-   tpm.fill_Random();
-
-   tpm.printnax("../spin_pd-bright/tpm.in");
-
-   PPHM pphm;
-   pphm.T(tpm);
-
-   BlockVector<PPHM> v(pphm);
-   cout << v;
-
-/*
    CartInt ci;
    ci.norm();
 
@@ -155,7 +143,7 @@ int main(void){
    cout << "Groundstate energy =\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
    cout << rdm;
-*/
+
    PPHM::clear();
    DPM::clear();
    PHM::clear();

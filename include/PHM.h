@@ -9,6 +9,7 @@ using std::ostream;
 #include "BlockMatrix.h"
 
 class TPM;
+class PPHM;
 
 /**
  * @author Brecht Verstichel
@@ -52,6 +53,8 @@ class PHM : public BlockMatrix {
       double operator()(int,int,int,int,int,int,int,int,int,int) const;
 
       void G(const TPM &);
+
+      void bar(const PPHM &);
 
       static void init(int,int);
 

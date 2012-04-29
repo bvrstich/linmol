@@ -322,7 +322,7 @@ double PPHM::operator()(int S,int Lz,int S_ab,int m_a,int a,int m_b,int b,int m_
    if(phase_j == 0)
       return 0;
 
-   return phase_i*phase_j* (*this)(S,i,j);
+   return phase_i*phase_j* (*this)(SM2B[S][Lz + 3*l_max],i,j);
 
 }
 
@@ -579,5 +579,47 @@ void PPHM::T(const TPM &tpm){
    }
 
    this->symmetrize();
+
+}
+
+/**
+ * print the TPM object in a non-axially symmetric form
+ */
+void PPHM::printnax(const char *filename) const {
+
+   ofstream out(filename);
+   out.precision(15);
+
+   int S;
+   int S_ab,S_de;
+
+   int ga,gb,gc,gd,ge,gz;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         S_ab = pph2s[B][i][0];
+         ga = pph2s[B][i][1];
+         gb = pph2s[B][i][2];
+         gc = pph2s[B][i][3];
+
+         for(int j = i;j < gdim(B);++j){
+
+            S_de = pph2s[B][j][0];
+            gd = pph2s[B][j][1];
+            ge = pph2s[B][j][2];
+            gz = pph2s[B][j][3];
+
+            out << S << "\t" << S_ab << "\t" << ga << "\t" << gb << "\t" << gc << "\t"
+            
+               << S_de << "\t" << gd << "\t" << ge << "\t" << gz << "\t" << (*this)(B,i,j) << endl;
+
+         }
+      }
+
+   }
 
 }
