@@ -417,30 +417,3 @@ double EIG::max() const{
    return ward;
 
 }
-
-/**
- * @param alpha step length along the Newton direction
- * @return The line search function, gradient of the potential in the Newton direction as a function of the step length alpha
- */
-double EIG::lsfunc(double alpha) const{
-
-   double ward = v_I->lsfunc(alpha);
-
-#ifdef __Q_CON
-   ward += v_Q->lsfunc(alpha);
-#endif
-
-#ifdef __G_CON
-   ward += v_G->lsfunc(alpha);
-#endif
-
-#ifdef __T1_CON
-   ward += v_T1->lsfunc(alpha);
-#endif
-
-#ifdef __T2_CON
-   ward += v_T2->lsfunc(alpha);
-#endif
-
-   return ward;
-}

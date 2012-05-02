@@ -59,19 +59,9 @@ class TPM : public BlockMatrix {
 
       void unit();
 
-      void constr_grad(double,const TPM &,const SUP &);
-
       void proj_Tr();
       
       void min_unit(double scale);
-
-      int solve(double, const SUP &,TPM &);
-
-      void H(double t,const TPM &b,const SUP &P);
-
-      double line_search(double t,SUP &P,const TPM &ham);
-
-      double line_search(double t,const TPM &rdm,const TPM &ham);
 
       //Q afbeelding en zijn inverse
       void Q(int option,const TPM &);
@@ -93,6 +83,13 @@ class TPM : public BlockMatrix {
 
       void printnax(const char *) const;
 
+      void collaps(int,const SUP &);
+
+      //overlapmatrix afbeelding en zijn inverse
+      void S(int,const TPM &);
+
+      static void init_overlap();
+
       static void init(int,int);
 
       static void clear();
@@ -113,6 +110,9 @@ class TPM : public BlockMatrix {
 
       //!nr of particles
       static int N;
+
+      //!overlapmatrix parameters
+      static double Sa,Sc;
 
       //!dimension of sp hilbert space
       static int M;

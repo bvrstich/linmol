@@ -144,6 +144,8 @@ class SUP{
       const PPHM &gT2() const;
 #endif
 
+      void sep_pm(SUP &,SUP &);
+
       static void init(int,int);
 
    private:

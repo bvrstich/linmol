@@ -91,6 +91,8 @@ class Matrix{
 
       void out(const char*) const;
 
+      void sep_pm(Matrix &p,Matrix &m);
+
    private:
 
       //!double pointer of doubles, contains the numbers, the matrix

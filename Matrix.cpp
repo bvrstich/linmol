@@ -426,3 +426,61 @@ void Matrix::out(const char *filename) const{
          output << i << "\t" << j << "\t" << matrix[j][i] << endl;
 
 }
+
+/**
+ * Seperate matrix into two matrices, a positive and negative semidefinite part.
+ * @param p positive (plus) output part
+ * @param m negative (minus) output part
+ */
+void Matrix::sep_pm(Matrix &p,Matrix &m){
+
+   //init:
+   p = 0;
+   m = 0;
+
+   double *eigenvalues = new double [n];
+
+   //diagonalize orignal matrix:
+   char jobz = 'V';
+   char uplo = 'U';
+
+   int lwork = 3*n - 1;
+
+   double *work = new double [lwork];
+
+   int info;
+
+   dsyev_(&jobz,&uplo,&n,matrix[0],&n,eigenvalues,work,&lwork,&info);
+
+   delete [] work;
+
+   //fill the plus and minus matrix
+   int i = 0;
+
+   while(i < n && eigenvalues[i] < 0.0){
+
+      for(int j = 0;j < n;++j)
+         for(int k = j;k < n;++k)
+            m(j,k) += eigenvalues[i] * matrix[i][j] * matrix[i][k];
+
+      ++i;
+
+   }
+
+   m.symmetrize();
+
+   while(i < n){
+
+      for(int j = 0;j < n;++j)
+         for(int k = j;k < n;++k)
+            p(j,k) += eigenvalues[i] * matrix[i][j] * matrix[i][k];
+
+      ++i;
+
+   }
+
+   p.symmetrize();
+
+   delete [] eigenvalues;
+
+}

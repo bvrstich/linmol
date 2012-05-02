@@ -121,8 +121,6 @@ class EIG{
 
    static void init(int,int);
 
-   double lsfunc(double alpha) const;
-
    private:
 
    //!pointer to a BlockVector<TPM> object, the eigenvalues of the I part of a SUP matrix will be stored here.

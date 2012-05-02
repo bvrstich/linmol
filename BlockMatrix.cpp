@@ -403,3 +403,15 @@ int BlockMatrix::total_dim() const {
    return ward;
 
 }
+
+/**
+ * Seperate SUP into two SUP's, a positive and negative semidefinite part.
+ * @param p positive (plus) output part
+ * @param m negative (minus) output part
+ */
+void BlockMatrix::sep_pm(BlockMatrix &p,BlockMatrix &m){
+
+   for(int i = 0;i < nr;++i)
+      blockmatrix[i]->sep_pm(p[i],m[i]);
+
+}

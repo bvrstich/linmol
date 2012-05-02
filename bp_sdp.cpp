@@ -97,39 +97,44 @@ int main(void){
    //what does this do?
    double sigma = 1.0;
 
-   double tolerance = 1.0e-4;
+   double tolerance = 1.0e-7;
 
    double D_conv(1.0),P_conv(1.0),convergence(1.0);
 
-   int iter;
+   // mazziotti uses 1.6 for this
+   double mazzy = 1.6;
+
+   int iter_dual,iter_primal(0);
    int max_iter = 1;
 
-   int tot_iter;
+   int tot_iter = 0;
 
-   while(D_conv > tolerance || P_conv > tolerance || fabs(convergence) > tolerance){
+   while(P_conv > tolerance || D_conv > tolerance || fabs(convergence) > tolerance){
+
+      ++iter_primal;
 
       D_conv = 1.0;
 
-      iter = 0;
+      iter_dual = 0;
 
-      while(D_conv > tolerance && iter <= max_iter){
+      while(D_conv > tolerance  && iter_dual <= max_iter)
+      {
+         ++tot_iter;
 
-         tot_iter++;
-
-         ++iter;
+         ++iter_dual;
 
          //solve system
          SUP B(Z);
 
          B -= u_0;
 
-         B.daxpy(1.0/sigma,X);
+         B.daxpy(mazzy/sigma,X);
 
          TPM b;
 
          b.collaps(1,B);
 
-         b.daxpy(-1.0/sigma,ham);
+         b.daxpy(-mazzy/sigma,ham);
 
          hulp.S(-1,b);
 
@@ -148,7 +153,7 @@ int main(void){
 
          V.dscal(-sigma);
 
-         //check infeasibility of the dual problem:
+         //check infeasibility of the primal problem:
          TPM v;
 
          v.collaps(1,V);
@@ -157,12 +162,12 @@ int main(void){
 
          D_conv = sqrt(v.ddot(v));
 
-      }
+     }
 
       //update primal:
       X = V;
 
-      //check primal feasibility (W is a helping variable now)
+      //check dual feasibility (W is a helping variable now)
       W.fill(hulp);
 
       W += u_0;
@@ -171,25 +176,25 @@ int main(void){
 
       P_conv = sqrt(W.ddot(W));
 
-      convergence = Z.tpm(0).ddot(ham) + X.ddot(u_0);
-
-      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << Z.tpm(0).ddot(ham_copy) << endl;
-
       if(D_conv < P_conv)
          sigma *= 1.01;
       else
          sigma /= 1.01;
 
+      convergence = ham.ddot(Z.gI()) + u_0.ddot(X);
+
+      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) << endl;
+
    }
 
    cout << endl;
-   cout << "Energy: " << ham_copy.ddot(Z.tpm(0)) << endl;
+   cout << "Energy: " << ham_copy.ddot(Z.gI()) << endl;
    cout << "pd gap: " << Z.ddot(X) << endl;
    cout << "dual conv: " << D_conv << endl;
    cout << "primal conv: " << P_conv << endl;
 
    cout << endl;
-   cout << tot_iter << endl;
+   cout << "total nr of iterations = " << tot_iter << endl;
 
    PPHM::clear();
    DPM::clear();

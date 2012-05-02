@@ -22,6 +22,9 @@ int TPM::N;
 
 int TPM::l_max;
 
+double TPM::Sa = 1;
+double TPM::Sc = 0;
+
 /**
  * initialize the static lists and variables
  * @param M_in input dimension of sp space
@@ -102,6 +105,8 @@ void TPM::init(int M_in,int N_in){
 
    }
 
+   init_overlap();
+
 }
 
 /**
@@ -124,6 +129,33 @@ void TPM::clear(){
       delete [] SM2B[S];
 
    delete [] SM2B;
+
+}
+
+/**
+ * initialize the overlapmatrix parameters
+ */
+void TPM::init_overlap(){
+
+#ifdef __Q_CON
+   Sa += 1.0;
+   Sc += (2.0*N - M)/((N - 1.0)*(N - 1.0));
+#endif
+
+#ifdef __G_CON
+   Sa += 4.0;
+   Sc += (2.0*N - M - 2.0)/((N - 1.0)*(N - 1.0));
+#endif
+
+#ifdef __T1_CON
+   Sa += M - 4.0;
+   Sc -= (M*M + 2.0*N*N - 4.0*M*N - M + 8.0*N - 4.0)/( 2.0*(N - 1.0)*(N - 1.0) );
+#endif
+
+#ifdef __T2_CON
+   Sa += 5.0*M - 8.0;
+   Sc += (2.0*N*N + (M - 2.0)*(4.0*N - 3.0) - M*M)/(2.0*(N - 1.0)*(N - 1.0));
+#endif
 
 }
 
@@ -214,7 +246,7 @@ ostream &operator<<(ostream &output,const TPM &tpm_p){
 double TPM::operator()(int B,int a,int b,int c,int d) const{
 
    return (*this)(B2SM[B][0],B2SM[B][1],SPM::gg2ms(a,0),SPM::gg2ms(a,1),SPM::gg2ms(b,0),SPM::gg2ms(b,1),
-   
+
          SPM::gg2ms(c,0),SPM::gg2ms(c,1),SPM::gg2ms(d,0),SPM::gg2ms(d,1));
 
 }
@@ -382,53 +414,6 @@ void TPM::unit(){
 }
 
 /**
- * Construct the right hand side of the Newton equation for the determination of the search direction, 
- * the gradient of the potential:
- * @param t scaling factor of the potential
- * @param ham Hamiltonian of the current problem
- * @param P SUP matrix containing the inverse of the constraint matrices (carrier space matrices).
- */
-void TPM::constr_grad(double t,const TPM &ham,const SUP &P){
-
-   //eerst P conditie 
-   *this = P.gI();
-
-#ifdef __Q_CON
-   //de Q conditie toevoegen
-   TPM hulp;
-
-   hulp.Q(1,P.gQ());
-
-   *this += hulp;
-#endif
-
-#ifdef __G_CON
-   hulp.G(P.gG());
-
-   *this += hulp;
-#endif
-
-#ifdef __T1_CON
-   hulp.T(P.gT1());
-
-   *this += hulp;
-#endif
-
-#ifdef __T2_CON
-   hulp.T(P.gT2());
-
-   *this +=hulp;
-#endif
-
-   this->dscal(t);
-
-   *this -= ham;
-
-   this->proj_Tr();
-
-}
-
-/**
  * orthogonal projection onto the space of traceless matrices
  */
 void TPM::proj_Tr(){
@@ -450,213 +435,6 @@ void TPM::min_unit(double scale){
    for(int B = 0;B < gnr();++B)
       for(int i = 0;i < gdim(B);++i)
          (*this)(B,i,i) -= scale;
-
-}
-
-/**
- * solve the Newton equations for the determination of the search direction,
- * @param t scaling factor of the potential
- * @param P SUP matrix containing the inverse of the constraint matrices (carrier space matrices).
- * @param b right hand side (the gradient constructed int TPM::constr_grad)
- * @return nr of iterations needed to converge to the desired accuracy
- */
-int TPM::solve(double t,const SUP &P,TPM &b){
-
-   int iter = 0;
-
-   //delta = 0
-   *this = 0;
-
-   //residu:
-   TPM r(b);
-
-   //norm van het residu
-   double rr = r.ddot(r);
-
-   //enkele variabelen
-   double rr_old,ward;
-
-   TPM Hb;
-
-   while(rr > 1.0e-10){ 
-
-      Hb.H(t,b,P);
-
-      ward = rr/b.ddot(Hb);
-
-      //delta += ward*b
-      this->daxpy(ward,b);
-
-      //r -= ward*Hb
-      r.daxpy(-ward,Hb);
-
-      //nieuwe variabelen berekenen en oude overdragen
-      rr_old = rr;
-      rr = r.ddot(r);
-
-      //nieuwe b nog:
-      b.dscal(rr/rr_old);
-
-      b += r;
-
-      ++iter;
-
-   }
-
-   return iter;
-
-}
-
-/**
- * The hessian-map of the Newton system:
- * @param t potential scaling factor
- * @param b the TPM on which the hamiltonian will work, the image will be put in (*this)
- * @param P the SUP matrix containing the constraints, (can be seen as the metric).
- */
-void TPM::H(double t,const TPM &b,const SUP &P){
-
-   //eerst de P conditie:
-   this->L_map(P.gI(),b);
-
-#ifdef __Q_CON
-   TPM hulp;
-
-   //maak Q(b)
-   TPM Q_b;
-   Q_b.Q(1,b);
-
-   //stop Q(rdm)^{-1}Q(b)Q(rdm)^{-1} in hulp
-   hulp.L_map(P.gQ(),Q_b);
-
-   //maak Q(hulp) en stop in Q_b
-   Q_b.Q(1,hulp);
-
-   //en tel op bij this
-   *this += Q_b;
-#endif
-
-#ifdef __G_CON
-   //hulpje voor het PHM stuk
-   PHM hulp_ph;
-   PHM G_b;
-
-   //stop G(b) in G_b
-   G_b.G(b);
-
-   //bereken G(rdm)^{-1}G(b)G(rdm)^{-1} en stop in hulp_ph
-   hulp_ph.L_map(P.gG(),G_b);
-
-   //tenslotte nog de antisymmetrische G hierop:
-   hulp.G(hulp_ph);
-
-   //en optellen bij this
-   *this += hulp;
-#endif
-   
-#ifdef __T1_CON
-   //hulpjes voor het DPM stuk
-   DPM hulp_dp;
-   DPM T1_b;
-
-   //stop T1(b) in T1_b
-   T1_b.T(b);
-
-   hulp_dp.L_map(P.gT1(),T1_b);
-
-   hulp.T(hulp_dp);
-
-   *this += hulp;
-#endif
-
-#ifdef __T2_CON
-   PPHM hulp_pph;
-   PPHM T2_b;
-
-   T2_b.T(b);
-
-   hulp_pph.L_map(P.gT2(),T2_b);
-
-   hulp.T(hulp_pph);
-
-   *this+=hulp;
-#endif
-
-   //nog schalen met t:
-   this->dscal(t);
-
-   //en projecteren op spoorloze ruimte
-   this->proj_Tr();
-
-}
-
-/**
- * perform a line search what step size in along the Newton direction is ideal.
- * @param t potential scaling factor
- * @param P SUP matrix containing the inverse of the constraints (carrier space matrices)
- * @param ham Hamiltonian of the problem
- * @return the steplength
- */
-double TPM::line_search(double t,SUP &P,const TPM &ham){
-
-   double tolerance = 1.0e-5*t;
-
-   if(tolerance < 1.0e-12)
-      tolerance = 1.0e-12;
-
-   //neem de wortel uit P
-   P.sqrt(1);
-
-   //maak eerst een SUP van delta
-   SUP S_delta;
-
-   S_delta.fill(*this);
-
-   //hulpje om dingskes in te steken:
-   SUP hulp;
-
-   hulp.L_map(P,S_delta);
-
-   EIG eigen(hulp);
-
-   double a = 0;
-
-   double b = -1.0/eigen.min();
-
-   double c(0);
-
-   double ham_delta = ham.ddot(*this);
-
-   while(b - a > tolerance){
-
-      c = (b + a)/2.0;
-
-      if( (ham_delta - t*eigen.lsfunc(c)) < 0.0)
-         a = c;
-      else
-         b = c;
-
-   }
-
-   return c;
-
-}
-
-/**
- * perform a line search what step size in along the Newton direction is ideal, this one is used for extrapolation.
- * @param t potential scaling factor
- * @param rdm TPM containing the current approximation of the rdm.
- * @param ham Hamiltonian of the problem
- * @return the steplength
- */
-double TPM::line_search(double t,const TPM &rdm,const TPM &ham){
-
-   SUP P;
-
-   P.fill(rdm);
-
-   P.invert();
-
-   return this->line_search(t,P,ham);
 
 }
 
@@ -819,9 +597,9 @@ void TPM::G(const PHM &phm){
             for(int Z = 0;Z < 2;++Z){
 
                (*this)(B,i,j) -= (2*Z + 1.0) * Tools::g6j(0,0,S,Z) * ( phm(Z,m_a-m_d,m_a,a,-m_d,d,m_c,c,-m_b,b)
-               
+
                      + phm(Z,m_b-m_c,m_b,b,-m_c,c,m_d,d,-m_a,a) + sign * phm(Z,m_b-m_d,m_b,b,-m_d,d,m_c,c,-m_a,a)
-                     
+
                      + sign * phm(Z,m_a-m_c,m_a,a,-m_c,c,m_d,d,-m_b,b) );
 
             }
@@ -1181,9 +959,9 @@ void TPM::T(const PPHM &pphm){
             for(int Z = 0;Z < 2;++Z){
 
                (*this)(B,i,j) -= norm * (2.0 * Z + 1.0) * Tools::g6j(0,0,S,Z) * ( phm(Z,m_d-m_a,m_d,d,-m_a,a,m_b,b,-m_c,c) 
-               
+
                      + sign * phm(Z,m_d-m_b,m_d,d,-m_b,b,m_a,a,-m_c,c) + sign * phm(Z,m_c-m_a,m_c,c,-m_a,a,m_b,b,-m_d,d)
-                     
+
                      + phm(Z,m_c-m_b,m_c,c,-m_b,b,m_a,a,-m_d,d) );
 
             }
@@ -1194,5 +972,60 @@ void TPM::T(const PPHM &pphm){
    }
 
    this->symmetrize();
+
+}
+
+/**
+ * Collaps a SUP matrix S onto a TPM matrix like this:\n\n
+ * sum_i Tr (S u^i)f^i = this
+ * @param option = 0, project onto full symmetric matrix space, = 1 project onto traceless symmetric matrix space
+ * @param S input SUP
+ */
+void TPM::collaps(int option,const SUP &S){
+
+   *this = S.gI();
+
+#ifdef __Q_CON
+   TPM hulp;
+
+   hulp.Q(1,S.gQ());
+
+   *this += hulp;
+#endif
+
+#ifdef __G_CON
+   hulp.G(S.gG());
+
+   *this += hulp;
+#endif
+
+#ifdef __T1_CON
+   hulp.T(S.gT1());
+
+   *this += hulp;
+#endif
+
+#ifdef __T2_CON
+   hulp.T(S.gT2());
+
+   *this += hulp;
+#endif
+
+   if(option == 1)
+      this->proj_Tr();
+
+}
+
+/**
+ * ( Overlapmatrix of the U-basis ) - map, maps a TPM onto a different TPM, this map is actually a Q-like map
+ * for which the paramaters a,b and c are calculated in primal_dual.pdf. Since it is a Q-like map the inverse
+ * can be taken as well.
+ * @param option = 1 direct overlapmatrix-map is used , = -1 inverse overlapmatrix map is used
+ * @param tpm_d the input TPM
+ */
+
+void TPM::S(int option,const TPM &tpm_d){
+
+   this->Q(option,Sa,0.0,Sc,tpm_d);
 
 }
