@@ -65,84 +65,131 @@ int main(void){
    TPM ham;
    ham.molecule(si);
 
-   TPM rdm;
-   rdm.unit();
+   TPM ham_copy(ham);
 
-   TPM backup_rdm(rdm);
+   //only traceless hamiltonian needed in program.
+   ham.proj_Tr();
 
-   double t = 1.0;
-   double tolerance = 1.0e-5;
+   //primal
+   SUP X;
 
-   //outer iteration: scaling of the potential barrier
-   while(t > 1.0e-12){
+   //dual
+   SUP Z;
 
-      cout << t << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << "\t";
+   //Lagrange multiplier
+   SUP V;
 
-      double convergence = 1.0;
+   //just dubya
+   SUP W;
 
-      int iter = 0;
-      int nr_ci = 0;
+   SUP u_0;
 
-      //inner iteration: 
-      //Newton's method for finding the minimum of the current potential
-      while(convergence > tolerance){
+   //little help
+   TPM hulp;
 
-         SUP P;
+   u_0.gI().unit();
 
-         P.fill(rdm);
+   u_0.fill();
 
-         P.invert();
+   X = 0.0;
+   Z = 0.0;
 
-         //eerst -gradient aanmaken:
-         TPM grad;
-         grad.constr_grad(t,ham,P);
+   //what does this do?
+   double sigma = 1.0;
 
-         //dit wordt de stap:
-         TPM delta;
+   double tolerance = 1.0e-4;
 
-         //los het hessiaan stelsel op:
-         nr_ci += delta.solve(t,P,grad);
+   double D_conv(1.0),P_conv(1.0),convergence(1.0);
 
-         //line search
-         double a = delta.line_search(t,P,ham);
+   int iter;
+   int max_iter = 1;
 
-         //rdm += a*delta;
-         rdm.daxpy(a,delta);
+   int tot_iter;
 
-         convergence = a*a*delta.ddot(delta);
+   while(D_conv > tolerance || P_conv > tolerance || fabs(convergence) > tolerance){
 
-         iter++;
+      D_conv = 1.0;
+
+      iter = 0;
+
+      while(D_conv > tolerance && iter <= max_iter){
+
+         tot_iter++;
+
+         ++iter;
+
+         //solve system
+         SUP B(Z);
+
+         B -= u_0;
+
+         B.daxpy(1.0/sigma,X);
+
+         TPM b;
+
+         b.collaps(1,B);
+
+         b.daxpy(-1.0/sigma,ham);
+
+         hulp.S(-1,b);
+
+         //hulp is the matrix containing the gamma_i's
+         hulp.proj_Tr();
+
+         //construct W
+         W.fill(hulp);
+
+         W += u_0;
+
+         W.daxpy(-1.0/sigma,X);
+
+         //update Z and V with eigenvalue decomposition:
+         W.sep_pm(Z,V);
+
+         V.dscal(-sigma);
+
+         //check infeasibility of the dual problem:
+         TPM v;
+
+         v.collaps(1,V);
+
+         v -= ham;
+
+         D_conv = sqrt(v.ddot(v));
 
       }
 
-      cout << iter << "\t" << nr_ci << endl;
+      //update primal:
+      X = V;
 
-      t /= 2.0;
+      //check primal feasibility (W is a helping variable now)
+      W.fill(hulp);
 
-      //what is the tolerance for the newton method?
-      tolerance = 1.0e-5*t;
+      W += u_0;
 
-      if(tolerance < 1.0e-12)
-         tolerance = 1.0e-12;
+      W -= Z;
 
-      //extrapolatie:
-      TPM extrapol(rdm);
+      P_conv = sqrt(W.ddot(W));
 
-      extrapol -= backup_rdm;
+      convergence = Z.tpm(0).ddot(ham) + X.ddot(u_0);
 
-      //overzetten voor volgende stap
-      backup_rdm = rdm;
+      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << Z.tpm(0).ddot(ham_copy) << endl;
 
-      double a = extrapol.line_search(t,rdm,ham);
-
-      rdm.daxpy(a,extrapol);
+      if(D_conv < P_conv)
+         sigma *= 1.01;
+      else
+         sigma /= 1.01;
 
    }
 
    cout << endl;
-   cout << "Groundstate energy =\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
+   cout << "Energy: " << ham_copy.ddot(Z.tpm(0)) << endl;
+   cout << "pd gap: " << Z.ddot(X) << endl;
+   cout << "dual conv: " << D_conv << endl;
+   cout << "primal conv: " << P_conv << endl;
 
-   cout << rdm;
+   cout << endl;
+   cout << tot_iter << endl;
 
    PPHM::clear();
    DPM::clear();
@@ -151,7 +198,7 @@ int main(void){
    SPM::clear();
 
    Tools::clear();
-   
+
    SphInt::clear();
    CartInt::clear();
 

@@ -1,4 +1,4 @@
-#include <iostream>
+include <iostream>
 #include <cmath>
 #include <fstream>
 
@@ -186,7 +186,7 @@ SUP &SUP::operator=(const SUP &sup_c){
    *I = sup_c.gI();
 
 #ifdef __Q_CON
-   *Q -= sup_c.gQ();
+   *Q = sup_c.gQ();
 #endif
 
 #ifdef __G_CON
@@ -210,7 +210,7 @@ SUP &SUP::operator=(const SUP &sup_c){
  * e.g. SZ = 0 makes all the Matrix elements zero.
  * @param a the number
  */
-SUP &SUP::operator=(double &a){
+SUP &SUP::operator=(double a){
 
    *I = a;
 
