@@ -88,7 +88,7 @@ class SUP{
       SUP &operator=(const SUP &);
 
       //overload equality operator
-      SUP &operator=(double &);
+      SUP &operator=(double);
 
       TPM &gI();
 
