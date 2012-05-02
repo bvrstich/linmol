@@ -117,7 +117,6 @@ int main(void){
 
       //collaps B onto b to construct the right hand side of the primal Newton equation
       TPM b;
-
       b.collaps(1,B);
 
       //dit wordt de stap:

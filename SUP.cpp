@@ -186,7 +186,7 @@ SUP &SUP::operator=(const SUP &sup_c){
    *I = sup_c.gI();
 
 #ifdef __Q_CON
-   *Q -= sup_c.gQ();
+   *Q = sup_c.gQ();
 #endif
 
 #ifdef __G_CON
@@ -753,7 +753,6 @@ void SUP::D(const SUP &S,const SUP &Z) {
 
    //positieve vierkantswortel uit Z
    SUP Z_copy(Z);
-
    Z_copy.sqrt(1);
 
    //links en rechts vermenigvuldigen met wortel Z
