@@ -49,6 +49,7 @@ BlockMatrix::BlockMatrix(const BlockMatrix &blockmat_copy){
 
    degen = new int [nr];
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i){
 
       flag[i] = 1;
@@ -128,6 +129,7 @@ const Matrix &BlockMatrix::operator[](int block) const{
  */
 BlockMatrix &BlockMatrix::operator=(const BlockMatrix &blockmat_copy){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       *blockmatrix[i] = blockmat_copy[i];
 
@@ -141,6 +143,7 @@ BlockMatrix &BlockMatrix::operator=(const BlockMatrix &blockmat_copy){
  */
 BlockMatrix &BlockMatrix::operator=(double a){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       *blockmatrix[i] = a;
 
@@ -154,6 +157,7 @@ BlockMatrix &BlockMatrix::operator=(double a){
  */
 BlockMatrix &BlockMatrix::operator+=(const BlockMatrix &blockmat_pl){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       *blockmatrix[i] += blockmat_pl[i];
 
@@ -167,6 +171,7 @@ BlockMatrix &BlockMatrix::operator+=(const BlockMatrix &blockmat_pl){
  */
 BlockMatrix &BlockMatrix::operator-=(const BlockMatrix &blockmat_pl){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       *blockmatrix[i] -= blockmat_pl[i];
 
@@ -181,18 +186,21 @@ BlockMatrix &BlockMatrix::operator-=(const BlockMatrix &blockmat_pl){
  */
 BlockMatrix &BlockMatrix::daxpy(double alpha,const BlockMatrix &blockmat_pl){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->daxpy(alpha,blockmat_pl[i]);
 
    return *this;
 
 }
+
 /**
  * /= operator overloaded: divide by a constant
  * @param c the number to divide your matrix through
  */
 BlockMatrix &BlockMatrix::operator/=(double c){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       *blockmatrix[i] /= c;
 
@@ -260,6 +268,7 @@ double BlockMatrix::trace() const{
 
    double ward = 0;
 
+#pragma omp parallel for reduction(+:ward) if(nr>20)
    for(int i = 0;i < nr;++i)
       ward += degen[i]*blockmatrix[i]->trace();
 
@@ -275,6 +284,7 @@ double BlockMatrix::ddot(const BlockMatrix &blockmatrix_in) const{
 
    double ward = 0.0;
 
+#pragma omp parallel for reduction(+:ward) if(nr>20)
    for(int i = 0;i < nr;++i)
       ward += degen[i]*blockmatrix[i]->ddot(blockmatrix_in[i]);
 
@@ -287,6 +297,7 @@ double BlockMatrix::ddot(const BlockMatrix &blockmatrix_in) const{
  */
 void BlockMatrix::invert(){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->invert();
 
@@ -298,6 +309,7 @@ void BlockMatrix::invert(){
  */
 void BlockMatrix::dscal(double alpha){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->dscal(alpha);
 
@@ -319,6 +331,7 @@ void BlockMatrix::fill_Random(){
  */
 void BlockMatrix::sqrt(int option){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->sqrt(option);
 
@@ -332,6 +345,7 @@ void BlockMatrix::sqrt(int option){
  */
 void BlockMatrix::L_map(const BlockMatrix &map,const BlockMatrix &object){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->L_map(map[i],object[i]);
    
@@ -344,6 +358,7 @@ void BlockMatrix::L_map(const BlockMatrix &map,const BlockMatrix &object){
  */
 BlockMatrix &BlockMatrix::mprod(const BlockMatrix &A, const BlockMatrix &B){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->mprod(A[i],B[i]);
 
@@ -356,6 +371,7 @@ BlockMatrix &BlockMatrix::mprod(const BlockMatrix &A, const BlockMatrix &B){
  */
 void BlockMatrix::symmetrize(){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->symmetrize();
 
@@ -411,6 +427,7 @@ int BlockMatrix::total_dim() const {
  */
 void BlockMatrix::sep_pm(BlockMatrix &p,BlockMatrix &m){
 
+#pragma omp parallel for if(nr>20)
    for(int i = 0;i < nr;++i)
       blockmatrix[i]->sep_pm(p[i],m[i]);
 
