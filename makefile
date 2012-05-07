@@ -39,7 +39,7 @@ BRIGHT_ROOT= .
 
 INCLUDE = ./include
 
-LIBS= -llapack -lblas -lgmp -lgmpxx -lgsl
+LIBS= -llapack -lblas -lgmp -lgmpxx -lgsl -lhdf5
 
 CC	= gcc
 CXX	= g++

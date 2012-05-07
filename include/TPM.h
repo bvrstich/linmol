@@ -94,6 +94,8 @@ class TPM : public BlockMatrix {
 
       static void clear();
 
+      int SaveToFile(const char *);
+
    private:
 
       //!list that relates the blockindex to physical two-particle quantumnumbers
