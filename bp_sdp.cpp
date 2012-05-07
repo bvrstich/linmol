@@ -11,6 +11,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <getopt.h>
 
 using std::cout;
 using std::endl;
@@ -31,7 +32,7 @@ using std::ofstream;
  * The potential is minimized using the Newton-Raphson method and the resulting linear system
  * is solved via the linear conjugate gradient method.
  */
-int main(void){
+int main(int argc, char **argv){
 
    //initialize the random nr generator
    srand(time(NULL));
@@ -42,7 +43,38 @@ int main(void){
    SphInt::init();
 
    const int M = 2*SphInt::gdim();//dim sp hilbert space
-   const int N = SphInt::gN();//nr of particles
+   int N = SphInt::gN();//nr of particles
+
+   struct option long_options[] =
+   {
+      {"particles",  required_argument, 0, 'n'},
+      {"help",  no_argument, 0, 'h'},
+      {0, 0, 0, 0}
+   };
+
+   int i,j;
+   while( (j = getopt_long (argc, argv, "hn:", long_options, &i)) != -1)
+      switch(j)
+      {
+         case 'h':
+         case '?':
+            cout << "Usage: " << argv[0] << " [OPTIONS]\n"
+               "\n"
+               "    -n, --particles=particles    Set the number of particles\n"
+               "    -h, --help                   Display this help\n"
+               "\n";
+            return 0;
+            break;
+         case 'n':
+            N = atoi(optarg);
+            if( N <= 0)
+            {
+               std::cerr << "Invalid particle number!" << endl;
+               return -1;
+            }
+            break;
+      }
+
 
    Tools::init(M,N);
 
