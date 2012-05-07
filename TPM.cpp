@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include <fstream>
+#include <hdf5.h>
 
 using std::ostream;
 using std::ofstream;
@@ -10,6 +11,8 @@ using std::endl;
 using std::ios;
 
 #include "include.h"
+
+#define HDF5_STATUS_CHECK(status) if(status < 0) std::cerr << __FILE__ << ":" << __LINE__ << ": Problem with writing to file. Status code=" << status << std::endl;
 
 vector< vector< vector<int> > > TPM::t2s;
 int ***TPM::s2t;
@@ -1426,6 +1429,106 @@ void TPM::subham(const SubSys &ss) {
 
    this->symmetrize();
 
+}
+
+int TPM::SaveToFile(const char *filename)
+{
+   hid_t       file_id, group_id, dataset_id, attribute_id, dataspace_id;
+   hsize_t     dims = 1;
+   herr_t      status;
+
+   // new file
+   file_id = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+
+   // make group for rdm
+   group_id = H5Gcreate(file_id, "/RDM", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+   for(int i=0;i<this->gnr();i++)
+   {
+      hsize_t dimblock = this->gdim(i)*this->gdim(i);
+
+      // make dataspace for a block
+      dataspace_id = H5Screate_simple(1, &dimblock, NULL);
+
+      char name[16];
+      sprintf(name,"/RDM/%d",i);
+
+      // make dataset
+      dataset_id = H5Dcreate(file_id, name, H5T_IEEE_F64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+      double **matrix = (*this)[i].gMatrix();
+
+      // fill dataset
+      status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0] );
+      HDF5_STATUS_CHECK(status);
+
+      /* Terminate access to the data space. */
+      status = H5Sclose(dataspace_id);
+      HDF5_STATUS_CHECK(status);
+
+      // add as attribute the S and M quantum numbers to each block
+      dataspace_id = H5Screate_simple(1, &dims, NULL);
+
+      attribute_id = H5Acreate (dataset_id, "S", H5T_STD_I32LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+      status = H5Awrite (attribute_id, H5T_NATIVE_INT, &B2SM[i][0] );
+      HDF5_STATUS_CHECK(status);
+
+      status = H5Aclose(attribute_id);
+      HDF5_STATUS_CHECK(status);
+
+      attribute_id = H5Acreate (dataset_id, "M", H5T_STD_I32LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+      status = H5Awrite (attribute_id, H5T_NATIVE_INT, &B2SM[i][1] );
+      HDF5_STATUS_CHECK(status);
+
+      status = H5Aclose(attribute_id);
+      HDF5_STATUS_CHECK(status);
+      status = H5Sclose(dataspace_id);
+      HDF5_STATUS_CHECK(status);
+
+      /* End access to the dataset and release resources used by it. */
+      status = H5Dclose(dataset_id);
+      HDF5_STATUS_CHECK(status);
+
+   }
+
+   int nr_blocks = this->gnr();
+   dataspace_id = H5Screate_simple(1, &dims, NULL);
+
+   attribute_id = H5Acreate (group_id, "Blocks", H5T_STD_I64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+   status = H5Awrite (attribute_id, H5T_NATIVE_INT, &nr_blocks );
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Aclose(attribute_id);
+   HDF5_STATUS_CHECK(status);
+
+   attribute_id = H5Acreate (group_id, "M", H5T_STD_I64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+   status = H5Awrite (attribute_id, H5T_NATIVE_INT, &M );
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Aclose(attribute_id);
+   HDF5_STATUS_CHECK(status);
+
+   attribute_id = H5Acreate (group_id, "N", H5T_STD_I64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+   status = H5Awrite (attribute_id, H5T_NATIVE_INT, &N );
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Aclose(attribute_id);
+   HDF5_STATUS_CHECK(status);
+
+
+   status = H5Sclose(dataspace_id);
+   HDF5_STATUS_CHECK(status);
+
+
+   /* Close the group. */
+   status = H5Gclose(group_id);
+   HDF5_STATUS_CHECK(status);
+
+   /* Terminate access to the file. */
+   status = H5Fclose(file_id);
+   HDF5_STATUS_CHECK(status);
+
+   return 0;
 }
 
 /* vim: set ts=3 sw=3 expandtab :*/
