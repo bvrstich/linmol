@@ -183,12 +183,12 @@ int main(void){
 
       convergence = ham.ddot(Z.gI()) + u_0.ddot(X);
 
-      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) << endl;
+      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << endl;
 
    }
 
    cout << endl;
-   cout << "Energy: " << ham_copy.ddot(Z.gI()) << endl;
+   cout << "Energy: " << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << endl;
    cout << "pd gap: " << Z.ddot(X) << endl;
    cout << "dual conv: " << D_conv << endl;
    cout << "primal conv: " << P_conv << endl;
