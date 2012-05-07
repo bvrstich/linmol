@@ -417,3 +417,5 @@ double EIG::max() const{
    return ward;
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

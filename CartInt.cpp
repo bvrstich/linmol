@@ -751,3 +751,5 @@ double CartInt::gNucRepEn() {
    return NucRepEn;
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

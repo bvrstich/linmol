@@ -983,3 +983,5 @@ int Transform::gind(int i) const {
    return ind[i];
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

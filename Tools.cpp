@@ -83,3 +83,5 @@ double Tools::g9j(int S,int Z,int S_ab,int S_cd){
    return x9j[8*S + 4*Z + 2*S_ab + S_cd];
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

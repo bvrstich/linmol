@@ -692,3 +692,5 @@ void SUP::sep_pm(SUP &p,SUP &m){
 #endif
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

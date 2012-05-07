@@ -424,3 +424,5 @@ void SPM::bar(double scale,const PPHM &pphm){
    this->symmetrize();
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

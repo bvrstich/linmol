@@ -1029,3 +1029,5 @@ void TPM::S(int option,const TPM &tpm_d){
    this->Q(option,Sa,0.0,Sc,tpm_d);
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

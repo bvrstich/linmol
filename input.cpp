@@ -543,3 +543,5 @@ double input::NucRepEn() const{
    return energy;
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

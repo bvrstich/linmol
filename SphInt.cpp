@@ -702,3 +702,5 @@ int SphInt::gg2s(int g){
    return ginlm2s(i,n,l,m);
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/
