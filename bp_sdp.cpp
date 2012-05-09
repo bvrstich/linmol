@@ -55,6 +55,9 @@ int main(void){
    SUP::init(M,N);
    EIG::init(M,N);
 
+   LinCon::init(M,N);
+   LinIneq::init(M,N,1);
+
    CartInt ci;
    ci.norm();
 
@@ -195,6 +198,8 @@ int main(void){
 
    cout << endl;
    cout << "total nr of iterations = " << tot_iter << endl;
+
+   LinIneq::clear();
 
    PPHM::clear();
    DPM::clear();

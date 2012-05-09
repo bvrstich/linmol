@@ -27,7 +27,9 @@ CPPSRC	= bp_sdp.cpp\
             DPM.cpp\
             PPHM.cpp\
             SUP.cpp\
-            EIG.cpp
+            EIG.cpp\
+            LinCon.cpp\
+            LinIneq.cpp
 
 OBJ	= $(CPPSRC:.cpp=.o)
 
