@@ -1035,7 +1035,7 @@ void TPM::S(int option,const TPM &tpm_d){
 
 int TPM::SaveToFile(const char *filename)
 {
-   hid_t       file_id, group_id, dataset_id, attribute_id, dataspace_id;
+   hid_t       file_id, group_id, dataset_id, attribute_id, dataspace_id, strtype;
    hsize_t     dims = 1;
    herr_t      status;
 
@@ -1117,10 +1117,27 @@ int TPM::SaveToFile(const char *filename)
    status = H5Aclose(attribute_id);
    HDF5_STATUS_CHECK(status);
 
+   std::ifstream specs("start.stp");
+   std::stringstream specs_buffer;
+   specs_buffer << specs.rdbuf();
+   std::string specs_string = specs_buffer.str();
+
+   // make string type of correct size
+   strtype = H5Tcopy(H5T_C_S1);
+   H5Tset_size(strtype,specs_string.size());
+
+   attribute_id = H5Acreate (group_id, "start.stp", strtype, dataspace_id, H5P_DEFAULT, H5P_DEFAULT);
+   status = H5Awrite (attribute_id, strtype, specs_string.c_str() );
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Aclose(attribute_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Tclose(strtype);
+   HDF5_STATUS_CHECK(status);
 
    status = H5Sclose(dataspace_id);
    HDF5_STATUS_CHECK(status);
-
 
    /* Close the group. */
    status = H5Gclose(group_id);
