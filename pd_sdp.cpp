@@ -82,7 +82,7 @@ int main(void){
    //eerst centering
    double gamma = 1.0;
 
-   double tolerance = 1.0e-7;
+   double tolerance = 1.0e-5;
 
    //flag == 0 : initiele centering run (tot op tolerance)
    //flag == 1 : doe een stap met gamma = 0
@@ -222,6 +222,14 @@ int main(void){
    cout << endl;
    cout << "E_0 = " << energy + CartInt::gNucRepEn() << " with accuracy of " << pd_gap << " and a deviation from centrality of " << center_dev << endl;
    cout << endl;
+
+   ofstream out("tpm.out");
+   out.precision(15);
+
+   for(int B = 0;B < S.gI().gnr();++B)
+      for(int i = 0;i < S.gI().gdim(B);++i)
+         for(int j = i;j < S.gI().gdim(B);++j)
+            out << B << "\t" << i << "\t" << j << "\t" << S.gI()(B,i,j) << endl;
 
    PPHM::clear();
    DPM::clear();
