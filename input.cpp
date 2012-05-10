@@ -61,11 +61,22 @@ int MENDELJEV = 118;
 /**
  * Constructor for the input class
  * @param setupfile filename of the setupfile of the job
+ * @param isfile true => setupfile is a filename, false => setupfile constaints the actual setup data. Defaults to true when not set
  */
-input::input(string setupfile){
+input::input(string setupfile, bool isfile){
 
    initelements();
-   readinsetupfile(setupfile);
+   if(isfile)
+      readinsetupfile(setupfile);
+   else
+   {
+      std::stringstream setupdata;
+
+      setupdata.str(setupfile);
+
+      readinsetupfile(setupdata);
+   }
+
    fillgaussinfo();
 
 }
@@ -235,16 +246,27 @@ int input::NumberOfElectrons(){
 
 }
 
-/**
+/*
  * Function to read in the setup file
  * @param setupfile filename of the setup file
  */
-void input::readinsetupfile(string setupfile){
+void input::readinsetupfile(string setupfile)
+{
+   ifstream inputfile(setupfile.c_str());
+
+   readinsetupfile(inputfile);
+
+   inputfile.close();
+}
+
+/**
+ * Function to read in the setup file
+ * @param inputfile stream which containts setup data
+ */
+void input::readinsetupfile(istream &inputfile){
 
    string temp, temp2, temp3;
    int pos1, pos2, pos3, length;
-
-   ifstream inputfile(setupfile.c_str());
 
    //1: the basisset
    getline(inputfile,temp);
@@ -339,9 +361,6 @@ void input::readinsetupfile(string setupfile){
    delete [] cotemp;
    delete [] variables;
    delete [] values;
-
-   inputfile.close();
-
 }
 
 

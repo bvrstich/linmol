@@ -62,7 +62,7 @@ class input{
    public:
 
       //Constructor
-      input(string);
+      input(string,bool=true);
 
       //Copy constructor
       input(input &);
@@ -121,6 +121,7 @@ class input{
       //Helper functions
       void initelements();
       void readinsetupfile(string);
+      void readinsetupfile(istream&);
       void fillgaussinfo();
       int getZ(string);
 

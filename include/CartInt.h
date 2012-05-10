@@ -85,7 +85,7 @@ class CartInt {
 
       static double gNucRepEn();
 
-      static void init();
+      static void init(string inputdata = "start.stp", bool isfile = true);
 
       static void clear();
 
