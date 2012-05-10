@@ -6,9 +6,13 @@
 *.out
 *.png
 *.gif
+*.h5
+*.hdf5
+.gdb_history
 callgrind.out.*
 pr_sdp
 pd_sdp
 bp_sdp
+read
 tags
 docs/
