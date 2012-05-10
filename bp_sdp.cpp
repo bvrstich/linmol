@@ -228,6 +228,8 @@ int main(int argc, char **argv){
    cout << endl;
    cout << "total nr of iterations = " << tot_iter << endl;
 
+   Z.gI().SaveToFile("output.h5");
+
    PPHM::clear();
    DPM::clear();
    PHM::clear();
