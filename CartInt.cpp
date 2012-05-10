@@ -29,10 +29,12 @@ double CartInt::NucRepEn;
 
 /** 
  * static function that reads in the input data and makes the matrix elements
+ * @param inputdata string which either constains the filename or the setupdata depending on the bool isfile
+ * @param isfile when TRUE => inputdata is filename, FALSE => inputdata constaints the setup data
  */
-void CartInt::init(){
+void CartInt::init(string inputdata, bool isfile){
 
-   readin = new input("start.stp");
+   readin = new input(inputdata, isfile);
 
    vector<int> v(6);
 
