@@ -105,6 +105,10 @@ class TPM : public BlockMatrix {
 
       int SaveToFile(const char *);
 
+      static int ReadInitfromFile(const char *filename, std::string &setupdata);
+
+      int ReadfromFile(const char *);
+
    private:
 
       //!list that relates the blockindex to physical two-particle quantumnumbers

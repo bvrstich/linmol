@@ -1548,4 +1548,98 @@ int TPM::SaveToFile(const char *filename)
    return 0;
 }
 
+int TPM::ReadInitfromFile(const char *filename, string &setupdata)
+{
+   hid_t file_id, group_id, attribute_id, strtype;
+   herr_t status;
+   size_t sdim;
+
+   // open file
+   file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(file_id);
+
+   // open group for rdm
+   group_id = H5Gopen(file_id, "/RDM", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(group_id);
+
+   status = H5Aexists(group_id,"start.stp");
+   HDF5_STATUS_CHECK(status);
+
+   if(status == 0)
+   {
+      std::cerr << "HDF5 input file '" << filename << "' is not of the correct type." << std::endl;
+      return -1;
+   }
+
+   attribute_id = H5Aopen(group_id, "start.stp", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(attribute_id);
+
+   strtype = H5Aget_type(attribute_id);
+   sdim = H5Tget_size(strtype);
+
+   char *specs = new char[sdim+1];
+
+   status = H5Aread(attribute_id, strtype, specs);
+   HDF5_STATUS_CHECK(status);
+
+   setupdata = specs;
+
+   delete [] specs;
+
+   status = H5Tclose(strtype);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Aclose(attribute_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Gclose(group_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Fclose(file_id);
+   HDF5_STATUS_CHECK(status);
+
+   return 0;
+}
+
+int TPM::ReadfromFile(const char *filename)
+{
+   hid_t       file_id, group_id, dataset_id;
+   herr_t      status;
+
+   // open file
+   file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(file_id);
+
+   // open group for rdm
+   group_id = H5Gopen(file_id, "/RDM", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(group_id);
+
+   for(int i=0;i<this->gnr();i++)
+   {
+      char name[16];
+      sprintf(name,"/RDM/%d",i);
+
+      // make dataset
+      dataset_id = H5Dopen(group_id, name, H5P_DEFAULT);
+      HDF5_STATUS_CHECK(dataset_id);
+
+      double **matrix = (*this)[i].gMatrix();
+
+      // fill dataset
+      status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+      HDF5_STATUS_CHECK(status);
+
+      status = H5Dclose(dataset_id);
+      HDF5_STATUS_CHECK(status);
+   }
+
+   status = H5Gclose(group_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Fclose(file_id);
+   HDF5_STATUS_CHECK(status);
+
+   return 0;
+}
+
 /* vim: set ts=3 sw=3 expandtab :*/
