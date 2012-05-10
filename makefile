@@ -47,8 +47,8 @@ CXX	= g++
 # -----------------------------------------------------------------------------
 #   Compiler & Linker flags
 # -----------------------------------------------------------------------------
-CFLAGS	= -I$(INCLUDE) -g -Wall
-LDFLAGS	= -g -Wall
+CFLAGS	= -I$(INCLUDE) -g -Wall -O2
+LDFLAGS	= -g -Wall -O2
 
 
 # =============================================================================
@@ -176,7 +176,7 @@ new:	clean all
 clean:
 	@echo -n '  +++ Cleaning all object files ... '
 	@echo -n $(OBJ)
-	@rm -f $(OBJ)
+	@rm -f $(OBJ) read.o
 	@echo 'Done.'
 
 # -----------------------------------------------------------------------------
@@ -184,5 +184,9 @@ clean:
 # -----------------------------------------------------------------------------
 doc:
 	@doxygen doc-config
+
+read: read.cpp $(CPPSRC:bp_sdp.cpp=)
+	$(MAKE) read.o $(OBJ:bp_sdp.o=) DEFS="-DPQG"
+	$(CXX) $(LDFLAGS) $(SFLAGS) -o read read.o $(OBJ:bp_sdp.o=) $(LIBS)
 
 # ====================== End of file 'makefile.in' ========================== #
