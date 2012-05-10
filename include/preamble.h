@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <fstream>
+#include <sstream>
 #include <string>
 #include <math.h>
 #include <assert.h>
@@ -16,6 +17,7 @@ using std::cout;
 using std::endl;
 using std::ostream;
 using std::ios;
+using std::istream;
 using std::ifstream;
 using std::ofstream;
 using std::string;
