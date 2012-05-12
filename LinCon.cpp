@@ -18,7 +18,7 @@ int LinCon::M;
  * @param M_in input dimension of sp space
  * @param N_in input nr of particles
  */
-void DPM::init(int M_in,int N_in){
+void LinCon::init(int M_in,int N_in){
 
    M = M_in;
    N = N_in;
@@ -128,7 +128,9 @@ int LinCon::gN() const{
 /**
  * construct the spin matrix as the spin matrix
  */
-void LinCon::spincon(){
+void LinCon::spincon(double spin){
+
+   i_c = spin;
 
    I_c->set_S_2();
 

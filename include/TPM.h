@@ -11,6 +11,7 @@ class SUP;
 class DPM;
 class PHM;
 class PPHM;
+class LinIneq;
 
 #include "BlockMatrix.h"
 
@@ -59,19 +60,19 @@ class TPM : public BlockMatrix {
 
       void unit();
 
-      void constr_grad(double,const TPM &,const SUP &);
+      void constr_grad(double,const TPM &,const SUP &,const LinIneq &);
 
       void proj_Tr();
       
       void min_unit(double scale);
 
-      int solve(double, const SUP &,TPM &);
+      int solve(double, const SUP &,TPM &,const LinIneq &);
 
-      void H(double t,const TPM &b,const SUP &P);
+      void H(double t,const TPM &b,const SUP &P,const LinIneq &);
 
-      double line_search(double t,SUP &P,const TPM &ham);
+      double line_search(double t,SUP &P,const TPM &ham,const LinIneq &);
 
-      double line_search(double t,const TPM &rdm,const TPM &ham);
+      double line_search(double t,const TPM &rdm,const TPM &ham,const LinIneq &);
 
       //Q afbeelding en zijn inverse
       void Q(int option,const TPM &);
@@ -92,6 +93,8 @@ class TPM : public BlockMatrix {
       void T(const PPHM &);
 
       void printnax(const char *) const;
+
+      void set_S_2();
 
       static void init(int,int);
 

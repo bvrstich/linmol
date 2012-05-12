@@ -68,3 +68,4 @@
 #include "EIG.h"
 
 #include "LinCon.h"
+#include "LinIneq.h"

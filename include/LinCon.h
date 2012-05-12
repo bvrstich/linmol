@@ -47,7 +47,7 @@ class LinCon {
 
       void diag_T(int);
 
-      void spincon();
+      void spincon(double);
 
       static void init(int,int);
 

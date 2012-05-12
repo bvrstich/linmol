@@ -53,6 +53,7 @@ int main(void){
    PPHM::init(M,N);
 
    LinCon::init(M,N);
+   LinIneq::init(M,N,1);
 
    SUP::init(M,N);
    EIG::init(M,N);
@@ -66,6 +67,12 @@ int main(void){
    //hamiltoniaan
    TPM ham;
    ham.molecule(si);
+
+   TPM S_2;
+   S_2.set_S_2();
+
+   LinIneq li;
+   li[0].spincon(2.0);
 
    TPM rdm;
    rdm.unit();
@@ -93,20 +100,22 @@ int main(void){
 
          P.fill(rdm);
 
+         li.fill(rdm);
+
          P.invert();
 
          //eerst -gradient aanmaken:
          TPM grad;
-         grad.constr_grad(t,ham,P);
+         grad.constr_grad(t,ham,P,li);
 
          //dit wordt de stap:
          TPM delta;
 
          //los het hessiaan stelsel op:
-         nr_ci += delta.solve(t,P,grad);
+         nr_ci += delta.solve(t,P,grad,li);
 
          //line search
-         double a = delta.line_search(t,P,ham);
+         double a = delta.line_search(t,P,ham,li);
 
          //rdm += a*delta;
          rdm.daxpy(a,delta);
@@ -117,9 +126,9 @@ int main(void){
 
       }
 
-      cout << iter << "\t" << nr_ci << endl;
+      cout << iter << "\t" << nr_ci << "\t" << rdm.ddot(S_2) << endl;
 
-      t /= 2.0;
+      t /= 1.1;
 
       //what is the tolerance for the newton method?
       tolerance = 1.0e-5*t;
@@ -135,7 +144,7 @@ int main(void){
       //overzetten voor volgende stap
       backup_rdm = rdm;
 
-      double a = extrapol.line_search(t,rdm,ham);
+      double a = extrapol.line_search(t,rdm,ham,li);
 
       rdm.daxpy(a,extrapol);
 
@@ -144,7 +153,7 @@ int main(void){
    cout << endl;
    cout << "Groundstate energy =\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   cout << rdm;
+   LinIneq::clear();
 
    PPHM::clear();
    DPM::clear();

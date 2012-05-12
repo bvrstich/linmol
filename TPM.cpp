@@ -388,7 +388,7 @@ void TPM::unit(){
  * @param ham Hamiltonian of the current problem
  * @param P SUP matrix containing the inverse of the constraint matrices (carrier space matrices).
  */
-void TPM::constr_grad(double t,const TPM &ham,const SUP &P){
+void TPM::constr_grad(double t,const TPM &ham,const SUP &P,const LinIneq &li){
 
    //eerst P conditie 
    *this = P.gI();
@@ -419,6 +419,10 @@ void TPM::constr_grad(double t,const TPM &ham,const SUP &P){
 
    *this +=hulp;
 #endif
+
+   //and the linear constraints
+   for(int i = 0;i < li.gnr();++i)
+      this->daxpy(1.0/li.constraint(i),li[i].gI());
 
    this->dscal(t);
 
@@ -460,7 +464,7 @@ void TPM::min_unit(double scale){
  * @param b right hand side (the gradient constructed int TPM::constr_grad)
  * @return nr of iterations needed to converge to the desired accuracy
  */
-int TPM::solve(double t,const SUP &P,TPM &b){
+int TPM::solve(double t,const SUP &P,TPM &b,const LinIneq &li){
 
    int iter = 0;
 
@@ -480,7 +484,7 @@ int TPM::solve(double t,const SUP &P,TPM &b){
 
    while(rr > 1.0e-10){ 
 
-      Hb.H(t,b,P);
+      Hb.H(t,b,P,li);
 
       ward = rr/b.ddot(Hb);
 
@@ -513,7 +517,7 @@ int TPM::solve(double t,const SUP &P,TPM &b){
  * @param b the TPM on which the hamiltonian will work, the image will be put in (*this)
  * @param P the SUP matrix containing the constraints, (can be seen as the metric).
  */
-void TPM::H(double t,const TPM &b,const SUP &P){
+void TPM::H(double t,const TPM &b,const SUP &P,const LinIneq &li){
 
    //eerst de P conditie:
    this->L_map(P.gI(),b);
@@ -581,6 +585,10 @@ void TPM::H(double t,const TPM &b,const SUP &P){
    *this+=hulp;
 #endif
 
+   //linear constraints
+   for(int i = 0;i < li.gnr();++i)
+      this->daxpy( b.ddot(li[i].gI()) / (li.constraint(i)*li.constraint(i)) , li[i].gI() );
+
    //nog schalen met t:
    this->dscal(t);
 
@@ -596,7 +604,7 @@ void TPM::H(double t,const TPM &b,const SUP &P){
  * @param ham Hamiltonian of the problem
  * @return the steplength
  */
-double TPM::line_search(double t,SUP &P,const TPM &ham){
+double TPM::line_search(double t,SUP &P,const TPM &ham,const LinIneq &li){
 
    double tolerance = 1.0e-5*t;
 
@@ -626,11 +634,19 @@ double TPM::line_search(double t,SUP &P,const TPM &ham){
 
    double ham_delta = ham.ddot(*this);
 
+   LinIneq li_epsi;
+   li_epsi.fill(*this);
+
+   double lin_end = li.min_end(li_epsi);
+
+   if(lin_end < b)
+      b = lin_end;
+
    while(b - a > tolerance){
 
       c = (b + a)/2.0;
 
-      if( (ham_delta - t*eigen.lsfunc(c)) < 0.0)
+      if( (ham_delta - t*eigen.lsfunc(c) - t*li.lsfunc(c,li_epsi)) < 0.0)
          a = c;
       else
          b = c;
@@ -648,7 +664,7 @@ double TPM::line_search(double t,SUP &P,const TPM &ham){
  * @param ham Hamiltonian of the problem
  * @return the steplength
  */
-double TPM::line_search(double t,const TPM &rdm,const TPM &ham){
+double TPM::line_search(double t,const TPM &rdm,const TPM &ham,const LinIneq &li){
 
    SUP P;
 
@@ -656,7 +672,7 @@ double TPM::line_search(double t,const TPM &rdm,const TPM &ham){
 
    P.invert();
 
-   return this->line_search(t,P,ham);
+   return this->line_search(t,P,ham,li);
 
 }
 
@@ -1194,5 +1210,31 @@ void TPM::T(const PPHM &pphm){
    }
 
    this->symmetrize();
+
+}
+
+/**
+ * fill the TPM object with the S^2 matrix
+ */
+void TPM::set_S_2(){
+
+   *this = 0.0;
+
+   for(int B = 0;B < gnr();++B){
+
+      if(B2SM[B][0] == 0){
+
+         for(int i = 0;i < gdim(B);++i)
+            (*this)(B,i,i) = -1.5 * (N - 2.0)/(N - 1.0);
+
+      }
+      else{
+
+         for(int i = 0;i < gdim(B);++i)
+            (*this)(B,i,i) = -1.5 * (N - 2.0)/(N - 1.0) + 2.0;
+
+      }
+
+   }
 
 }
