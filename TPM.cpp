@@ -1219,7 +1219,6 @@ void TPM::S_L(int option,const TPM &tpm_d){
 
 }
 
-
 /**
  * fill the TPM object with the S^2 matrix
  */
