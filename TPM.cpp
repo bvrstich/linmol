@@ -1011,6 +1011,10 @@ void TPM::collaps(int option,const SUP &S){
    *this += hulp;
 #endif
 
+   //and last but not least, the linear constraints
+   for(int i = 0;i < S.gli().gnr();++i)
+      this->daxpy(S.gli().gproj(i),S.gli()[i].gI());
+
    if(option == 1)
       this->proj_Tr();
 
@@ -1027,5 +1031,217 @@ void TPM::collaps(int option,const SUP &S){
 void TPM::S(int option,const TPM &tpm_d){
 
    this->Q(option,Sa,0.0,Sc,tpm_d);
+
+}
+
+/**
+ * ( Overlapmatrix of the U-basis ) - map, maps a traceless TPM onto a different traceless TPM, this map is actually a Q-like map
+ * for which the paramaters a and c are calculated in primal_dual.pdf. Since it is a Q-like map the inverse
+ * can be taken as well.
+ * @param option = 1 direct overlapmatrix-map is used , = -1 inverse overlapmatrix map is used
+ * @param tpm_d the input TPM
+ */
+void TPM::S_L(int option,const TPM &tpm_d){
+
+   LinIneq li;
+   li.fill(tpm_d);
+
+   int sign;
+   double norm;
+
+   int ga,gb,gc,gd;
+
+   int a,b,c,d;
+   int m_a,m_b;
+
+   if(option == -1){
+
+      //first make some parameters needed for the inverse:
+      double A = li.ga();
+      double C = li.gc();
+
+      double kappa = A - C*(M - 2.0);
+
+      double alpha[li.gnr()];
+
+      for(int k = 0;k < li.gnr();++k)
+         alpha[k] = li.alpha(k);
+
+      //make the scaled bar of tpm_d
+      SPM spm;
+      spm.bar(C/(A*kappa),tpm_d);
+
+      for(int B = 0;B < gnr();++B){
+
+         sign = 1 - 2*B2SM[B][0];
+
+         for(int i = 0;i < gdim(B);++i){
+
+            ga = t2s[B][i][0];
+            gb = t2s[B][i][1];
+
+            m_a = SPM::gg2ms(ga,0);
+            a = SPM::gg2ms(ga,1);
+
+            m_b = SPM::gg2ms(gb,0);
+            b = SPM::gg2ms(gb,1);
+
+            for(int j = i;j < gdim(B);++j){
+
+               gc = t2s[B][j][0];
+               gd = t2s[B][j][1];
+
+               c = SPM::gg2ms(gc,1);
+               d = SPM::gg2ms(gd,1);
+
+               norm = 1.0;
+
+               if(ga == gb)
+                  norm /= std::sqrt(2.0);
+
+               if(gc == gd)
+                  norm /= std::sqrt(2.0);
+
+               //regular Q-like part:
+
+               //tp
+               (*this)(B,i,j) = tpm_d(B,i,j)/A;
+
+               //3 sp
+               if(ga == gc)
+                  (*this)(B,i,j) += norm * spm(m_b + l_max,b,d);
+
+               if(gb == gc)
+                  (*this)(B,i,j) += sign * norm * spm(m_a + l_max,a,d);
+
+               if(ga == gd)
+                  (*this)(B,i,j) += sign * norm * spm(m_b + l_max,b,c);
+
+               if(gb == gd)
+                  (*this)(B,i,j) += norm * spm(m_a + l_max,a,c);
+
+               //constraint part:
+               for(int k = 0;k < LinIneq::gnr();++k){
+
+                  //tp part
+                  (*this)(B,i,j) -= alpha[k]/(4.0*A) * li[k].gI()(B,i,j);
+
+                  //3 sp
+                  if(ga == gc)
+                     (*this)(B,i,j) -= norm*C/(4.0*A*kappa) * alpha[k] * li[k].gI_bar()(m_b + l_max,b,d);
+
+                  if(gb == gc)
+                     (*this)(B,i,j) -= sign*norm*C/(4.0*A*kappa) * alpha[k] * li[k].gI_bar()(m_a + l_max,a,d);
+
+                  if(ga == gd)
+                     (*this)(B,i,j) -= sign*norm*C/(4.0*A*kappa) * alpha[k] * li[k].gI_bar()(m_b + l_max,b,c);
+
+                  if(gb == gd)
+                     (*this)(B,i,j) -= norm*C/(4.0*A*kappa) * alpha[k] * li[k].gI_bar()(m_a + l_max,a,c);
+
+               }
+
+            }
+         }
+
+      }
+
+   }
+   else{
+
+      double A = li.ga();
+      double C = li.gc();
+
+      SPM spm;
+
+      //construct de spm met schaling C
+      spm.bar(C,tpm_d);
+
+      for(int B = 0;B < gnr();++B){
+
+         sign = 1 - 2*B2SM[B][0];
+
+         for(int i = 0;i < gdim(B);++i){
+
+            ga = t2s[B][i][0];
+            gb = t2s[B][i][1];
+
+            m_a = SPM::gg2ms(ga,0);
+            a = SPM::gg2ms(ga,1);
+
+            m_b = SPM::gg2ms(gb,0);
+            b = SPM::gg2ms(gb,1);
+
+            for(int j = i;j < gdim(B);++j){
+
+               gc = t2s[B][j][0];
+               gd = t2s[B][j][1];
+
+               c = SPM::gg2ms(gc,1);
+               d = SPM::gg2ms(gd,1);
+
+               norm = 1.0;
+
+               if(ga == gb)
+                  norm /= std::sqrt(2.0);
+
+               if(gc == gd)
+                  norm /= std::sqrt(2.0);
+
+               //tp
+               (*this)(B,i,j) = A*tpm_d(B,i,j);
+
+               //3 sp
+               if(ga == gc)
+                  (*this)(B,i,j) -= norm*spm(m_b + l_max,b,d);
+
+               if(gb == gc)
+                  (*this)(B,i,j) -= norm*sign*spm(m_a + l_max,a,d);
+
+               if(ga == gd)
+                  (*this)(B,i,j) -= norm*sign*spm(m_b + l_max,b,c);
+
+               if(gb == gd)
+                  (*this)(B,i,j) -= norm*spm(m_a + l_max,a,c);
+
+               //constraint
+               for(int k = 0;k < LinIneq::gnr();++k)
+                  (*this)(B,i,j) += li.gproj(k) * li[k].gI()(B,i,j);
+
+            }
+         }
+
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+
+/**
+ * fill the TPM object with the S^2 matrix
+ */
+void TPM::set_S_2(){
+
+   *this = 0.0;
+
+   for(int B = 0;B < gnr();++B){
+
+      if(B2SM[B][0] == 0){
+
+         for(int i = 0;i < gdim(B);++i)
+            (*this)(B,i,i) = -1.5 * (N - 2.0)/(N - 1.0);
+
+      }
+      else{
+
+         for(int i = 0;i < gdim(B);++i)
+            (*this)(B,i,i) = -1.5 * (N - 2.0)/(N - 1.0) + 2.0;
+
+      }
+
+   }
 
 }

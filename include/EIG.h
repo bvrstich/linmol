@@ -119,6 +119,12 @@ class EIG{
 
    double max() const;
 
+   double *gli();
+
+   const double *gli() const;
+
+   double gli(int) const;
+
    static void init(int,int);
 
    private:
@@ -152,6 +158,12 @@ class EIG{
 
    //!dimension of sp space
    static int M;
+
+   //!double array containing the projections on the constraints
+   double *li;
+
+   //!the number of linear constraints
+   static int nr;
 
    //!total dimension of the EIG object
    static int dim;

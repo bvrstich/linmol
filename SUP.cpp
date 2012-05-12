@@ -705,7 +705,7 @@ void SUP::sep_pm(SUP &p,SUP &m){
  * The const version
  * @return pointer to the LinIneq object li.
  */
-const LinIneq &SUP::gli() const{
+const LinIneq &SUP::gli() const {
 
    return *li;
 

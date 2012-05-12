@@ -10,6 +10,7 @@ using std::endl;
 int EIG::M;
 int EIG::N;
 int EIG::dim;
+int EIG::nr;
 
 /**
  * initialize the statics
@@ -20,6 +21,7 @@ void EIG::init(int M_in,int N_in){
 
    M = M_in;
    N = N_in;
+   nr = LinIneq::gnr();
 
    dim = M*(M - 1)/2;
 
@@ -38,6 +40,8 @@ void EIG::init(int M_in,int N_in){
 #ifdef __T2_CON
    dim += M*M*(M - 1)/2;
 #endif
+
+   dim += LinIneq::gnr();
 
 }
 
@@ -66,6 +70,11 @@ EIG::EIG(SUP &sup){
    v_T2 = new BlockVector<PPHM>(sup.gT2());
 #endif
 
+   li = new double [nr];
+
+   for(int i = 0;i < nr;++i)
+      li[i] = sup.gli().gproj(i);
+
 }
 
 /**
@@ -93,6 +102,11 @@ EIG::EIG(const EIG &eig_c){
    v_T2 = new BlockVector<PPHM>(eig_c.gv_T2());
 #endif
 
+   li = new double [nr];
+
+   for(int i = 0;i < nr;++i)
+      li[i] = eig_c.gli(i);
+
 }
 
 /**
@@ -118,6 +132,9 @@ EIG &EIG::operator=(const EIG &eig_c){
 #ifdef __T2_CON
    *v_T2 = eig_c.gv_T2();
 #endif
+
+   for(int i = 0;i < nr;++i)
+      li[i] = eig_c.gli(i);
 
    return *this;
 
@@ -146,6 +163,8 @@ EIG::~EIG(){
    delete v_T2;
 #endif
 
+   delete [] li;
+
 }
 
 /**
@@ -171,6 +190,9 @@ void EIG::diagonalize(SUP &sup){
 #ifdef __T2_CON
    v_T2->diagonalize(sup.gT2());
 #endif
+   
+   for(int i = 0;i < nr;++i)
+      li[i] = sup.gli().gproj(i);
 
 }
 
@@ -193,6 +215,9 @@ ostream &operator<<(ostream &output,const EIG &eig_p){
 #ifdef __T2_CON
    std::cout << eig_p.gv_T2() << std::endl;
 #endif
+
+   for(int i = 0;i < LinIneq::gnr();++i)
+      output << i << "\t" << eig_p.gli(i) << endl;
 
    return output;
 
@@ -377,6 +402,16 @@ double EIG::min() const{
       ward = v_T2->min();
 #endif
 
+   //are there any lower values in the linear constraints?
+   for(int i = 0;i < nr;++i){
+
+      if(ward > li[i] && li[i] < 0.0)
+         ward = li[i];
+
+   }
+
+
+
    return ward;
 
 }
@@ -414,6 +449,39 @@ double EIG::max() const{
       ward = v_T2->max();
 #endif
 
+   //are there any higher values in the linear constraints?
+   for(int i = 0;i < nr;++i)
+      if(ward < li[i])
+         ward = li[i];
+
    return ward;
+
+}
+
+/** 
+ * @return the pointer to the projection onto the linear constraints
+ */
+double *EIG::gli() {
+
+   return li;
+
+}
+
+/** 
+ * @return the pointer to the projection onto the linear constraints (the const version)
+ */
+const double *EIG::gli() const {
+
+   return li;
+
+}
+
+/** 
+ * @param i the index
+ * @return the value of the constraint projection on index i
+ */
+double EIG::gli(int i) const {
+
+   return li[i];
 
 }

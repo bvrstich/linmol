@@ -53,6 +53,8 @@ class LinCon{
 
       void fill_Random();
 
+      void spincon(double);
+
       static void init(int,int);
 
    private:

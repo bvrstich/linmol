@@ -88,6 +88,10 @@ class TPM : public BlockMatrix {
       //overlapmatrix afbeelding en zijn inverse
       void S(int,const TPM &);
 
+      void S_L(int,const TPM &);
+
+      void set_S_2();
+
       static void init_overlap();
 
       static void init(int,int);

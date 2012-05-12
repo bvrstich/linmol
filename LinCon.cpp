@@ -186,3 +186,25 @@ void LinCon::fill_Random(){
    I_c_bar->bar(1.0,*I_c);
 
 }
+
+/**
+ * construct the spin matrix as the spin matrix
+ * @param spin the value of the spinconstraint
+ */
+void LinCon::spincon(double spin){
+
+   I_c->set_S_2();
+
+   for(int B = 0;B < I_c->gnr();++B)
+      for(int i = 0;i < I_c->gdim(B);++i)
+         (*I_c)(B,i,i) -= 2.0*spin/(N*(N - 1.0));
+
+   I_c_tr = 2.0 * I_c->trace()/ (double)(M*(M - 1.0));
+
+   I_c->proj_Tr();
+
+   I_c_bar->bar(1.0,*I_c);
+
+   i_c = spin;
+
+}
