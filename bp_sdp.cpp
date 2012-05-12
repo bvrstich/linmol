@@ -52,11 +52,11 @@ int main(void){
    DPM::init(M,N);
    PPHM::init(M,N);
 
-   SUP::init(M,N);
-   EIG::init(M,N);
-
    LinCon::init(M,N);
    LinIneq::init(M,N,1);
+
+   SUP::init(M,N);
+   EIG::init(M,N);
 
    CartInt ci;
    ci.norm();

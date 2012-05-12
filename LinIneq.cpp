@@ -301,9 +301,9 @@ LinIneq &LinIneq::daxpy(double alpha,const LinIneq &li_pl){
 }
 
 /**
- * @return the number of currently applied linear constraints
+ * static function returning the number of constraints
  */
-int LinIneq::gnr() const{
+int LinIneq::gnr() {
 
    return nr;
 
@@ -470,7 +470,7 @@ double LinIneq::ddot(const LinIneq &li_i) const {
 
 ostream &operator<<(ostream &output,const LinIneq &li_p){
 
-   for(int i = 0;i < li_p.gnr();++i)
+   for(int i = 0;i < LinIneq::gnr();++i)
       output << i << "\t" << li_p.gproj(i) << endl;
 
    return output;

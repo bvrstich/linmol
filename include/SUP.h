@@ -9,6 +9,7 @@ using std::ofstream;
 using std::ifstream;
 
 #include "TPM.h"
+#include "LinIneq.h"
 
 #ifdef PQ
 
@@ -112,8 +113,6 @@ class SUP{
 
       void daxpy(double alpha,const SUP &);
 
-      SUP &mprod(const SUP &,const SUP &);
-
       void fill(const TPM &);
 
       void fill();
@@ -143,6 +142,10 @@ class SUP{
 
       const PPHM &gT2() const;
 #endif
+      
+      LinIneq &gli();
+
+      const LinIneq &gli() const;
 
       void sep_pm(SUP &,SUP &);
 
@@ -181,6 +184,10 @@ class SUP{
       //!pointer tot he three particles matrix DPM
       PPHM *T2;
 #endif
+      
+      //!the object containing the linear constraint info.
+      LinIneq *li;
+
 
 };
 

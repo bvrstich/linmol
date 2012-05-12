@@ -42,8 +42,6 @@ class LinIneq{
 
       LinIneq &operator=(double);
 
-      int gnr() const;
-
       //easy to access the LinCon objects
       const LinCon &operator[](int i) const;
 
@@ -93,6 +91,8 @@ class LinIneq{
       void dscal(double);
 
       static void print_coef();
+
+      static int gnr();
 
       void sep_pm(LinIneq &,LinIneq &);
 

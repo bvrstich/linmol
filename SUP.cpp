@@ -40,6 +40,8 @@ void SUP::init(int M_in,int N_in){
    dim += M*M*(M - 1)/2;
 #endif
 
+   dim += LinIneq::gnr();
+   
 }
 
 /**
@@ -65,6 +67,8 @@ SUP::SUP(){
 #ifdef __T2_CON
    T2 = new PPHM();
 #endif
+
+   li = new LinIneq();
 
 }
 
@@ -94,6 +98,8 @@ SUP::SUP(const SUP &sup_c){
    T2 = new PPHM(sup_c.gT2());
 #endif
 
+   li = new LinIneq(sup_c.gli());
+
 }
 
 /**
@@ -118,6 +124,8 @@ SUP::~SUP(){
 #ifdef __T2_CON
    delete T2;
 #endif
+
+   delete li;
 
 }
 
@@ -144,6 +152,8 @@ SUP &SUP::operator+=(const SUP &sup_p){
 #ifdef __T2_CON
    *T2 += sup_p.gT2();
 #endif
+
+   *li += sup_p.gli();
 
    return *this;
 
@@ -173,6 +183,8 @@ SUP &SUP::operator-=(const SUP &sup_p){
    *T2 -= sup_p.gT2();
 #endif
 
+   *li -= sup_p.gli();
+
    return *this;
 
 }
@@ -200,6 +212,8 @@ SUP &SUP::operator=(const SUP &sup_c){
 #ifdef __T2_CON
    (*T2) = sup_c.gT2();
 #endif
+
+   *li = sup_c.gli();
 
    return *this;
 
@@ -229,6 +243,8 @@ SUP &SUP::operator=(double a){
 #ifdef __T2_CON
    (*T2) = a;
 #endif
+
+   *li = a; 
 
    return *this;
 
@@ -368,6 +384,8 @@ void SUP::fill_Random(){
    T2->fill_Random();
 #endif
 
+   li->fill_Random();
+
 }
 
 /**
@@ -421,6 +439,8 @@ double SUP::ddot(const SUP &sup_i) const{
    ward += T2->ddot(sup_i.gT2());
 #endif
 
+   ward += li->ddot(sup_i.gli());
+
    return ward;
 
 }
@@ -449,6 +469,8 @@ void SUP::invert(){
    T2->invert();
 #endif
 
+   li->invert();
+
 }
 
 /**
@@ -475,6 +497,8 @@ void SUP::dscal(double alpha){
    T2->dscal(alpha);
 #endif
 
+   li->dscal(alpha);
+
 }
 
 /**
@@ -500,6 +524,8 @@ void SUP::sqrt(int option){
 #ifdef __T2_CON
    T2->sqrt(option);
 #endif
+
+   li->sqrt(option);
 
 }
 
@@ -529,6 +555,8 @@ void SUP::L_map(const SUP &map,const SUP &object){
    T2->L_map(map.gT2(),object.gT2());
 #endif
 
+   li->L_map(map.gli(),object.gli());
+
 }
 
 /**
@@ -556,36 +584,7 @@ void SUP::daxpy(double alpha,const SUP &sup_p){
    T2->daxpy(alpha,sup_p.gT2());
 #endif
 
-}
-
-/**
- * General matrixproduct between two SUP matrices, act with Matrix::mprod on every block
- * 
- * @param A left hand matrix
- * @param B right hand matrix
- * @return The product AB
- */
-SUP &SUP::mprod(const SUP &A,const SUP &B){
-
-   I->mprod(A.gI(),B.gI());
-
-#ifdef __Q_CON
-   Q->mprod(A.gQ(),B.gQ());
-#endif
-
-#ifdef __G_CON
-   G->mprod(A.gG(),B.gG());
-#endif
-
-#ifdef __T1_CON
-   T1->mprod(A.gT1(),B.gT1());
-#endif
-
-#ifdef __T2_CON
-   T2->mprod(A.gT2(),B.gT2());
-#endif
-
-   return *this;
+   li->daxpy(alpha,sup_p.gli());
 
 }
 
@@ -613,6 +612,8 @@ void SUP::fill(const TPM &tpm){
    T2->T(tpm);
 #endif
 
+   li->fill(tpm);
+
 }
 
 /**
@@ -635,6 +636,8 @@ void SUP::fill(){
 #ifdef __T2_CON
    T2->T(*I);
 #endif 
+
+   li->fill(*I);
 
 }
 
@@ -661,6 +664,9 @@ ostream &operator<<(ostream &output,const SUP &sup_p){
    output << std::endl;
    output << sup_p.gT2();
 #endif
+
+   output << std::endl;
+   output << sup_p.gli();
 
    return output;
 
@@ -690,5 +696,26 @@ void SUP::sep_pm(SUP &p,SUP &m){
 #ifdef __T2_CON
    T2->sep_pm(p.gT2(),m.gT2());
 #endif
+
+   li->sep_pm(p.gli(),m.gli());
+
+}
+
+/**
+ * The const version
+ * @return pointer to the LinIneq object li.
+ */
+const LinIneq &SUP::gli() const{
+
+   return *li;
+
+}
+
+/**
+ * @return pointer to the LinIneq object li.
+ */
+LinIneq &SUP::gli(){
+
+   return *li;
 
 }
