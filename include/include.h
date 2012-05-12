@@ -66,3 +66,5 @@
 
 #include "SUP.h"
 #include "EIG.h"
+
+#include "LinCon.h"
