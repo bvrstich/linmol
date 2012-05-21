@@ -69,3 +69,5 @@
 
 #include "LinCon.h"
 #include "LinIneq.h"
+
+#include "SubSys.h"

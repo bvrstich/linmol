@@ -28,8 +28,6 @@ void LinCon::init(int M_in,int N_in){
 
 /**
  * Constructor of a LinCon object
- * @param M The constraint matrix
- * @param N the minimal projection
  */
 LinCon::LinCon(){
 

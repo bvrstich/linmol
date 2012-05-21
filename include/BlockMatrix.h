@@ -15,7 +15,6 @@ using std::ostream;
  * array containing the dimensions of the different block. It redefines all the member functions of the Matrix
  * class, which uses the lapack and blas routines for matrix computations.
  */
-
 class BlockMatrix{
 
    /**

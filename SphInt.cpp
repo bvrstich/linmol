@@ -702,3 +702,12 @@ int SphInt::gg2s(int g){
    return ginlm2s(i,n,l,m);
 
 }
+
+/**
+ * access to the t2s list:
+ */
+int SphInt::gt2s(int t,int option){
+
+   return t2s[t][option];
+
+}

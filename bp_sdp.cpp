@@ -52,6 +52,8 @@ int main(void){
    DPM::init(M,N);
    PPHM::init(M,N);
 
+   SubSys::init(M,N);
+
    LinCon::init(M,N);
    LinIneq::init(M,N,1);
 
@@ -62,9 +64,18 @@ int main(void){
    ci.norm();
 
    SphInt si(ci);
+
+   SubSys ss_Be(0,si);
+   SubSys ss_B(1,si);
+
+   TPM tpm;
+   tpm.fill_Random();
+
+   cout << ss_Be.subocc(tpm) << endl;
+/*
+   //hamiltoniaan
    si.orthogonalize();
 
-   //hamiltoniaan
    TPM ham;
    ham.molecule(si);
 
@@ -108,7 +119,7 @@ int main(void){
    double D_conv(1.0),P_conv(1.0),convergence(1.0);
 
    // mazziotti uses 1.6 for this
-   double mazzy = 1.6;
+   double mazzy = 1.9;
 
    int iter_dual,iter_primal(0);
    int max_iter = 1;
@@ -168,7 +179,7 @@ int main(void){
 
          D_conv = sqrt(v.ddot(v));
 
-     }
+      }
 
       //update primal:
       X = V;
@@ -202,7 +213,7 @@ int main(void){
 
    cout << endl;
    cout << "total nr of iterations = " << tot_iter << endl;
-
+*/
    LinIneq::clear();
 
    PPHM::clear();

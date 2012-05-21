@@ -29,7 +29,8 @@ CPPSRC	= bp_sdp.cpp\
             SUP.cpp\
             EIG.cpp\
             LinCon.cpp\
-            LinIneq.cpp
+            LinIneq.cpp\
+            SubSys.cpp
 
 OBJ	= $(CPPSRC:.cpp=.o)
 
@@ -60,7 +61,7 @@ all:
 	@echo
 	@echo '  +++ Building $(BINNAME)...'
 	@echo	
-	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQGT"
+	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQG"
 	@if test $?; then \
 	   echo; echo '*************** FAILED! ***************' ; echo; \
 	 else \

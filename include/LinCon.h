@@ -11,7 +11,7 @@ class SPM;
 
 /**
  * @author Brecht Verstichel
- * @date 08-12-2010\n\n
+ * @date 21-05-2012\n\n
  * This is a class that contains the information about a single linear constraint.
  */
 
