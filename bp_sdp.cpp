@@ -108,7 +108,7 @@ int main(void){
    double D_conv(1.0),P_conv(1.0),convergence(1.0);
 
    // mazziotti uses 1.6 for this
-   double mazzy = 1.0;
+   double mazzy = 1.6;
 
    int iter_dual,iter_primal(0);
    int max_iter = 1;
