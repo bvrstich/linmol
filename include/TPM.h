@@ -92,6 +92,8 @@ class TPM : public BlockMatrix {
 
       void set_S_2();
 
+      void subocc_op(int,const Matrix &);
+
       static void init_overlap();
 
       static void init(int,int);

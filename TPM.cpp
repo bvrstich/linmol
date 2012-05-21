@@ -1244,3 +1244,78 @@ void TPM::set_S_2(){
    }
 
 }
+
+/**
+ * construct the TPM object which, when the dotproduct is taken with a 2DM, gives back the subsystem occupation
+ * @param core the core on which the subsystem is taken
+ * @param S the overlapmatrix !!positive sqrt!!
+ */
+void TPM::subocc_op(int core,const Matrix &S){
+
+   SPM spm;
+   spm.subocc_op(core,S);
+
+   int ga,gb,gc,gd;
+
+   int a,b,c,d;
+   int m_a,m_b;
+
+   int sign;
+
+   double norm;
+
+   for(int B = 0;B < gnr();++B){
+
+      sign = 1 - 2*B2SM[B][0];
+
+      for(int i = 0;i < gdim(B);++i){
+
+         ga = t2s[B][i][0];
+         gb = t2s[B][i][1];
+
+         m_a = SPM::gg2ms(ga,0);
+         a = SPM::gg2ms(ga,1);
+
+         m_b = SPM::gg2ms(gb,0);
+         b = SPM::gg2ms(gb,1);
+
+         for(int j = i;j < gdim(B);++j){
+
+            gc = t2s[B][j][0];
+            gd = t2s[B][j][1];
+
+            c = SPM::gg2ms(gc,1);
+            d = SPM::gg2ms(gd,1);
+
+            norm = 1.0;
+
+            if(ga == gb)
+               norm /= std::sqrt(2.0);
+
+            if(gc == gd)
+               norm /= std::sqrt(2.0);
+
+            (*this)(B,i,j) = 0.0;
+
+            if(ga == gc)
+               (*this)(B,i,j) += norm * spm(m_b + l_max,b,d);
+
+            if(gb == gc)
+               (*this)(B,i,j) += norm * sign * spm(m_a + l_max,a,d);
+
+            if(ga == gd)
+               (*this)(B,i,j) += norm * sign * spm(m_b + l_max,b,c);
+
+            if(gb == gd)
+               (*this)(B,i,j) += norm * spm(m_a + l_max,a,c);
+
+            (*this)(B,i,j) /= (N - 1.0);
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}

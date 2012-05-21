@@ -239,7 +239,7 @@ int SPM::gs2inl(int m,int s,int option) {
  */
 int SPM::ginl2s(int m,int i,int n,int l){
 
-   return inl2s[m + l][i][n - l - 1][l];
+   return inl2s[m + l_max][i][n - l - 1][l];
 
 }
 
@@ -418,6 +418,44 @@ void SPM::bar(double scale,const PPHM &pphm){
             (*this)(m+l_max,a,c) *= scale;
 
          }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
+ * construct the SPM object which, when the dotproduct is taken with a 1DM, gives back the subsystem occupation
+ * @param S the overlapmatrix !!positive sqrt!!
+ */
+void SPM::subocc_op(int core,const Matrix &S){
+
+   *this = 0.0;
+
+   int i_a,n_a,l_a;
+   int i_b,n_b,l_b;
+
+   for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a){
+
+         i_a = s2inl[m + l_max][a][0];
+         n_a = s2inl[m + l_max][a][1];
+         l_a = s2inl[m + l_max][a][2];
+
+         for(int b = a;b < gdim(m + l_max);++b){
+
+            i_b = s2inl[m + l_max][b][0];
+            n_b = s2inl[m + l_max][b][1];
+            l_b = s2inl[m + l_max][b][2];
+            
+            for(int s = 0;s < SphInt::gdim();++s)
+               if(core == SphInt::gs2inlm(s,0))
+                  (*this)[m + l_max](a,b) += S(SphInt::ginlm2s(i_a,n_a,l_a,m),s) * S(SphInt::ginlm2s(i_b,n_b,l_b,m),s);
+
+         }
+      }
 
    }
 

@@ -43,14 +43,21 @@ class SubSys{
 
       TPM &gsubham();
 
+      const TPM &gsubocc() const;
+
+      TPM &gsubocc();
+
       double gE(int) const;
 
-      double subocc(const TPM &) const;
+      double subocc_func(const TPM &) const;
 
    private:
       
       //!hamiltonian on the subsystem
       TPM *subham;
+
+      //!number operator on the subsystem space
+      TPM *subocc;
 
       //!array of energies for different occupations of the subsystem
       double *E;

@@ -80,6 +80,13 @@ SubSys::SubSys(int core,const SphInt &si_in){
 
    subham->molecule(*si);
 
+   //make the subsystem occupation operator
+   subocc = new TPM();
+
+   si->gS().invert();
+
+   subocc->subocc_op(core,si->gS());
+
 }
 
 
@@ -98,8 +105,6 @@ SubSys::SubSys(const SubSys &ss_copy){
    for(int i = 0;i < 3;++i)
       E[i] = ss_copy.gE(i);
 
-   delete si;
-
 }
 
 /**
@@ -110,6 +115,8 @@ SubSys::~SubSys(){
    delete subham;
 
    delete [] E;
+
+   delete si;
 
 }
 
@@ -150,26 +157,66 @@ TPM &SubSys::gsubham() {
 }
 
 /**
+ * @return the subsystem Hamiltonian
+ */
+const TPM &SubSys::gsubocc() const {
+
+   return *subocc;
+
+}
+
+/**
+ * @return the subsystem Hamiltonian
+ */
+TPM &SubSys::gsubocc() {
+
+   return *subocc;
+
+}
+
+/**
  * get the occupation of the subsystem: watch out, need overlapmatrix for this!
  */
-double SubSys::subocc(const TPM &tpm) const {
+double SubSys::subocc_func(const TPM &tpm) const {
 
    SPM spm;
    spm.bar(1.0/(N - 1.0),tpm);
 
    double ward = 0.0;
 
-   int i,n,l,m;
+   int i,m;
+   int i_a,n_a,l_a,m_a;
+   int i_b,n_b,l_b,m_b;
 
    for(int s_i = 0;s_i < SphInt::gdim();++s_i){
 
       i = SphInt::gs2inlm(s_i,0);
-      n = SphInt::gs2inlm(s_i,1);
-      l = SphInt::gs2inlm(s_i,2);
       m = SphInt::gs2inlm(s_i,3);
 
-      if(i == core)
-         ward += spm[m + SphInt::gl_max()](SPM::ginl2s(m,i,n,l),);
+      if(i == core){
+
+         for(int s_a = 0;s_a < SphInt::gdim();++s_a){
+
+            i_a = SphInt::gs2inlm(s_a,0);
+            n_a = SphInt::gs2inlm(s_a,1);
+            l_a = SphInt::gs2inlm(s_a,2);
+            m_a = SphInt::gs2inlm(s_a,3);
+
+            for(int s_b = 0;s_b < SphInt::gdim();++s_b){
+
+               i_b = SphInt::gs2inlm(s_b,0);
+               n_b = SphInt::gs2inlm(s_b,1);
+               l_b = SphInt::gs2inlm(s_b,2);
+               m_b = SphInt::gs2inlm(s_b,3);
+
+
+               if(m_a == m && m_b == m)
+                  ward += si->gS()(s_i,s_a) * spm[m + SphInt::gl_max()](SPM::ginl2s(m_a,i_a,n_a,l_a),SPM::ginl2s(m_b,i_b,n_b,l_b)) * si->gS()(s_b,s_i);
+
+            }
+         }
+
+      }
 
    }
 

@@ -54,6 +54,8 @@ class SPM : public BlockMatrix {
       
       void bar(double,const PPHM &);
 
+      void subocc_op(int,const Matrix &);
+
       static int gl_max();
 
       static int gs2inl(int,int,int);

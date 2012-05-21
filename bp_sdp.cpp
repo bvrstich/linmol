@@ -71,7 +71,11 @@ int main(void){
    TPM tpm;
    tpm.fill_Random();
 
-   cout << ss_Be.subocc(tpm) << endl;
+   cout << 2.0*ss_Be.subocc_func(tpm) << endl;
+   cout << tpm.ddot(ss_Be.gsubocc()) << endl;
+
+   cout << 2.0*ss_B.subocc_func(tpm) << endl;
+   cout << tpm.ddot(ss_B.gsubocc()) << endl;
 /*
    //hamiltoniaan
    si.orthogonalize();
