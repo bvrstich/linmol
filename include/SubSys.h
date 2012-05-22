@@ -47,7 +47,15 @@ class SubSys{
 
       TPM &gsubocc();
 
-      double gE(int) const;
+      double gE(int,int) const;
+
+      const vector< vector<int> > &gE() const;
+
+      vector< vector<int> > &gE();
+
+      void setB();
+
+      void setBe();
 
       double subocc_func(const TPM &) const;
 
@@ -60,7 +68,7 @@ class SubSys{
       TPM *subocc;
 
       //!array of energies for different occupations of the subsystem
-      double *E;
+      vector< vector<int> > E;
 
       //!the index of the subsystem core
       int core;

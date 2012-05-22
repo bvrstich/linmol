@@ -64,7 +64,7 @@ class LinIneq{
 
       double gtr() const;
 
-      static void init(int,int,int);
+      static void init(int,int,const SphInt &);
 
       static void clear();
 

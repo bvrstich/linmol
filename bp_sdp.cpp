@@ -54,29 +54,17 @@ int main(void){
 
    SubSys::init(M,N);
 
-   LinCon::init(M,N);
-   LinIneq::init(M,N,1);
-
-   SUP::init(M,N);
-   EIG::init(M,N);
-
    CartInt ci;
    ci.norm();
 
    SphInt si(ci);
 
-   SubSys ss_Be(0,si);
-   SubSys ss_B(1,si);
+   LinCon::init(M,N);
+   LinIneq::init(M,N,si);
 
-   TPM tpm;
-   tpm.fill_Random();
+   SUP::init(M,N);
+   EIG::init(M,N);
 
-   cout << 2.0*ss_Be.subocc_func(tpm) << endl;
-   cout << tpm.ddot(ss_Be.gsubocc()) << endl;
-
-   cout << 2.0*ss_B.subocc_func(tpm) << endl;
-   cout << tpm.ddot(ss_B.gsubocc()) << endl;
-/*
    //hamiltoniaan
    si.orthogonalize();
 
@@ -217,7 +205,7 @@ int main(void){
 
    cout << endl;
    cout << "total nr of iterations = " << tot_iter << endl;
-*/
+
    LinIneq::clear();
 
    PPHM::clear();

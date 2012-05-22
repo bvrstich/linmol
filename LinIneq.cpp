@@ -28,14 +28,14 @@ double *LinIneq::coef;
  * initializes them.
  * @param M_in nr of sp orbitals
  * @param N_in nr of particles
- * @param nr_in nr of contraint matrices
+ * @param si input SphInt object for construction of subsystem constraints
  */
-void LinIneq::init(int M_in,int N_in,int nr_in){
+void LinIneq::init(int M_in,int N_in,const SphInt &si){
 
    M = M_in;
    N = N_in;
 
-   nr = nr_in;
+   nr = 4;
 
    //allocate
    li = new LinCon * [nr];
@@ -43,11 +43,17 @@ void LinIneq::init(int M_in,int N_in,int nr_in){
    for(int i = 0;i < nr;++i)
       li[i] = new LinCon();
 
-   //fill
-   //for(int i = 0;i < nr;++i)
-      //li[i]->fill_Random();
+   //make the subsystem objects
+   SubSys ss_Be(0,si);
+   ss_Be.setBe();
 
-   li[0]->spincon(2.0);
+   SubSys ss_B(1,si);
+   ss_B.setB();
+
+   li[0]->subcon(ss_Be,0);
+   li[1]->subcon(ss_Be,1);
+   li[2]->subcon(ss_B,0);
+   li[3]->subcon(ss_B,1);
 
    //what are the coef's of the overlap matrix without the linear constraints:
    init_overlap();
@@ -528,7 +534,7 @@ void LinIneq::fill_Random(){
 
    for(int i = 0;i < nr;++i)
       proj[i] = (double) rand()/RAND_MAX;
-   
+
 }
 
 /**

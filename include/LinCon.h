@@ -8,6 +8,7 @@ using std::ostream;
 
 class TPM;
 class SPM;
+class SubSys;
 
 /**
  * @author Brecht Verstichel
@@ -46,6 +47,8 @@ class LinCon{
       void sI(const TPM &);
 
       void si(double);
+
+      void subcon(const SubSys &,int);
 
       int gM() const;
 

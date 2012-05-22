@@ -37,8 +37,6 @@ SubSys::SubSys(int core,const SphInt &si_in){
 
    subham = new TPM();
 
-   E = new double [3];//I guess just three numbers is standard
-
    si = new SphInt(si_in);
 
    //set the "non-subsystem" matrixelements to zero:
@@ -100,10 +98,7 @@ SubSys::SubSys(const SubSys &ss_copy){
 
    subham = new TPM(ss_copy.gsubham());
 
-   E = new double [3];
-
-   for(int i = 0;i < 3;++i)
-      E[i] = ss_copy.gE(i);
+   E = ss_copy.gE();
 
 }
 
@@ -114,18 +109,35 @@ SubSys::~SubSys(){
 
    delete subham;
 
-   delete [] E;
-
    delete si;
 
 }
 
 /**
+ * @param option if == 0 return N, if == 1 return E(N)
  * @return the energy corresponding to the index "particle number"
  */
-double SubSys::gE(int index) const{
+double SubSys::gE(int index,int option) const{
 
-   return E[index];
+   return E[index][option];
+
+}
+
+/**
+ * @return the full vector< vector<int> > E object containing the subsystem energies and particle numbers
+ */
+const vector< vector<int> > &SubSys::gE() const {
+
+   return E;
+
+}
+
+/**
+ * @return the full vector< vector<int> > E object containing the subsystem energies and particle numbers
+ */
+vector< vector<int> > &SubSys::gE() {
+
+   return E;
 
 }
 
@@ -175,7 +187,7 @@ TPM &SubSys::gsubocc() {
 }
 
 /**
- * get the occupation of the subsystem: watch out, need overlapmatrix for this!
+ * get the occupation of the subsystem: watch out, need overlapmatrix for this, and preferably the inverse sqrt !
  */
 double SubSys::subocc_func(const TPM &tpm) const {
 
@@ -209,7 +221,6 @@ double SubSys::subocc_func(const TPM &tpm) const {
                l_b = SphInt::gs2inlm(s_b,2);
                m_b = SphInt::gs2inlm(s_b,3);
 
-
                if(m_a == m && m_b == m)
                   ward += si->gS()(s_i,s_a) * spm[m + SphInt::gl_max()](SPM::ginl2s(m_a,i_a,n_a,l_a),SPM::ginl2s(m_b,i_b,n_b,l_b)) * si->gS()(s_b,s_i);
 
@@ -221,5 +232,59 @@ double SubSys::subocc_func(const TPM &tpm) const {
    }
 
    return ward;
+
+}
+
+/**
+ * set the subsystem energies for Be with occupations 3, 4 and 5.
+ */
+void SubSys::setBe(){
+
+   vector<int> v(2);
+
+   //3
+   v[0] = 3;
+   v[1] = -14.27612024;
+
+   E.push_back(v);
+
+   //4
+   v[0] = 4;
+   v[1] = -14.61749376;
+
+   E.push_back(v);
+
+   //5
+   v[0] = 5;
+   v[1] = -14.58336127;
+
+   E.push_back(v);
+
+}
+
+/**
+ * set the subsystem energies for B with occupations 3, 4 and 5.
+ */
+void SubSys::setB(){
+
+   vector<int> v(2);
+
+   //3
+   v[0] = 3;
+   v[1] = -23.372643;
+
+   E.push_back(v);
+
+   //4
+   v[0] = 4;
+   v[1] = -24.29393637;
+
+   E.push_back(v);
+
+   //5
+   v[0] = 5;
+   v[1] = -24.60479038;
+
+   E.push_back(v);
 
 }
