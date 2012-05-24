@@ -59,7 +59,6 @@ int main(void){
 
    SphInt si(ci);
 
-   //make the subsystem objects
    SubSys ss_Be(0,si);
    ss_Be.setBe();
 
@@ -95,6 +94,19 @@ int main(void){
    spm.bar(1.0/(N - 1.0),rdm);
 
    cout << spm.trace() << endl;
+
+   LinIneq::clear();
+
+   PPHM::clear();
+   DPM::clear();
+   PHM::clear();
+   TPM::clear();
+   SPM::clear();
+
+   Tools::clear();
+
+   SphInt::clear();
+   CartInt::clear();
 
    return 0;
 

@@ -45,6 +45,34 @@ class SubSys{
 
       vector< vector<int> > &gE();
 
+      const vector<int> &gs2f() const;
+
+      const Matrix &gS() const;
+
+      Matrix &gS();
+
+      const Matrix &gT() const;
+
+      Matrix &gT();
+
+      const Matrix &gU() const;
+
+      Matrix &gU();
+
+      const Matrix &gV() const;
+
+      Matrix &gV();
+
+      const Matrix &gL() const;
+
+      Matrix &gL();
+
+      double gW(int,int) const;
+
+      void sW(int,int,double);
+
+      int gn() const;
+
       void setB();
 
       void setBe();
@@ -65,6 +93,9 @@ class SubSys{
       //!subsystem version of the S matrix
       Matrix *S;
 
+      //!transformation between the non-orthogonal and orthogonal basis on full space
+      Matrix *L;
+
       //!transformation matrix between the non-orthogonal subsystem basis and the orthogonal full system on: Wath out, rectangular
       double *W;
       
@@ -73,6 +104,15 @@ class SubSys{
 
       //!the index of the subsystem core
       int core;
+
+      //!list relating the full system index to the subsystem index (non-orthogonal basis!)
+      vector<int> s2f;
+
+      //!list relating two particle to single-particle
+      vector< vector<int> > t2s;
+
+      //!list relating two particle to single-particle
+      int **s2t;
 
       //!dimension of the subspace
       int n;
