@@ -39,14 +39,6 @@ class SubSys{
 
       int gcore() const;
 
-      const TPM &gsubham() const;
-
-      TPM &gsubham();
-
-      const TPM &gsubocc() const;
-
-      TPM &gsubocc();
-
       double gE(int,int) const;
 
       const vector< vector<int> > &gE() const;
@@ -61,23 +53,35 @@ class SubSys{
 
    private:
       
-      //!hamiltonian on the subsystem
-      TPM *subham;
+      //!subsystem version of the T matrix
+      Matrix *T;
 
-      //!number operator on the subsystem space
-      TPM *subocc;
+      //!subsystem version of the U matrix
+      Matrix *U;
 
+      //!subsystem version of the V matrix
+      Matrix *V;
+
+      //!subsystem version of the S matrix
+      Matrix *S;
+
+      //!transformation matrix between the non-orthogonal subsystem basis and the orthogonal full system on: Wath out, rectangular
+      double *W;
+      
       //!array of energies for different occupations of the subsystem
       vector< vector<int> > E;
 
       //!the index of the subsystem core
       int core;
 
+      //!dimension of the subspace
+      int n;
+
+      //!nr of orbitals
       static int M;
 
+      //!nr ofparticles
       static int N;
-
-      SphInt *si;
 
 };
 

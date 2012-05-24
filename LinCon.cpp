@@ -206,33 +206,3 @@ void LinCon::spincon(double spin){
    i_c = spin;
 
 }
-
-/**
- * construct a subsystem constraint given a subsystem object:
- * @param ss input SubSys object
- * @param N_, which constraint, meaning what line of the piecewise linear constraint do you wish to impose?
- */
-void LinCon::subcon(const SubSys &ss,int N_){
-
-   int n = ss.gE(N_,0);//particle number
-   double e_n = ss.gE(N_,1);//corresponding energy
-
-   double e_n_ = ss.gE(N_ + 1,1);//energy for particle number + 1
-
-   i_c = e_n * (n + 1.0) - e_n_ * n;
-
-   *I_c = ss.gsubham();
-
-   I_c->daxpy(e_n - e_n_,ss.gsubocc());
-
-   for(int B = 0;B < I_c->gnr();++B)
-      for(int i = 0;i < I_c->gdim(B);++i)
-         (*I_c)(B,i,i) -= 2.0*i_c/(N*(N - 1.0));
-
-   I_c_tr = 2.0 * I_c->trace()/ (double)(M*(M - 1.0));
-
-   I_c->proj_Tr();
-
-   I_c_bar->bar(1.0,*I_c);
-
-}

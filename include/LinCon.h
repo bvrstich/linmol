@@ -48,8 +48,6 @@ class LinCon{
 
       void si(double);
 
-      void subcon(const SubSys &,int);
-
       int gM() const;
 
       int gN() const;

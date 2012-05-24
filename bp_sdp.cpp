@@ -59,6 +59,13 @@ int main(void){
 
    SphInt si(ci);
 
+   //make the subsystem objects
+   SubSys ss_Be(0,si);
+   ss_Be.setBe();
+
+   SubSys ss_B(1,si);
+   ss_B.setB();
+
    LinCon::init(M,N);
    LinIneq::init(M,N,si);
 
@@ -88,17 +95,6 @@ int main(void){
    spm.bar(1.0/(N - 1.0),rdm);
 
    cout << spm.trace() << endl;
-
-   //make the subsystem objects
-   SubSys ss_Be(0,si);
-   ss_Be.setBe();
-
-   cout << rdm.ddot(ss_Be.gsubocc()) << "\t" << rdm.ddot(ss_Be.gsubham()) << endl;
-
-   SubSys ss_B(1,si);
-   ss_B.setB();
-
-   cout << rdm.ddot(ss_B.gsubocc()) << "\t" << rdm.ddot(ss_B.gsubham()) << endl;
 
    return 0;
 
