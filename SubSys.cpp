@@ -35,7 +35,7 @@ SubSys::SubSys(int core,const SphInt &si){
 
    this->core = core;
 
-   int n = 0;
+   n = 0;
 
    for(int s_i = 0;s_i < si.gdim();++s_i){
 
@@ -205,11 +205,9 @@ SubSys::~SubSys(){
 
    delete L;
 
-   FOR SOME REASON ERROR HERE MEMORY!!!!!
-/*
    for(int i = 0;i < n;++i)
       delete [] s2t[i];
-*/
+
    delete [] s2t;
 
    delete [] W;
@@ -406,6 +404,7 @@ Matrix &SubSys::gV() {
 const Matrix &SubSys::gL() const { 
 
    return *V; 
+
 }
 
 /** 
