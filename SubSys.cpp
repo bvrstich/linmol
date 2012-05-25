@@ -259,7 +259,28 @@ double SubSys::subocc_func(const TPM &tpm) const {
    SPM spm;
    spm.bar(1.0/(N - 1.0),tpm);
 
-   return 0.0;
+   //delete this line later: need positive S here
+   S->invert();
+
+   //rough test
+   Matrix N_sub(M/2);
+
+   for(int ga = 0;ga < M/2;++ga)
+      for(int gb = 0;gb < M/2;++gb){
+
+         N_sub(ga,gb) = 0.0;
+
+         for(int a = 0;a < n;++a)
+            for(int b = 0;b < n;++b)
+               N_sub(ga,gb) += gW(ga,a) * gW(gb,b) * (*S)(a,b);
+
+      }
+
+   //convert to SPM
+   SPM n_sub;
+   n_sub.si21dm(N_sub);
+
+   return spm.ddot(n_sub);
 
 }
 

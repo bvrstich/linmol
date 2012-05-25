@@ -462,3 +462,40 @@ void SPM::subocc_op(int core,const Matrix &S){
    this->symmetrize();
 
 }
+
+/**
+ * construct the SPM object which, when the dotproduct is taken with a 1DM, gives back the subsystem occupation
+ * @param S the overlapmatrix !!positive sqrt!!
+ */
+void SPM::si21dm(const Matrix &S){
+
+   int i_a,n_a,l_a;
+   int i_b,n_b,l_b;
+
+   for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a){
+
+         i_a = s2inl[m + l_max][a][0];
+         n_a = s2inl[m + l_max][a][1];
+         l_a = s2inl[m + l_max][a][2];
+
+         for(int b = a;b < gdim(m + l_max);++b){
+
+            i_b = s2inl[m + l_max][b][0];
+            n_b = s2inl[m + l_max][b][1];
+            l_b = s2inl[m + l_max][b][2];
+
+            int ga = ms2g[m + l_max][a];
+            int gb = ms2g[m + l_max][b];
+
+            (*this)[m + l_max](a,b) = S(ga,gb);
+            
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}

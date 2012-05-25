@@ -95,6 +95,9 @@ int main(void){
 
    cout << spm.trace() << endl;
 
+   cout << ss_Be.subocc_func(rdm) << endl;
+   cout << ss_B.subocc_func(rdm) << endl;
+
    LinIneq::clear();
 
    PPHM::clear();
