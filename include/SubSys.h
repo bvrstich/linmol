@@ -47,6 +47,8 @@ class SubSys{
 
       const vector<int> &gs2f() const;
 
+      int gs2f(int) const;
+
       const Matrix &gS() const;
 
       Matrix &gS();
@@ -62,6 +64,8 @@ class SubSys{
       const Matrix &gV() const;
 
       Matrix &gV();
+
+      double gV(int,int,int,int) const;
 
       const Matrix &gL() const;
 

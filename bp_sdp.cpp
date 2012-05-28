@@ -90,14 +90,6 @@ int main(void){
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   SPM spm;
-   spm.bar(1.0/(N - 1.0),rdm);
-
-   cout << spm.trace() << endl;
-
-   cout << ss_Be.subocc_func(rdm) << endl;
-   cout << ss_B.subocc_func(rdm) << endl;
-
    LinIneq::clear();
 
    PPHM::clear();

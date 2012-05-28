@@ -426,34 +426,23 @@ void SPM::bar(double scale,const PPHM &pphm){
 }
 
 /**
- * construct the SPM object which, when the dotproduct is taken with a 1DM, gives back the subsystem occupation
- * @param S the overlapmatrix !!positive sqrt!!
+ * construct the SPM object from SphInt sp-matrix object
+ * @param S input SphInt object
  */
-void SPM::subocc_op(int core,const Matrix &S){
-
-   *this = 0.0;
-
-   int i_a,n_a,l_a;
-   int i_b,n_b,l_b;
+void SPM::si21dm(const Matrix &S){
 
    for(int m = -l_max;m <= l_max;++m){
 
       for(int a = 0;a < gdim(m + l_max);++a){
 
-         i_a = s2inl[m + l_max][a][0];
-         n_a = s2inl[m + l_max][a][1];
-         l_a = s2inl[m + l_max][a][2];
+         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
 
          for(int b = a;b < gdim(m + l_max);++b){
 
-            i_b = s2inl[m + l_max][b][0];
-            n_b = s2inl[m + l_max][b][1];
-            l_b = s2inl[m + l_max][b][2];
-            
-            for(int s = 0;s < SphInt::gdim();++s)
-               if(core == SphInt::gs2inlm(s,0))
-                  (*this)[m + l_max](a,b) += S(SphInt::ginlm2s(i_a,n_a,l_a,m),s) * S(SphInt::ginlm2s(i_b,n_b,l_b,m),s);
+            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
 
+            (*this)[m + l_max](a,b) = S(ga,gb);
+            
          }
       }
 
@@ -464,32 +453,91 @@ void SPM::subocc_op(int core,const Matrix &S){
 }
 
 /**
- * construct the SPM object which, when the dotproduct is taken with a 1DM, gives back the subsystem occupation
- * @param S the overlapmatrix !!positive sqrt!!
+ * construct the subsystem kinetic energy operator in a orthonormal basis and store it in a SPM object.
+ * @param ss the SubSys object containing all the subsystem information
  */
-void SPM::si21dm(const Matrix &S){
+void SPM::sT(const SubSys &ss){
 
-   int i_a,n_a,l_a;
-   int i_b,n_b,l_b;
-
-   for(int m = -l_max;m <= l_max;++m){
+ for(int m = -l_max;m <= l_max;++m){
 
       for(int a = 0;a < gdim(m + l_max);++a){
 
-         i_a = s2inl[m + l_max][a][0];
-         n_a = s2inl[m + l_max][a][1];
-         l_a = s2inl[m + l_max][a][2];
+         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
 
          for(int b = a;b < gdim(m + l_max);++b){
 
-            i_b = s2inl[m + l_max][b][0];
-            n_b = s2inl[m + l_max][b][1];
-            l_b = s2inl[m + l_max][b][2];
+            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
 
-            int ga = ms2g[m + l_max][a];
-            int gb = ms2g[m + l_max][b];
+            (*this)[m + l_max](a,b) = 0.0;
 
-            (*this)[m + l_max](a,b) = S(ga,gb);
+            //loop over the nonorthogonal indices
+            for(int sa = 0;sa < ss.gn();++sa)
+               for(int sb = 0;sb < ss.gn();++sb)
+                  (*this)[m + l_max](a,b) += ss.gW(ga,sa) * ss.gT()(sa,sb) * ss.gW(gb,sb);
+            
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
+ * construct the subsystem kinetic energy operator in a orthonormal basis and store it in a SPM object.
+ * @param ss the SubSys object containing all the subsystem information
+ */
+void SPM::sU(const SubSys &ss){
+
+ for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a){
+
+         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
+
+         for(int b = a;b < gdim(m + l_max);++b){
+
+            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
+
+            (*this)[m + l_max](a,b) = 0.0;
+
+            //loop over the nonorthogonal indices
+            for(int sa = 0;sa < ss.gn();++sa)
+               for(int sb = 0;sb < ss.gn();++sb)
+                  (*this)[m + l_max](a,b) += ss.gW(ga,sa) * ss.gU()(sa,sb) * ss.gW(gb,sb);
+            
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
+ * construct the subsystem kinetic energy operator in a orthonormal basis and store it in a SPM object.
+ * @param ss the SubSys object containing all the subsystem information
+ */
+void SPM::subocc_op(const SubSys &ss){
+
+ for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a){
+
+         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
+
+         for(int b = a;b < gdim(m + l_max);++b){
+
+            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
+
+            (*this)[m + l_max](a,b) = 0.0;
+
+            //loop over the nonorthogonal indices
+            for(int sa = 0;sa < ss.gn();++sa)
+               for(int sb = 0;sb < ss.gn();++sb)
+                  (*this)[m + l_max](a,b) += ss.gL()(ga,ss.gs2f(sa)) * ss.gS()(sa,sb) * ss.gL()(gb,ss.gs2f(sb));
             
          }
       }

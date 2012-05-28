@@ -57,11 +57,34 @@
  * Constructor for the MxElem class
  * @param readin the problem to be solved
  */
-MxElem::MxElem(input & readin, bool dopzmarker){
+MxElem::MxElem(input & readin){
 
-   this->NOrbTot = CalcTotalNumberOfOrbitals(readin);
-   this->DoPzMarker = dopzmarker;
-   allocate();
+   this->N_Z = readin.gNcores();
+   this->dim = CalcTotalNumberOfOrbitals(readin);
+
+   //allocate the different matrixelements
+   Telem = new double[(dim*(dim+1))/2];
+   T = new double[(dim*(dim+1))/2];
+   S = new double[(dim*(dim+1))/2];
+
+   U = new double * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new double [dim*(dim + 1)/2];
+
+   Velem = new double***[dim];
+
+   for (int i=0; i<dim; i++){
+      Velem[i] = new double**[dim-i+1];
+      for (int x=0; x<dim-i+1; x++){
+         Velem[i][x] = new double*[dim-i+1];
+         for (int y=0; y<dim-i+1; y++){
+            Velem[i][x][y] = new double[dim-i-x+1];
+         }
+      }
+   }
+
+   this->Init(readin);
 
 }
 
@@ -72,22 +95,43 @@ MxElem::MxElem(input & readin, bool dopzmarker){
  */
 MxElem::MxElem(MxElem & tocopy){
 
-   NOrbTot = tocopy.gNOrbTot();
-   DoPzMarker = tocopy.gDoPzMarker();
-   allocate();
-   for (int i=0; i<NOrbTot; i++){
-      for (int j=i; j<NOrbTot; j++){
+   dim = tocopy.gdim();
+   N_Z = tocopy.gN_Z();
+
+   //allocate
+   Telem = new double[(dim*(dim+1))/2];
+   T = new double[(dim*(dim+1))/2];
+   S = new double[(dim*(dim+1))/2];
+
+   U = new double * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new double [dim*(dim + 1)/2];
+
+   Velem = new double***[dim];
+
+   for (int i=0; i<dim; i++){
+      Velem[i] = new double**[dim-i+1];
+      for (int x=0; x<dim-i+1; x++){
+         Velem[i][x] = new double*[dim-i+1];
+         for (int y=0; y<dim-i+1; y++){
+            Velem[i][x][y] = new double[dim-i-x+1];
+         }
+      }
+   }
+
+   for (int i=0; i<dim; i++){
+      for (int j=i; j<dim; j++){
          setTelem(i,j,tocopy.gTelem(i,j));
-         setKEseparate(i,j,tocopy.gKEseparate(i,j));
-         setSoverlap(i,j,tocopy.gSoverlap(i,j));
-         for (int k=i; k<NOrbTot; k++)
-            for (int l=j; l<NOrbTot; l++)
+         setT(i,j,tocopy.gT(i,j));
+         setS(i,j,tocopy.gS(i,j));
+         for (int k=i; k<dim; k++)
+            for (int l=j; l<dim; l++)
                setVelem(i,j,k,l,tocopy.gVelem(i,j,k,l));
       }
    }
 
 }
-
 
 /**
  * Standard destructor
@@ -95,11 +139,17 @@ MxElem::MxElem(MxElem & tocopy){
 MxElem::~MxElem(){
 
    delete [] Telem;
-   delete [] KEseparate;
-   delete [] Soverlap;
-   for (int i=0; i<NOrbTot; i++){
-      for (int x=0; x<NOrbTot-i+1; x++){
-         for (int y=0; y<NOrbTot-i+1; y++){
+   delete [] T;
+   delete [] S;
+
+   for(int i = 0;i < N_Z;++i)
+      delete [] U[i];
+
+   delete [] U;
+
+   for (int i=0; i<dim; i++){
+      for (int x=0; x<dim-i+1; x++){
+         for (int y=0; y<dim-i+1; y++){
             delete [] Velem[i][x][y];
          }
          delete [] Velem[i][x];
@@ -107,30 +157,6 @@ MxElem::~MxElem(){
       delete [] Velem[i];
    }
    delete [] Velem;
-   if (DoPzMarker) delete [] PzMarker;
-
-}
-
-
-/**
- * Function to allocate all the necassary memory
- */
-void MxElem::allocate(){
-
-   Telem = new double[(NOrbTot*(NOrbTot+1))/2];
-   KEseparate = new double[(NOrbTot*(NOrbTot+1))/2];
-   Soverlap = new double[(NOrbTot*(NOrbTot+1))/2];
-   Velem = new double***[NOrbTot];
-   for (int i=0; i<NOrbTot; i++){
-      Velem[i] = new double**[NOrbTot-i+1];
-      for (int x=0; x<NOrbTot-i+1; x++){
-         Velem[i][x] = new double*[NOrbTot-i+1];
-         for (int y=0; y<NOrbTot-i+1; y++){
-            Velem[i][x][y] = new double[NOrbTot-i-x+1];
-         }
-      }
-   }
-   if (DoPzMarker) PzMarker = new bool[NOrbTot];
 
 }
 
@@ -202,7 +228,7 @@ int MxElem::CalcTotalNumberOfOrbitals(input & readin){
 
       Gauss * atom = readin.gGaussInfo(cnt);
       int Ntypes = atom->gNtypes();
-      
+
       for (int cnt2=0; cnt2<Ntypes; cnt2++){
 
          char type = atom->gtype(cnt2);
@@ -222,9 +248,9 @@ int MxElem::CalcTotalNumberOfOrbitals(input & readin){
  * Getter of the total number of orbitals
  * @return the total number of orbitals
  */
-int MxElem::gNOrbTot(){
+int MxElem::gdim() const {
 
-   return NOrbTot;
+   return dim;
 
 }
 
@@ -267,12 +293,12 @@ void MxElem::setTelem(int i, int j, double v){
  * @param j the second orbital
  * @return (i|T|j)
  */
-double MxElem::gKEseparate(int i, int j){
+double MxElem::gT(int i, int j){
 
    if (i>j)
-      return KEseparate[j + (i*(i+1))/2];
+      return T[j + (i*(i+1))/2];
 
-   return KEseparate[i + (j*(j+1))/2];
+   return T[i + (j*(j+1))/2];
 
 }
 
@@ -283,12 +309,12 @@ double MxElem::gKEseparate(int i, int j){
  * @param j the second orbital
  * @param v the new value of the mx element
  */
-void MxElem::setKEseparate(int i, int j, double v){
+void MxElem::setT(int i, int j, double v){
 
    if (i>j)
-      KEseparate[j + (i*(i+1))/2] = v;
+      T[j + (i*(i+1))/2] = v;
    else
-      KEseparate[i + (j*(j+1))/2] = v;
+      T[i + (j*(j+1))/2] = v;
 
 }
 
@@ -299,15 +325,30 @@ void MxElem::setKEseparate(int i, int j, double v){
  * @param j the second orbital
  * @return (i|j)
  */
-double MxElem::gSoverlap(int i, int j){
+double MxElem::gS(int i, int j){
 
    if (i>j)
-      return Soverlap[j + (i*(i+1))/2];
+      return S[j + (i*(i+1))/2];
 
-   return Soverlap[i + (j*(j+1))/2];
+   return S[i + (j*(j+1))/2];
 
 }
 
+/**
+ * Getter of the nuclear attraction integral
+ * @param core the index of the core
+ * @param i the first orbital
+ * @param j the second orbital
+ * @return (i|j)
+ */
+double MxElem::gU(int core,int i, int j) {
+
+   if (i>j)
+      return U[core][j + (i*(i+1))/2];
+
+   return U[core][i + (j*(j+1))/2];
+
+}
 
 /**
  * Setter of the overlap matrix element (i|j)
@@ -315,15 +356,30 @@ double MxElem::gSoverlap(int i, int j){
  * @param j the second orbital
  * @param v the new value of the mx element
  */
-void MxElem::setSoverlap(int i, int j, double v){
+void MxElem::setS(int i, int j, double v){
 
    if (i>j)
-      Soverlap[j + (i*(i+1))/2] = v;
+      S[j + (i*(i+1))/2] = v;
    else
-      Soverlap[i + (j*(j+1))/2] = v;
+      S[i + (j*(j+1))/2] = v;
 
 }
 
+/**
+ * Setter of the nuclear attraction element
+ @ param core index of the nuclear core
+ * @param i the first orbital
+ * @param j the second orbital
+ * @param v the new value of the mx element
+ */
+void MxElem::sU(int core,int i, int j, double v){
+
+   if (i>j)
+      U[core][j + (i*(i+1))/2] = v;
+   else
+      U[core][i + (j*(j+1))/2] = v;
+
+}
 
 /**
  * Getter of the two body matrix element (ij|V|kl)
@@ -422,19 +478,6 @@ double MxElem::gVelemOK(int i, int j, int k, int l){
 
 }
 
-bool MxElem::gDoPzMarker(){
-   
-   return DoPzMarker;
-   
-}
-
-bool MxElem::gPzMarker(int i){
-
-   return PzMarker[i];
-
-}
-
-
 /**
  * Setter of the two body matrix element (ij|V|kl) if i<j<l and i<k
  * @param i the first orbital
@@ -445,62 +488,8 @@ bool MxElem::gPzMarker(int i){
  */
 void MxElem::setVelemOK(int i, int j, int k, int l, double v){
 
-   //cout << "NOrbTot = " << NOrbTot << " and (" << i << "," << j << "," << k << "," << l << ")" << endl;
+   //cout << "dim = " << dim << " and (" << i << "," << j << "," << k << "," << l << ")" << endl;
    Velem[i][j-i][k-i][l-j] = v;
-
-}
-
-
-/**
- * Save the matrix elements
- */
-void MxElem::Save(){
-
-   ofstream fileout("mxelem.bin", ios::binary | ios::trunc);
-   fileout.seekp(0);
-   fileout.write((char*)Telem,sizeof(*(Telem))*((NOrbTot*(NOrbTot+1))/2));
-   fileout.write((char*)KEseparate,sizeof(*(KEseparate))*((NOrbTot*(NOrbTot+1))/2));
-   fileout.write((char*)Soverlap,sizeof(*(Soverlap))*((NOrbTot*(NOrbTot+1))/2));
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         for (int k=i; k<NOrbTot; k++)
-            fileout.write((char*)Velem[i][j-i][k-i],sizeof(*(Velem[i][j-i][k-i]))*(NOrbTot-j+1));
-   if (DoPzMarker) fileout.write((char*)PzMarker,sizeof(*(PzMarker))*NOrbTot);
-
-   fileout.close();
-
-}
-
-
-/**
- * Load the matrix elements
- */
-void MxElem::Load(){
-
-   ifstream filein("mxelem.bin", ios::binary | ios::in);
-   filein.seekg(0, ios::beg);
-   filein.read((char*)Telem,sizeof(*(Telem))*((NOrbTot*(NOrbTot+1))/2));
-   filein.read((char*)KEseparate,sizeof(*(KEseparate))*((NOrbTot*(NOrbTot+1))/2));
-   filein.read((char*)Soverlap,sizeof(*(Soverlap))*((NOrbTot*(NOrbTot+1))/2));
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         for (int k=i; k<NOrbTot; k++)
-            filein.read((char*)Velem[i][j-i][k-i],sizeof(*(Velem[i][j-i][k-i]))*(NOrbTot-j+1));
-   if (DoPzMarker) filein.read((char*)PzMarker,sizeof(*(PzMarker))*NOrbTot);
-
-   filein.close();
-
-}
-
-
-/**
- * Remove the stored matrix elements from disk
- */
-void MxElem::RemoveFromDisk(){
-
-   system("rm mxelem.bin");
 
 }
 
@@ -528,278 +517,14 @@ double MxElem::NuclPotEn(input & problem){
 
 }
 
-
-/**
- * Construct the transformation matrix for canonical orthogonalisation
- * @param A pointer to the array where the transformation needs to be stored
- */
-void MxElem::CanOrth(double * A){
-
-   char jobz = 'V';
-   char uplo = 'U';
-   int N = NOrbTot;
-   int lda = N;
-   
-   int lwork = 3*NOrbTot-1;
-   double * work = new double[lwork];
-   double * eigs = new double[N];
-
-   int info;
-
-   for (int i=0; i<N; i++)
-      for (int j=i; j<N; j++)
-         A[i+N*j] = gSoverlap(i,j);
-
-   dsyev_(&jobz, &uplo, &N, A, &lda, eigs, work, &lwork, &info);
-
-   int incx = 1;
-
-   for (int i=0; i<N; i++){
-      eigs[i] = 1.0/sqrt(eigs[i]);
-      dscal_(&N, eigs+i, A+N*i, &incx);
-   }
-
-   delete [] eigs;
-   delete [] work;
-
-}
-
-
-/**
- * Construct the inverse of the overlap matrix
- * @param Sinv pointer to the array where the inverse of the overlapmatrix should be stored
- */
-void MxElem::InverseOverlap(double * Sinv){
-
-   double * V = new double[NOrbTot*NOrbTot];
-   CanOrth(V);
-
-   // Sinv = V*V^T 
-   char trans = 'T';
-   char notrans = 'N';
-   int m = NOrbTot;
-   int k = NOrbTot;
-   int n = NOrbTot;
-   double alpha = 1.0;
-   double beta = 0.0;
-   int lda = NOrbTot;
-   int ldb = NOrbTot;
-   int ldc = NOrbTot;
-   dgemm_(&notrans, &trans, &m, &n, &k, &alpha, V, &lda, V, &ldb, &beta, Sinv, &ldc);
-
-   delete [] V;
-
-}
-
-
-/**
- * Construct the Lodwin transformation
- * @param Slodwin pointer to the array where the Lodwin transformation should be stored
- */
-void MxElem::MakeLodwinTfo(double * Slodwin){
-
-   double * V = new double[NOrbTot*NOrbTot];
-   
-   // Fill V with the overlap matrix
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         V[i+NOrbTot*j] = gSoverlap(i,j);
-   
-   // Eigenvectors -> V, eigenvalues -> eigs
-   char jobz = 'V';
-   char uplo = 'U';
-   int N = NOrbTot;
-   int lda = N;
-   int lwork = 3*NOrbTot-1;
-   double * work = new double[lwork];
-   double * eigs = new double[N];
-   int info;
-   dsyev_(&jobz, &uplo, &N, V, &lda, eigs, work, &lwork, &info);
-
-   // V = V*D^(-0.25)
-   int incx = 1;
-   for (int i=0; i<N; i++){
-      eigs[i] = pow(eigs[i],-0.25);
-      dscal_(&N, eigs+i, V+N*i, &incx);
-   }
-
-   delete [] eigs;
-   delete [] work;
-
-   // Slodwin = V*V^T 
-   char trans = 'T';
-   char notrans = 'N';
-   int m = NOrbTot;
-   int k = NOrbTot;
-   int n = NOrbTot;
-   double alpha = 1.0;
-   double beta = 0.0;
-   lda = NOrbTot;
-   int ldb = NOrbTot;
-   int ldc = NOrbTot;
-   dgemm_(&notrans, &trans, &m, &n, &k, &alpha, V, &lda, V, &ldb, &beta, Slodwin, &ldc);
-
-   delete [] V;
-
-}
-
-
-/**
- * Function that performs the Lodwin transformation
- */
-void MxElem::DoLodwinTfo(){
-
-   int NOrb2 = NOrbTot*NOrbTot;
-   int NOrb3 = NOrbTot*NOrb2;
-   int NOrb4 = NOrb2*NOrb2;
-   
-   //Step 1. Fetch the Lodwin transformation.
-   double * Slodwin = new double[NOrb2];
-   MakeLodwinTfo(Slodwin);
-   
-   //PrintFull(Slodwin,NOrbTot);
-   
-   //Step 2. Set the overlapmatrix to 1.
-   for (int i=0; i<NOrbTot; i++){
-      setSoverlap(i,i,1.0);
-      for (int j=i+1; j<NOrbTot; j++)
-         setSoverlap(i,j,0.0);
-   }
-   
-   //Step 3. Transform One Body Mx and KEseparate
-   //Step 3.1. Fetch One Body Mx
-   double * OneBody = new double[NOrb2];
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         OneBody[i+j*NOrbTot] = gTelem(i,j);
-   
-   //Step 3.2. OneBody*Slodwin -> mem
-   double * mem = new double[NOrb2];
-   
-   char side = 'L';
-   char uplo = 'U';
-
-   int m = NOrbTot;
-   int n = NOrbTot;
-   int k = NOrbTot;
-   double alpha = 1.0;
-   double beta = 0.0;
-   int lda = NOrbTot;
-   int ldb = NOrbTot;
-   int ldc = NOrbTot;
-   dsymm_(&side, &uplo, &m, &n, &alpha, OneBody, &lda, Slodwin, &ldb, &beta, mem, &ldc);
-   
-   //Step 3.3. Slodwin^T*mem -> OneBody
-   char trans = 'T';
-   char notrans = 'N';
-   dgemm_(&trans, &notrans, &m, &n, &k, &alpha, Slodwin, &lda, mem, &ldb, &beta, OneBody, &ldc);
-   
-   //Step 3.4. OneBody -> Telem
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         setTelem(i,j,OneBody[i+NOrbTot*j]);
-         
-   //Step 3.5. Fetch KEseparate
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         OneBody[i+j*NOrbTot] = gKEseparate(i,j);
-   
-   //Step 3.6. Do the tfo's
-   dsymm_(&side, &uplo, &m, &n, &alpha, OneBody, &lda, Slodwin, &ldb, &beta, mem, &ldc);
-   dgemm_(&trans, &notrans, &m, &n, &k, &alpha, Slodwin, &lda, mem, &ldb, &beta, OneBody, &ldc);
-   
-   //Step 3.7. OneBody -> KEseparate
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         setKEseparate(i,j,OneBody[i+NOrbTot*j]);
-       
-   delete [] OneBody;
-   delete [] mem;
-   
-   //Step 4. Transform Two Body Mx
-   //Step 4.1. Initialise a temporary storage
-   double * mem1 = new double[NOrb4];
-   double * mem2 = new double[NOrb4];
-
-   //Step 4.2. Construct mem1
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=0; j<NOrbTot; j++)
-         for (int k=0; k<NOrbTot; k++)
-            for (int l=0; l<NOrbTot; l++)
-               mem1[i+NOrbTot*j+NOrb2*k+NOrb3*l] = gVelem(i,j,k,l); //(klji)
-
-   //Step 4.3. Do Slodwin^T * mem1 -> mem2 or (ij|V|kl) -> (aj|V|kl).
-   m = NOrbTot;
-   n = NOrb3;
-   k = NOrbTot;
-   lda = k;
-   ldb = k;
-   ldc = m;
-   dgemm_(&trans, &notrans, &m, &n, &k, &alpha, Slodwin, &lda, mem1, &ldb, &beta, mem2, &ldc);
-   
-   //Step 4.4. Do mem2 * Slodwin -> mem1 or (aj|V|kl) -> (aj|V|kd).
-   m = NOrb3;
-   n = NOrbTot;
-   k = NOrbTot;
-   lda = m;
-   ldb = k;
-   ldc = m;
-   dgemm_(&notrans, &notrans, &m, &n, &k, &alpha, mem2, &lda, Slodwin, &ldb, &beta, mem1, &ldc);
-   
-   //Step 4.5. Do (mem1+N^3*i) * Slodwin -> (mem2 + N^3*i) or (aj|V|kd) -> (aj|V|cd).
-   m = NOrb2;
-   n = NOrbTot;
-   k = NOrbTot;
-   lda = m;
-   ldb = k;
-   ldc = m;
-   for (int i=0; i<NOrbTot; i++)
-      dgemm_(&notrans, &notrans, &m, &n, &k, &alpha, mem1+NOrb3*i, &lda, Slodwin, &ldb, &beta, mem2+NOrb3*i, &ldc);
-         
-   //Step 4.6.1. Swap first two indices (aj|V|cd) -> (ja|V|cd)
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=0; j<NOrbTot; j++)
-         for (int k=0; k<NOrb2; k++)
-            mem1[j+NOrbTot*i+NOrb2*k] = mem2[i+NOrbTot*j+NOrb2*k];
-   //Step 4.6.2. Do Slodwin^T * (ja|V|cd)
-   m = NOrbTot;
-   n = NOrb3;
-   k = NOrbTot;
-   lda = k;
-   ldb = k;
-   ldc = m;
-   dgemm_(&trans, &notrans, &m, &n, &k, &alpha, Slodwin, &lda, mem1, &ldb, &beta, mem2, &ldc);
-   //Step 4.6.3. Swap first two columns
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=0; j<NOrbTot; j++)
-         for (int k=0; k<NOrb2; k++)
-            mem1[j+NOrbTot*i+NOrb2*k] = mem2[i+NOrbTot*j+NOrb2*k];
-         
-   //Step 4.7. Copy back
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         for (int k=i; k<NOrbTot; k++)
-            for (int l=j; l<NOrbTot; l++)
-               setVelem(i,j,k,l,mem1[i+NOrbTot*j+NOrb2*k+NOrb3*l]);
-   
-   delete [] mem1;
-   delete [] mem2;
-   
-   //Step 5. Delete the remaining allocation: The Lodwin Tfo
-   delete [] Slodwin;
-   
-
-}
-
-
 /**
  * Initialise the matrix elements
  * @param readin the problem to be solved
  */
-void MxElem::Init(input & readin, double Efield){
+void MxElem::Init(input & readin){
 
    MxElemFiller filler(readin);
-   
+
    double centerx = 0.0;
    double centery = 0.0;
    double centerz = 0.0;
@@ -813,16 +538,16 @@ void MxElem::Init(input & readin, double Efield){
    centerx = centerx/readin.gNcores();
    centery = centery/readin.gNcores();
    centerz = centerz/readin.gNcores();
-   
+
    R Center(centerx,centery,centerz);
-   
+
    int cnt1 = -1;
-   
-   int * CoreNumber = new int[NOrbTot];
-   int * Type = new int[NOrbTot];
-   int * n1xvalues = new int[NOrbTot];
-   int * n1yvalues = new int[NOrbTot];
-   int * n1zvalues = new int[NOrbTot];
+
+   int * CoreNumber = new int[dim];
+   int * Type = new int[dim];
+   int * n1xvalues = new int[dim];
+   int * n1yvalues = new int[dim];
+   int * n1zvalues = new int[dim];
 
    for (int i=0; i<readin.gNcores(); i++){
       Gauss * first = readin.gGaussInfo(i);
@@ -835,37 +560,29 @@ void MxElem::Init(input & readin, double Efield){
             for (int n1y=L1-n1x; n1y>=0; n1y--){
                int n1z = L1-n1x-n1y;
                cnt1++;
-               
+
                CoreNumber[cnt1] = i;
                Type[cnt1] = k;
                n1xvalues[cnt1] = n1x;
                n1yvalues[cnt1] = n1y;
                n1zvalues[cnt1] = n1z;
-               
-               if (DoPzMarker){
-                  if (n1z==1){
-                     PzMarker[cnt1] = true;
-                  } else {
-                     PzMarker[cnt1] = false;
-                  }
-               }
+
             }
          }
       }
    }
-   
-   #pragma omp parallel for schedule(dynamic) default(none) shared(filler,Center,CoreNumber,Type,n1xvalues,n1yvalues,n1zvalues,Efield,readin)
-   for (int count1 = 0; count1<NOrbTot; count1++){
-   
+
+   for (int count1 = 0; count1<dim; count1++){
+
       int i = CoreNumber[count1];
       int k = Type[count1];
       int n1x = n1xvalues[count1];
       int n1y = n1yvalues[count1];
       int n1z = n1zvalues[count1];
-      
+
       double OneBodyElement;
       int count2, count3, count4, start, start2, start3;
-      
+
       count2 = -1;
 
       for (int j=i; j<readin.gNcores(); j++){
@@ -897,30 +614,27 @@ void MxElem::Init(input & readin, double Efield){
                   }
 
                   count2++;
-                  //If they're centered on the same atom and n1i+n2i odd for i=x,y or z -> Overlap & KE 0.0
+                  //If they're centered on the same atom and n1i+n2i odd for i=x,y or z -> Overlap & T 0.0
                   if ((i==j)&&((((n1x+n2x)%2)!=0)||(((n1y+n2y)%2)!=0)||(((n1z+n2z)%2)!=0))){
-                     setSoverlap(count1,count1+count2,0.0);
-                     setKEseparate(count1,count1+count2,0.0);
+                     setS(count1,count1+count2,0.0);
+                     setT(count1,count1+count2,0.0);
                      OneBodyElement = 0.0;
                   } else {
-                     setSoverlap(count1,count1+count2,filler.Overlap(i,k,n1x,n1y,n1z,j,l,n2x,n2y,n2z));
+                     setS(count1,count1+count2,filler.Overlap(i,k,n1x,n1y,n1z,j,l,n2x,n2y,n2z));
                      OneBodyElement = filler.KE(i,k,n1x,n1y,n1z,j,l,n2x,n2y,n2z);
-                     setKEseparate(count1,count1+count2,OneBodyElement);
+                     setT(count1,count1+count2,OneBodyElement);
                   }
-                           
-                  if (DoPzMarker){
-                     if (((n2z-n1z)%2)!=0){
-                        setSoverlap(count1,count1+count2,0.0);
-                     }
+
+                  for (int Ncore=0; Ncore<readin.gNcores(); Ncore++){
+
+                     double ward = filler.ElNucl(i,k,n1x,n1y,n1z,j,l,n2x,n2y,n2z,Ncore);
+
+                     sU(Ncore,count1,count1+count2,ward);
+
+                     OneBodyElement += ward;
+
                   }
-                           
-                  for (int Ncore=0; Ncore<readin.gNcores(); Ncore++)
-                     OneBodyElement += filler.ElNucl(i,k,n1x,n1y,n1z,j,l,n2x,n2y,n2z,Ncore);
-                  
-                  if (Efield!=0.0){            
-                     OneBodyElement += Efield*filler.Moment(i,k,n1x,n1y,n1z,j,l,n2x,n2y,n2z,Center,0,0,1);
-                  }
-                        
+
                   setTelem(count1,count1+count2,OneBodyElement);
 
                   count3 = -1;
@@ -998,7 +712,7 @@ void MxElem::Init(input & readin, double Efield){
          }
       }
    }
-   
+
    delete [] CoreNumber;
    delete [] Type;
    delete [] n1xvalues;
@@ -1007,276 +721,11 @@ void MxElem::Init(input & readin, double Efield){
 
 }
 
-
 /**
- * Print the overlap matrix
+ * @return the number of cores
  */
-void MxElem::PrintS(){
+int MxElem::gN_Z() const {
 
-   for (int i=0; i<NOrbTot; i++){
-      for (int j=0; j<i; j++)
-         cout << "X\t";
-      for (int j=i; j<NOrbTot; j++)
-         cout << gSoverlap(i,j) << "\t";
-      cout << endl;
-   }
+   return N_Z;
 
 }
-
-
-/**
- * Print the one body matrix
- */
-void MxElem::PrintOneBody(){
-
-   for (int i=0; i<NOrbTot; i++){
-      for (int j=0; j<i; j++)
-         cout << "X\t";
-      for (int j=i; j<NOrbTot; j++)
-         cout << gTelem(i,j) << "\t";
-      cout << endl;
-   }
-
-}
-
-
-/**
- * Print the two body matrix
- */
-void MxElem::PrintTwoBody(){
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         for (int k=i; k<NOrbTot; k++)
-            for (int l=j; l<NOrbTot; l++)
-               cout << "Velem[" << i << "," << j << "," << k << "," << l << "] = " << gVelem(i,j,k,l) << endl;
-
-}
-
-
-/**
- * Print all matrix elements larger than a given cutoff
- * @param cutoff the cutoff above which the element should be printed
- */
-void MxElem::PrintLarger(double cutoff){
-
-   cout << "Overlap matrix elements" << endl;
-   cout << endl;
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++){
-
-         if (fabs(gSoverlap(i,j))< cutoff)
-            cout << "S[" << i << "," << j << "] = " << 0 << endl;
-         else
-            cout << "S[" << i << "," << j << "] = " << gSoverlap(i,j) << endl;
-
-      }
-
-   cout << " " << endl;
-   cout << "One body matrix elements" << endl;
-   cout << endl;
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++){
-
-         if (fabs(gTelem(i,j))<cutoff)
-            cout << "T[" << i << "," << j << "] = " << 0 << endl;
-         else
-            cout << "T[" << i << "," << j << "] = " << gTelem(i,j) << endl;
-
-      }
-
-   cout << " " << endl;
-   cout << "Two body matrix elements" << endl;
-   cout << endl;
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         for (int k=i; k<NOrbTot; k++)
-            for (int l=j; l<NOrbTot; l++){
-
-               if (fabs(gVelem(i,j,k,l)) < cutoff)
-                  cout << "V[" << i << "," << j << "," << k << "," << l << "] = " << 0 << endl;
-               else
-                  cout << "V[" << i << "," << j << "," << k << "," << l << "] = " << gVelem(i,j,k,l) << endl;
-
-            }
-
-   cout << " " << endl;
-
-}
-
-
-/**
- * Print all matrix elements smaller than a given cutoff
- * @param cutoff the cutoff below which an element should be printed
- */
-void MxElem::PrintSmaller(double cutoff){
-
-   cout << "Overlap matrix elements" << endl;
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         if (fabs(gSoverlap(i,j))<cutoff)
-            if (gSoverlap(i,j)!=0.0)
-               cout << "S[" << i << "," << j << "] = " << gSoverlap(i,j) << endl;
-   cout << " " << endl;
-
-   cout << "One body matrix elements" << endl;
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         if (fabs(gTelem(i,j))<cutoff)
-            if (gTelem(i,j)!=0.0)
-               cout << "T[" << i << "," << j << "] = " << gTelem(i,j) << endl;
-   cout << " " << endl;
-
-   cout << "Two body matrix elements" << endl;
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         for (int k=i; k<NOrbTot; k++)
-            for (int l=j; l<NOrbTot; l++)
-               if (fabs(gVelem(i,j,k,l))<cutoff)
-                  if (gVelem(i,j,k,l)!=0.0)
-                     cout << "V[" << i << "," << j << "," << k << "," << l << "] = " << gVelem(i,j,k,l) << endl;
-   cout << " " << endl;
-
-}
-
-
-/**
- * Set all overlap matrix elements smaller than a cutoff to zero
- * @param cutoff the cutoff for setting the mx elements to zero
- */
-void MxElem::SetOverlapSmallToZero(double cutoff){
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         if (fabs(gSoverlap(i,j))<cutoff)
-            if (gSoverlap(i,j)!=0.0)
-               setSoverlap(i,j,0.0);
-
-}
-
-
-/**
- * Set all one body matrix elements smaller than a cutoff to zero
- * @param cutoff the cutoff for setting the mx elements to zero
- */
-void MxElem::SetTelemSmallToZero(double cutoff){
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         if (fabs(gTelem(i,j))<cutoff)
-            if (gTelem(i,j)!=0.0)
-               setTelem(i,j,0.0);
-
-}
-
-
-/**
- * Set all two body matrix elements smaller than a cutoff to zero
- * @param cutoff the cutoff for setting the mx elements to zero
- */
-void MxElem::SetVelemSmallToZero(double cutoff){
-
-   for (int i=0; i<NOrbTot; i++)
-      for (int j=i; j<NOrbTot; j++)
-         for (int k=i; k<NOrbTot; k++)
-            for (int l=j; l<NOrbTot; l++)
-               if (fabs(gVelem(i,j,k,l))<cutoff)
-                  if (gVelem(i,j,k,l)!=0.0)
-                     setVelem(i,j,k,l,0.0);
-
-}
-
-
-/**
- * Print the right upper triangle of a matrix A with linear dimension N
- * @param A pointer to the matrix to be printed
- * @param N the linear dimension of the matrix
- */
-void MxElem::PrintUpper(double * A, int N){
-
-   cout << "PrintUpper (dim " << N << ")" << endl;
-   for (int i=0; i<N; i++){
-      for (int j=0; j<i; j++)
-         cout << "X\t";
-      for (int j=i; j<N; j++)
-         cout << A[i+N*j] << "\t";
-      cout << endl;
-   }
-
-}
-
-
-/**
- * Print a matrix A with linear dimension N
- * @param A pointer to the matrix to be printed
- * @param N the linear dimension of the matrix
- */
-void MxElem::PrintFull(double * A, int N){
-
-   cout << "PrintFull (dim " << N << ")" << endl;
-   for (int i=0; i<N; i++){
-      for (int j=0; j<N; j++)
-         cout << A[i+N*j] << "\t";
-      cout << endl;
-   }
-
-}
-
-
-/**
- * Print an array A with linear dimension N
- * @param A pointer to the array to be printed
- * @param N the linear dimension of the matrix
- */
-void MxElem::PrintArray(double * A, int N){
-
-   cout << "PrintArray (dim " << N << ")" << endl;
-   for (int i=0; i<N; i++)
-      cout << A[i] << "\t";
-   cout << endl;
-
-}
-
-bool MxElem::CheckRange(double threshold, int diagramrange){
-
-   for (int i=0; i<NOrbTot; i++){
-      for (int j=i+diagramrange+1; j<NOrbTot; j++){
-         if (fabs(gTelem(i,j)) >= threshold){
-            return false;
-         }
-      }
-   }
-   
-   for (int i=0; i<NOrbTot-1; i++){
-      for (int j=i; j<NOrbTot; j++){
-         for (int k=i; k<NOrbTot; k++){
-            for (int l=j; l<NOrbTot; l++){
-               if (l>k){
-                  if (l-i>diagramrange){
-                     if (fabs(gVelem(i,j,k,l)) >= threshold){
-                        return false;
-                     }
-                  }
-               } else {
-                  if (k-i>diagramrange){
-                     if (fabs(gVelem(i,j,k,l)) >= threshold){
-                        return false;
-                     }
-                  }
-               }
-            }
-         }
-      }
-   }
-
-   return true;
-
-}
-
-
-
-
-
-

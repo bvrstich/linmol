@@ -367,17 +367,49 @@ void TPM::molecule(const SphInt &si){
 
             (*this)(B,i,j) = 0.0;
 
-            if(b == d)
-               (*this)(B,i,j) +=  1.0/(N - 1.0) * (si.gT(a_me,c_me) + si.gU(a_me,c_me));
+            if(b == d){
 
-            if(a == d)
-               (*this)(B,i,j) +=  sign /(N - 1.0) * (si.gT(b_me,c_me) + si.gU(b_me,c_me));
+               double ward = si.gT(a_me,c_me);
 
-            if(b == c)
-               (*this)(B,i,j) +=  sign /(N - 1.0) * (si.gT(a_me,d_me) + si.gU(a_me,d_me));
+               for(int core = 0;core < si.gN_Z();++core)
+                  ward += si.gU(core,a_me,c_me);
 
-            if(a == c)
-               (*this)(B,i,j) +=  1.0/(N - 1.0) * (si.gT(b_me,d_me) + si.gU(b_me,d_me));
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ward;
+
+            }
+
+            if(a == d){
+
+               double ward = si.gT(b_me,c_me);
+
+               for(int core = 0;core < si.gN_Z();++core)
+                  ward += si.gU(core,b_me,c_me);
+
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ward;
+
+            }
+
+            if(b == c){
+
+               double ward = si.gT(a_me,d_me);
+
+               for(int core = 0;core < si.gN_Z();++core)
+                  ward += si.gU(core,a_me,d_me);
+
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ward;
+
+            }
+
+            if(a == c){
+
+               double ward = si.gT(b_me,d_me);
+
+               for(int core = 0;core < si.gN_Z();++core)
+                  ward += si.gU(core,b_me,d_me);
+
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ward;
+
+            }
 
             (*this)(B,i,j) += si.gV(a_me,b_me,c_me,d_me) + sign * si.gV(a_me,b_me,d_me,c_me);
 
@@ -1247,13 +1279,12 @@ void TPM::set_S_2(){
 
 /**
  * construct the TPM object which, when the dotproduct is taken with a 2DM, gives back the subsystem occupation
- * @param core the core on which the subsystem is taken
- * @param S the overlapmatrix !!positive sqrt!!
+ * @param ss SubSys object containing the subsytem information
  */
-void TPM::subocc_op(int core,const Matrix &S){
+void TPM::subocc_op(const SubSys &ss){
 
    SPM spm;
-   spm.subocc_op(core,S);
+   spm.subocc_op(ss);
 
    int ga,gb,gc,gd;
 

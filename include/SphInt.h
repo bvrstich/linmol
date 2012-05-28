@@ -45,9 +45,9 @@ class SphInt {
 
       Matrix &gT();
 
-      const Matrix &gU() const;
+      const Matrix &gU(int) const;
 
-      Matrix &gU();
+      Matrix &gU(int);
 
       const Matrix &gV() const;
 
@@ -57,7 +57,7 @@ class SphInt {
 
       double gT(int,int) const;
 
-      double gU(int,int) const;
+      double gU(int,int,int) const;
 
       double gV(int,int,int,int) const;
 
@@ -116,7 +116,7 @@ class SphInt {
       Matrix *T;
 
       //!nuclear attraction energy matrix
-      Matrix *U;
+      Matrix **U;
 
       //!electronic repulsion matrix
       Matrix *V;

@@ -148,7 +148,11 @@ SphInt::SphInt(const CartInt &ci){
 
    S = new Matrix(dim);
    T = new Matrix(dim);
-   U = new Matrix(dim);
+
+   U = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new Matrix(dim);
 
    V = new Matrix(dim*dim);
 
@@ -192,14 +196,17 @@ SphInt::SphInt(const CartInt &ci){
 
          (*T)(s_i,s_j) = real(c_t);
 
-         complex<double> c_u(0.0,0.0);
+         for(int core = 0;core < N_Z;++core){
 
-         //U
-         for(int d_i = 0;d_i < tf_i.gdim();++d_i)
-            for(int d_j = 0;d_j < tf_j.gdim();++d_j)
-               c_u += conj(tf_i.gcoef(d_i)) * tf_j.gcoef(d_j) * (ci.gU())(tf_i.gind(d_i),tf_j.gind(d_j));
+            complex<double> c_u(0.0,0.0);
 
-         (*U)(s_i,s_j) = real(c_u);
+            for(int d_i = 0;d_i < tf_i.gdim();++d_i)
+               for(int d_j = 0;d_j < tf_j.gdim();++d_j)
+                  c_u += conj(tf_i.gcoef(d_i)) * tf_j.gcoef(d_j) * (ci.gU(core))(tf_i.gind(d_i),tf_j.gind(d_j));
+
+            (*U[core])(s_i,s_j) = real(c_u);
+
+         }
 
       }
 
@@ -207,7 +214,9 @@ SphInt::SphInt(const CartInt &ci){
 
    S->symmetrize();
    T->symmetrize();
-   U->symmetrize();
+
+   for(int i = 0;i < N_Z;++i)
+      U[i]->symmetrize();
 
    int s_i,s_j,s_k,s_l;
    int k,n_k,l_k,m_k;
@@ -224,7 +233,7 @@ SphInt::SphInt(const CartInt &ci){
       m_i = s2inlm[s_i][3];
 
       Transform tf_i(i,n_i,l_i,m_i);
-      
+
       j = s2inlm[s_j][0];
       n_j = s2inlm[s_j][1];
       l_j = s2inlm[s_j][2];
@@ -259,7 +268,7 @@ SphInt::SphInt(const CartInt &ci){
                   for(int d_l = 0;d_l < tf_l.gdim();++d_l){
 
                      c_v += conj(tf_i.gcoef(d_i)) * conj(tf_j.gcoef(d_j)) * tf_k.gcoef(d_k) * tf_l.gcoef(d_l)
-                     
+
                         * ci.gV(tf_i.gind(d_i),tf_j.gind(d_j),tf_k.gind(d_k),tf_l.gind(d_l));
 
                   }
@@ -279,15 +288,19 @@ SphInt::SphInt(const CartInt &ci){
 
 /** 
  * copy constructor
- * @param ci_c SphInt object to be copied in the newly constructed object
+ * @param si_c SphInt object to be copied in the newly constructed object
  */
-SphInt::SphInt(const SphInt &ci_c){ 
+SphInt::SphInt(const SphInt &si_c){ 
 
-   S = new Matrix(ci_c.gS());
-   T = new Matrix(ci_c.gT());
-   U = new Matrix(ci_c.gU());
+   S = new Matrix(si_c.gS());
+   T = new Matrix(si_c.gT());
 
-   V = new Matrix(ci_c.gV());
+   U = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new Matrix(si_c.gU(i));
+
+   V = new Matrix(si_c.gV());
 
 }
 
@@ -298,7 +311,11 @@ SphInt::~SphInt(){
 
    delete S;
    delete T;
-   delete U;
+
+   for(int i = 0;i < N_Z;++i)
+      delete U[i];
+
+   delete [] U;
 
    delete V;
 
@@ -340,19 +357,21 @@ Matrix &SphInt::gT() {
 }
 
 /** 
+ * @param core index of the core
  * @return the nuclear attraction matrix, const version
  */
-const Matrix &SphInt::gU() const { 
+const Matrix &SphInt::gU(int core) const { 
 
-   return *U; 
+   return *U[core]; 
 }
 
 /** 
+ * @param core index of the core
  * @return the nuclear attraction matrix
  */
-Matrix &SphInt::gU() { 
+Matrix &SphInt::gU(int core) { 
 
-   return *U;
+   return *U[core];
 
 }
 
@@ -428,16 +447,24 @@ ostream &operator<<(ostream &output,SphInt &si_p){
    output << "Nuclear attraction:" << endl;
    output << endl;
 
-   for(int s_i = 0;s_i < si_p.gdim();++s_i)
-      for(int s_j = s_i;s_j < si_p.gdim();++s_j){
+   for(int core = 0;core < si_p.gN_Z();++core){
 
-         output << si_p.s2inlm[s_i][0] << "\t" << si_p.s2inlm[s_i][1] << "\t" << si_p.s2inlm[s_i][2] << "\t" << si_p.s2inlm[s_i][3]
+      cout << endl;
+      cout << "for core number\t" << core << endl;
+      cout << endl;
 
-            << "\t|\t" << si_p.s2inlm[s_j][0] << "\t" << si_p.s2inlm[s_j][1] << "\t" << si_p.s2inlm[s_j][2]
+      for(int s_i = 0;s_i < si_p.gdim();++s_i)
+         for(int s_j = s_i;s_j < si_p.gdim();++s_j){
 
-            << "\t" << si_p.s2inlm[s_j][3] << "\t|\t" << (si_p.gU())(s_i,s_j) << endl;
+            output << si_p.s2inlm[s_i][0] << "\t" << si_p.s2inlm[s_i][1] << "\t" << si_p.s2inlm[s_i][2] << "\t" << si_p.s2inlm[s_i][3]
 
-      }
+               << "\t|\t" << si_p.s2inlm[s_j][0] << "\t" << si_p.s2inlm[s_j][1] << "\t" << si_p.s2inlm[s_j][2]
+
+               << "\t" << si_p.s2inlm[s_j][3] << "\t|\t" << (si_p.gU(core))(s_i,s_j) << endl;
+
+         }
+
+   }
 
    output << endl;
    output << "Electronic repulsion energy:" << endl;
@@ -462,7 +489,7 @@ ostream &operator<<(ostream &output,SphInt &si_p){
             << si_p.s2inlm[s_k][0] << "\t" << si_p.s2inlm[s_k][1] << "\t" << si_p.s2inlm[s_k][2] << "\t" << si_p.s2inlm[s_k][3] << "\t|\t"
 
             << si_p.s2inlm[s_l][0] << "\t" << si_p.s2inlm[s_l][1] << "\t" << si_p.s2inlm[s_l][2] << "\t" << si_p.s2inlm[s_l][3] << "\t]\t"
-            
+
             << (si_p.gV())(t_i,t_j) << endl;
 
       }
@@ -471,7 +498,6 @@ ostream &operator<<(ostream &output,SphInt &si_p){
    return output;
 
 }
-
 /**
  * orthogonalizes the basis: inverse sqrt of S
  */
@@ -481,38 +507,55 @@ void SphInt::orthogonalize() {
    S->sqrt(-1);
 
    Matrix T_copy(dim);
-   Matrix U_copy(dim);
+
+   Matrix **U_copy = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U_copy[i] = new Matrix(dim);
 
    T_copy = 0.0;
-   U_copy = 0.0;
+
+   for(int i = 0;i < N_Z;++i)
+      *U_copy[i] = 0.0;
 
    //transform T
-   for(int i = 0;i < dim;++i)
-      for(int j = 0;j < dim;++j){
+   for(int a = 0;a < dim;++a)
+      for(int b = 0;b < dim;++b){
 
-         for(int k = 0;k < dim;++k){
+         for(int c = 0;c < dim;++c){
 
-            T_copy(i,j) += (*S)(i,k) * (*T)(k,j);
-            U_copy(i,j) += (*S)(i,k) * (*U)(k,j);
+            T_copy(a,b) += (*S)(a,c) * (*T)(c,b);
+
+            for(int i = 0;i < N_Z;++i)
+               (*U_copy[i])(a,b) += (*S)(a,c) * (*U[i])(c,b);
 
          }
 
       }
 
    *T = 0.0;
-   *U = 0.0;
 
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j){
+   for(int i = 0;i < N_Z;++i)
+      *U[i] = 0.0;
 
-         for(int k = 0;k < dim;++k){
+   for(int a = 0;a < dim;++a)
+      for(int b = a;b < dim;++b){
 
-            (*T)(i,j) += T_copy(i,k) * (*S)(k,j);
-            (*U)(i,j) += U_copy(i,k) * (*S)(k,j);
+         for(int c = 0;c < dim;++c){
+
+            (*T)(a,b) += T_copy(a,c) * (*S)(c,b);
+
+            for(int i = 0;i < N_Z;++i)
+               (*U[i])(a,b) += (*U_copy[i])(a,c) * (*S)(c,b);
 
          }
 
       }
+
+   for(int i = 0;i < N_Z;++i)
+      delete U_copy[i];
+
+   delete [] U_copy;
 
    Matrix V_copy(dim*dim);
 
@@ -595,7 +638,9 @@ void SphInt::orthogonalize() {
    }
 
    T->symmetrize();
-   U->symmetrize();
+
+   for(int i = 0;i < N_Z;++i)
+      U[i]->symmetrize();
 
 }
 
@@ -620,9 +665,9 @@ double SphInt::gT(int i,int j) const {
 /**
  * access to the individual elements of the matrices
  */
-double SphInt::gU(int i,int j) const {
+double SphInt::gU(int core,int i,int j) const {
 
-   return (*U)(i,j);
+   return (*U[core])(i,j);
 
 }
 

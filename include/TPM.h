@@ -11,6 +11,7 @@ class SUP;
 class DPM;
 class PHM;
 class PPHM;
+class SubSys;
 
 #include "BlockMatrix.h"
 
@@ -92,7 +93,7 @@ class TPM : public BlockMatrix {
 
       void set_S_2();
 
-      void subocc_op(int,const Matrix &);
+      void subocc_op(const SubSys &);
 
       static void init_overlap();
 

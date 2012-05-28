@@ -11,6 +11,7 @@ using std::vector;
 class TPM;
 class PHM;
 class PPHM;
+class SubSys;
 
 #include "Matrix.h"
 
@@ -54,7 +55,11 @@ class SPM : public BlockMatrix {
       
       void bar(double,const PPHM &);
 
-      void subocc_op(int,const Matrix &);
+      void subocc_op(const SubSys &);
+
+      void sT(const SubSys &);
+
+      void sU(const SubSys &);
 
       void si21dm(const Matrix &S);
 

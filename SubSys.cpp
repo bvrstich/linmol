@@ -60,8 +60,8 @@ SubSys::SubSys(int core,const SphInt &si){
       for(int j = i;j < n;++j){
 
          (*S)(i,j) = si.gS()(s2f[i],s2f[j]);
-         (*T)(i,j) = si.gS()(s2f[i],s2f[j]);
-         (*U)(i,j) = si.gS()(s2f[i],s2f[j]);
+         (*T)(i,j) = si.gT()(s2f[i],s2f[j]);
+         (*U)(i,j) = si.gU(0)(s2f[i],s2f[j]);
 
       }
 
@@ -115,7 +115,7 @@ SubSys::SubSys(int core,const SphInt &si){
    //construct the L matrix
    L = new Matrix(si.gS());
    
-   L->sqrt(-1);
+   L->sqrt(1);
 
    //rectangular matrix! More rows than columns
    W = new double [n*M/2];
@@ -129,7 +129,7 @@ SubSys::SubSys(int core,const SphInt &si){
          W[s + n*f] = 0.0;
 
          for(int i = 0;i < n;++i)
-            W[s + n*f] += (*L)(f,i) * (*S)(i,s);
+            W[s + n*f] += (*L)(f,s2f[i]) * (*S)(i,s);
 
       }
 
@@ -259,9 +259,6 @@ double SubSys::subocc_func(const TPM &tpm) const {
    SPM spm;
    spm.bar(1.0/(N - 1.0),tpm);
 
-   //delete this line later: need positive S here
-   S->invert();
-
    //rough test
    Matrix N_sub(M/2);
 
@@ -272,7 +269,7 @@ double SubSys::subocc_func(const TPM &tpm) const {
 
          for(int a = 0;a < n;++a)
             for(int b = 0;b < n;++b)
-               N_sub(ga,gb) += gW(ga,a) * gW(gb,b) * (*S)(a,b);
+               N_sub(ga,gb) += (*L)(ga,s2f[a]) * (*S)(a,b) * (*L)(gb,s2f[b]);
 
       }
 
@@ -424,7 +421,7 @@ Matrix &SubSys::gV() {
  */
 const Matrix &SubSys::gL() const { 
 
-   return *V; 
+   return *L; 
 
 }
 
@@ -433,7 +430,7 @@ const Matrix &SubSys::gL() const {
  */
 Matrix &SubSys::gL() { 
 
-   return *V;
+   return *L;
 
 }
 
@@ -457,5 +454,25 @@ double SubSys::gW(int f ,int s) const {
 void SubSys::sW(int f ,int s,double value) {
 
    W[s + n*f] = value;
+
+}
+
+/**
+ * access to the s2f list from outside
+ * @param s input subsystem index 
+ * @return f the full system index corresponding to s
+ */
+int SubSys::gs2f(int s) const{
+
+   return s2f[s];
+
+}
+
+/**
+ * access to the individual elements of the V matrix by use of single-particle indices
+ */
+double SubSys::gV(int a,int b,int c,int d) const {
+
+   return (*V)(s2t[a][b],s2t[c][d]);
 
 }

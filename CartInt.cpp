@@ -223,25 +223,32 @@ CartInt::CartInt(){
 
    S = new Matrix(dim);
    T = new Matrix(dim);
-   U = new Matrix(dim);
+   
+   U = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new Matrix(dim);
 
    V = new Matrix(dim*dim);
 
    MxElem setup(*readin);
-   setup.Init(*readin);
 
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j){
+   for(int a = 0;a < dim;++a)
+      for(int b = a;b < dim;++b){
 
-         (*S)(i,j) = setup.gSoverlap(i,j);
-         (*T)(i,j) = setup.gKEseparate(i,j);
-         (*U)(i,j) = setup.gTelem(i,j) - setup.gKEseparate(i,j);
+         (*S)(a,b) = setup.gS(a,b);
+         (*T)(a,b) = setup.gT(a,b);
+
+         for(int i = 0;i < N_Z;++i)
+            (*U[i])(a,b) = setup.gU(i,a,b);
 
       }
 
    S->symmetrize();
    T->symmetrize();
-   U->symmetrize();
+
+   for(int i = 0;i < N_Z;++i)
+      U[i]->symmetrize();
 
    int a,b,c,d;
 
@@ -272,7 +279,11 @@ CartInt::CartInt(const CartInt &ci_c){
 
    S = new Matrix(ci_c.gS());
    T = new Matrix(ci_c.gT());
-   U = new Matrix(ci_c.gU());
+
+   U = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new Matrix(ci_c.gU(i));
    
    V = new Matrix(ci_c.gV());
 
@@ -285,7 +296,11 @@ CartInt::~CartInt(){
 
    delete S;
    delete T;
-   delete U;
+
+   for(int i = 0;i < N_Z;++i)
+      delete U[i];
+
+   delete [] U;
 
    delete V;
    
@@ -327,19 +342,21 @@ Matrix &CartInt::gT() {
 }
 
 /** 
+ * @param core index of the core
  * @return the nuclear attraction matrix, const version
  */
-const Matrix &CartInt::gU() const { 
+const Matrix &CartInt::gU(int core) const { 
 
-   return *U; 
+   return *U[core]; 
 }
 
 /** 
+ * @param core index of the core
  * @return the nuclear attraction matrix
  */
-Matrix &CartInt::gU() { 
+Matrix &CartInt::gU(int core) { 
 
-   return *U;
+   return *U[core];
 
 }
 
@@ -367,16 +384,18 @@ void CartInt::norm() {
 
    double norm[dim];
 
-   for(int i = 0;i < dim;++i)
-      norm[i] = sqrt((*S)(i,i));
+   for(int a = 0;a < dim;++a)
+      norm[a] = sqrt((*S)(a,a));
 
    //first the one body matrices
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j){
+   for(int a = 0;a < dim;++a)
+      for(int b = a;b < dim;++b){
 
-         (*S)(i,j) /= norm[i] * norm[j];
-         (*T)(i,j) /= norm[i] * norm[j];
-         (*U)(i,j) /= norm[i] * norm[j];
+         (*S)(a,b) /= norm[a] * norm[b];
+         (*T)(a,b) /= norm[a] * norm[b];
+
+         for(int i = 0;i < N_Z;++i)
+            (*U[i])(a,b) /= norm[a] * norm[b];
 
       }
 
@@ -401,7 +420,10 @@ void CartInt::norm() {
 
    S->symmetrize();
    T->symmetrize();
-   U->symmetrize();
+
+   for(int i = 0;i < N_Z;++i)
+      U[i]->symmetrize();
+
    V->symmetrize();
 
 }
@@ -448,19 +470,26 @@ ostream &operator<<(ostream &output,CartInt &ci_p){
    output << "Nuclear attraction energy:" << endl;
    output << endl;
 
-   //kinetic energy
-   for(int s_i = 0;s_i < ci_p.dim;++s_i)
-      for(int s_j = 0;s_j < ci_p.dim;++s_j){
+   for(int i = 0;i < ci_p.gN_Z();++i){
 
-         output << ci_p.s2inlxyz[s_i][0] << "\t" << ci_p.s2inlxyz[s_i][1] << "\t" << ci_p.s2inlxyz[s_i][2]
+      cout << endl;
+      cout << "On core\t" << i << endl;
+      cout << endl;
 
-            << "\t(" << ci_p.s2inlxyz[s_i][3] << "," << ci_p.s2inlxyz[s_i][4] << "," << ci_p.s2inlxyz[s_i][5] << ")\t|\t"
+      for(int s_i = 0;s_i < ci_p.dim;++s_i)
+         for(int s_j = 0;s_j < ci_p.dim;++s_j){
 
-            << ci_p.s2inlxyz[s_j][0] << "\t" << ci_p.s2inlxyz[s_j][1] << "\t" << ci_p.s2inlxyz[s_j][2]
+            output << ci_p.s2inlxyz[s_i][0] << "\t" << ci_p.s2inlxyz[s_i][1] << "\t" << ci_p.s2inlxyz[s_i][2]
 
-            << "\t(" << ci_p.s2inlxyz[s_j][3] << "," << ci_p.s2inlxyz[s_j][4] << "," << ci_p.s2inlxyz[s_j][5] << ")\t|\t" << (ci_p.gU())(s_i,s_j) << endl;
+               << "\t(" << ci_p.s2inlxyz[s_i][3] << "," << ci_p.s2inlxyz[s_i][4] << "," << ci_p.s2inlxyz[s_i][5] << ")\t|\t"
 
-      }
+               << ci_p.s2inlxyz[s_j][0] << "\t" << ci_p.s2inlxyz[s_j][1] << "\t" << ci_p.s2inlxyz[s_j][2]
+
+               << "\t(" << ci_p.s2inlxyz[s_j][3] << "," << ci_p.s2inlxyz[s_j][4] << "," << ci_p.s2inlxyz[s_j][5] << ")\t|\t" << ci_p.gU(i)(s_i,s_j) << endl;
+
+         }
+
+   }
 
    output << endl;
    output << "Electronic repulsion energy:" << endl;
@@ -519,9 +548,9 @@ int CartInt::gs2inlxyz(int s,int option) {
  * @param i the i'th core
  * @param n the main quantumnumber
  * @param l the angular momentum
- * @param x the power of x in the Gaussian wavefucntion
- * @param y the power of y in the Gaussian wavefucntion
- * @param z the power of z in the Gaussian wavefucntion
+ * @param x the power of x in the Gaussian wavefunction
+ * @param y the power of y in the Gaussian wavefunction
+ * @param z the power of z in the Gaussian wavefunction
  * @return s the single particle index corresponding to i n l x y z quantumnumbers
  */
 int CartInt::ginlxyz2s(int i,int n,int l,int x,int y,int z) {
@@ -589,38 +618,54 @@ void CartInt::orthogonalize() {
    S->sqrt(-1);
 
    Matrix T_copy(dim);
-   Matrix U_copy(dim);
+   Matrix **U_copy = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U_copy[i] = new Matrix(dim);
 
    T_copy = 0.0;
-   U_copy = 0.0;
+
+   for(int i = 0;i < N_Z;++i)
+      *U_copy[i] = 0.0;
 
    //transform T
-   for(int i = 0;i < dim;++i)
-      for(int j = 0;j < dim;++j){
+   for(int a = 0;a < dim;++a)
+      for(int b = 0;b < dim;++b){
 
-         for(int k = 0;k < dim;++k){
+         for(int c = 0;c < dim;++c){
 
-            T_copy(i,j) += (*S)(i,k) * (*T)(k,j);
-            U_copy(i,j) += (*S)(i,k) * (*U)(k,j);
+            T_copy(a,b) += (*S)(a,c) * (*T)(c,b);
+
+            for(int i = 0;i < N_Z;++i)
+               (*U_copy[i])(a,b) += (*S)(a,c) * (*U[i])(c,b);
 
          }
 
       }
 
    *T = 0.0;
-   *U = 0.0;
 
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j){
+   for(int i = 0;i < N_Z;++i)
+      *U[i] = 0.0;
 
-         for(int k = 0;k < dim;++k){
+   for(int a = 0;a < dim;++a)
+      for(int b = a;b < dim;++b){
 
-            (*T)(i,j) += T_copy(i,k) * (*S)(k,j);
-            (*U)(i,j) += U_copy(i,k) * (*S)(k,j);
+         for(int c = 0;c < dim;++c){
+
+            (*T)(a,b) += T_copy(a,c) * (*S)(c,b);
+
+            for(int i = 0;i < N_Z;++i)
+               (*U[i])(a,b) += (*U_copy[i])(a,c) * (*S)(c,b);
 
          }
 
       }
+
+   for(int i = 0;i < N_Z;++i)
+      delete U_copy[i];
+
+   delete [] U_copy;
 
    Matrix V_copy(dim*dim);
 
@@ -703,7 +748,9 @@ void CartInt::orthogonalize() {
    }
 
    T->symmetrize();
-   U->symmetrize();
+
+   for(int i = 0;i < N_Z;++i)
+      U[i]->symmetrize();
 
 }
 
@@ -728,9 +775,9 @@ double CartInt::gT(int i,int j) const {
 /**
  * access to the individual elements of the matrices
  */
-double CartInt::gU(int i,int j) const {
+double CartInt::gU(int core,int i,int j) const {
 
-   return (*U)(i,j);
+   return (*U[core])(i,j);
 
 }
 

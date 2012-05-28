@@ -57,7 +57,7 @@ class MxElem{
    public:
 
       //Constructor
-      MxElem(input &, bool dopzmarker=false);
+      MxElem(input &);
 
       //Copy constructor
       MxElem(MxElem &);
@@ -66,79 +66,45 @@ class MxElem{
       virtual ~MxElem();
 
       //Getters
-      int gNOrbTot();
-      bool gDoPzMarker();
-      double gKEseparate(int,int);
-      double gTelem(int,int);
-      double gSoverlap(int,int);
-      double gVelem(int,int,int,int);
-      double gVelemOK(int,int,int,int);
-      bool gPzMarker(int);
+      int gdim() const;
+      int gN_Z() const;
 
-      //Binary storage: One should be aware to use exactly the same setup file of course.
-      void Save();
-      void Load();
-      void RemoveFromDisk();
+      double gT(int,int) ;
+      double gTelem(int,int) ;
+      double gS(int,int) ;
+      double gU(int,int,int) ;
+      double gVelem(int,int,int,int) ;
+      double gVelemOK(int,int,int,int) ;
 
       //Init the gaussians
-      void Init(input &, double Efield = 0.0);
+      void Init(input &);
 
-      //Different orthogonalisations
-      void CanOrth(double *);
-
-      //Inverse overlap matrix
-      void InverseOverlap(double *);
-      
-      //Construct the Lodwin Transformation
-      void MakeLodwinTfo(double *);
-      
-      //Perform a Lodwin Transformation
-      void DoLodwinTfo();
-
-      //Printers
-      void PrintUpper(double *, int);
-      void PrintFull(double *, int);
-      void PrintArray(double *, int);
-      void PrintS();
-      void PrintOneBody();
-      void PrintTwoBody();
-      void PrintLarger(double);
-      void PrintSmaller(double);
-
-      //Set certain matrix elements smaller than a cutoff to zero
-      void SetOverlapSmallToZero(double);
-      void SetVelemSmallToZero(double);
-      void SetTelemSmallToZero(double);
-      
       //Calculate the nuclear nuclear repulsion energy of the problem
       double NuclPotEn(input &);
       
-      //Checl whether all mx elements exceeding a certain diagramrange are smaller than a threshold
-      bool CheckRange(double, int);
-
    private:    
    
-      //! Whether or not to mark the pz values
-      bool DoPzMarker;
-
       //! Total number of orbitals
-      int NOrbTot;
+      int dim;
+
+      //! number of cores
+      int N_Z;
 
       //! 1body: Telem[index] = (i|T|j) with j>=i and index = i + j*(j+1)/2. Minimum storage for upper triangular filling.
       double * Telem;
-      
-      //! 1body: KEseparate[index] = (i|T|j) with j>=i and index = i + j*(j+1)/2. Minimum storage for upper triangular filling.
-      double * KEseparate;
+
+      //! kinetic energy: T[index] = (i|T|j) with j>=i and index = i + j*(j+1)/2. Minimum storage for upper triangular filling.
+      double *T;
+
+      //!electron nuclear interaction for different cores
+      double **U;
 
       //! 2body: Velem[i][x][y][z] = (ij|V|kl) with k>=i; j>=i; l>=j. [ i : 0->N-1 ][ x = (j-i) : 0->N-i ][ y = (k-i) : 0->N-i ][ z = l-j : 0->N-j : 0->N-i-x]
       double **** Velem;
 
       //! Overlap: S[index] = (i|j) with j>=i and index = i + j*(j+1)/2. Minimum storage for upper triangular filling.
-      double * Soverlap;
+      double *S;
       
-      //! Whether or not an orbital is pz-type
-      bool * PzMarker;
-
       //Calculate total number of basis functions
       int CalcTotalNumberOfOrbitals(input &);
 
@@ -146,14 +112,12 @@ class MxElem{
       int GetLofType(char);
 
       //Setters
-      void setKEseparate(int,int,double);
+      void setT(int,int,double);
       void setTelem(int,int,double);
-      void setSoverlap(int,int,double);
+      void setS(int,int,double);
+      void sU(int,int,int,double);
       void setVelem(int,int,int,int,double);
       void setVelemOK(int,int,int,int,double);      
-
-      //allocate
-      void allocate();
 
 };
 

@@ -249,7 +249,6 @@ double MxElemFiller::KE(int atom_1, int orbit_1, int n1x, int n1y, int n1z, int 
 
 }
 
-
 /**
  * Recursion relation for the calculation of the kinetic energy matrix element
  * @param alpha1 first gaussian power parameter
@@ -796,6 +795,3 @@ double MxElemFiller::FactHelper(int ni){
    return pow(1.0/result,0.5)*pow(0.5,0.5*double(expon));
 
 }
-
-
-
