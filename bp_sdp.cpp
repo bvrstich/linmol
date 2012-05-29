@@ -59,16 +59,6 @@ int main(void){
 
    SphInt si(ci);
 
-   SubSys ss_Be(0,si);
-   ss_Be.setBe();
-
-   ss_Be.orthogonalize();
-
-   SubSys ss_B(1,si);
-   ss_B.setB();
-
-   ss_B.orthogonalize();
-
    LinCon::init(M,N);
    LinIneq::init(M,N,si);
 
@@ -81,38 +71,140 @@ int main(void){
    TPM ham;
    ham.molecule(si);
 
-   ifstream in("/home/bright/bestanden/results/linmol/BeB/DM_out/BeB-20.rdm");
+   TPM ham_copy(ham);
 
-   TPM rdm;
+   TPM S_2;
+   S_2.set_S_2();
 
-   for(int B = 0;B < rdm.gnr();++B)
-      for(int i = 0;i < rdm.gdim(B);++i)
-         for(int j = i;j < rdm.gdim(B);++j)
-            in >> B >> i >> j >> rdm(B,i,j);
+   //only traceless hamiltonian needed in program.
+   ham.proj_Tr();
 
-   rdm.symmetrize();
+   //primal
+   SUP X;
 
-   cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
+   //dual
+   SUP Z;
 
-   TPM subham_Be;
-   subham_Be.subham(ss_Be);
+   //Lagrange multiplier
+   SUP V;
 
-   TPM subocc_Be;
-   subocc_Be.subocc_op(ss_Be);
+   //just dubya
+   SUP W;
 
-   TPM subham_B;
-   subham_B.subham(ss_B);
+   SUP u_0;
 
-   TPM subocc_B;
-   subocc_B.subocc_op(ss_B);
+   //little help
+   TPM hulp;
 
-   cout << rdm.ddot(subocc_Be) << "\t" << ss_Be.subocc_func(rdm) << "\t" << rdm.ddot(subham_Be) << endl;
-   cout << rdm.ddot(subocc_B) << "\t" << ss_B.subocc_func(rdm) << "\t" << rdm.ddot(subham_B) << endl;
+   u_0.gI().unit();
 
-   LinIneq li;
-   li.fill(rdm);
+   u_0.fill();
 
-   cout << li << endl;
+   X = 0.0;
+   Z = 0.0;
+
+   //what does this do?
+   double sigma = 1.0;
+
+   double tolerance = 1.0e-7;
+
+   double D_conv(1.0),P_conv(1.0),convergence(1.0);
+
+   // mazziotti uses 1.6 for this
+   double mazzy = 1.9;
+
+   int iter_dual,iter_primal(0);
+   int max_iter = 1;
+
+   int tot_iter = 0;
+
+   while(P_conv > tolerance || D_conv > tolerance || fabs(convergence) > tolerance){
+
+      ++iter_primal;
+
+      D_conv = 1.0;
+
+      iter_dual = 0;
+
+      while(D_conv > tolerance  && iter_dual <= max_iter)
+      {
+         ++tot_iter;
+
+         ++iter_dual;
+
+         //solve system
+         SUP B(Z);
+
+         B -= u_0;
+
+         B.daxpy(mazzy/sigma,X);
+
+         TPM b;
+
+         b.collaps(1,B);
+
+         b.daxpy(-mazzy/sigma,ham);
+
+         hulp.S_L(-1,b);
+
+         //hulp is the matrix containing the gamma_i's
+         hulp.proj_Tr();
+
+         //construct W
+         W.fill(hulp);
+
+         W += u_0;
+
+         W.daxpy(-1.0/sigma,X);
+
+         //update Z and V with eigenvalue decomposition:
+         W.sep_pm(Z,V);
+
+         V.dscal(-sigma);
+
+         //check infeasibility of the primal problem:
+         TPM v;
+
+         v.collaps(1,V);
+
+         v -= ham;
+
+         D_conv = sqrt(v.ddot(v));
+
+      }
+
+      //update primal:
+      X = V;
+
+      //check dual feasibility (W is a helping variable now)
+      W.fill(hulp);
+
+      W += u_0;
+
+      W -= Z;
+
+      P_conv = sqrt(W.ddot(W));
+
+      if(D_conv < P_conv)
+         sigma *= 1.01;
+      else
+         sigma /= 1.01;
+
+      convergence = ham.ddot(Z.gI()) + u_0.ddot(X);
+
+      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << "\t" << Z.gI().ddot(S_2) << endl;
+
+   }
+
+   cout << endl;
+   cout << "Energy: " << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << endl;
+   cout << "Spin: " << S_2.ddot(Z.gI())<< endl;
+   cout << "pd gap: " << Z.ddot(X) << endl;
+   cout << "dual conv: " << D_conv << endl;
+   cout << "primal conv: " << P_conv << endl;
+
+   cout << endl;
+   cout << "total nr of iterations = " << tot_iter << endl;
 
    LinIneq::clear();
 
@@ -128,5 +220,4 @@ int main(void){
    CartInt::clear();
 
    return 0;
-
 }
