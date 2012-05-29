@@ -97,6 +97,9 @@ int main(int argc, char **argv)
    SphInt si(ci);
    si.orthogonalize();
 
+   LinCon::init(M,N);
+   LinIneq::init(M,N,si);
+
    //hamiltoniaan
    TPM ham;
    ham.molecule(si);
@@ -105,6 +108,8 @@ int main(int argc, char **argv)
    rdm.ReadfromFile(filename);
 
    cout << "Energy = " << rdm.ddot(ham) << endl;
+
+   LinIneq::clear();
 
    PPHM::clear();
    DPM::clear();
