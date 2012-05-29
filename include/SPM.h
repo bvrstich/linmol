@@ -57,10 +57,6 @@ class SPM : public BlockMatrix {
 
       void subocc_op(const SubSys &);
 
-      void sT(const SubSys &);
-
-      void sU(const SubSys &);
-
       void si21dm(const Matrix &S);
 
       static int gl_max();

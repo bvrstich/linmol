@@ -28,94 +28,85 @@ void SubSys::init(int M_in,int N_in){
 
 /**
  * Constructor of a SubSys object, takes a subsystem on a certrain core
- * @param si input SphInt object: Make sure that it is NOT orthogonalized yet!
+ * @param si_in input SphInt object: Make sure that it is NOT orthogonalized yet!
  * @param core number of the core
  */
-SubSys::SubSys(int core,const SphInt &si){
+SubSys::SubSys(int core,const SphInt &si_in){
 
    this->core = core;
 
+   //make the s2f list and get the subsystem dimension
    n = 0;
 
-   for(int s_i = 0;s_i < si.gdim();++s_i){
+   for(int a = 0;a < si_in.gdim();++a){
 
-      if(SphInt::gs2inlm(s_i,0) == core){
+      if(SphInt::gs2inlm(a,0) == core){
 
-         s2f.push_back(s_i);
+         s2f.push_back(a);
          ++n;
 
       }
 
    }
 
+   si = new SphInt(si_in);
+
+   //overlap matrix
    S = new Matrix(n);
-   T = new Matrix(n);
-   U = new Matrix(n);
-
-   V = new Matrix(n*n);
-
 
    //copy the right elements 
    for(int i = 0;i < n;++i)
-      for(int j = i;j < n;++j){
-
-         (*S)(i,j) = si.gS()(s2f[i],s2f[j]);
-         (*T)(i,j) = si.gT()(s2f[i],s2f[j]);
-         (*U)(i,j) = si.gU(0)(s2f[i],s2f[j]);
-
-      }
+      for(int j = i;j < n;++j)
+         (*S)(i,j) = si_in.gS()(s2f[i],s2f[j]);
 
    S->symmetrize();
-   T->symmetrize();
-   U->symmetrize();
 
-   //construct "two-particle" lists on subspace
-   vector<int> v(2);
+   //set the correct elements to zero in the T,U and V matrices
 
-   s2t = new int * [n];
+   //first T and U
+   for(int a = 0;a < si->gdim();++a)
+      for(int b = a;b < si->gdim();++b){
 
-   for(int i = 0;i < n;++i)
-      s2t[i] = new int [n];
+         if(SphInt::gs2inlm(a,0) != core || SphInt::gs2inlm(b,0) != core){
 
-   int iter = 0;
+            si->gT()(a,b) = 0.0;
 
-   for(int i = 0;i < n;++i)
-      for(int j = 0;j < n;++j){
+            for(int i = 0;i < si->gN_Z();++i)
+               si->gU(i)(a,b) = 0.0;
 
-         v[0] = i;
-         v[1] = j;
-
-         t2s.push_back(v);
-
-         s2t[i][j] = iter;
-
-         ++iter;
+         }
 
       }
 
-   int s_i,s_j,s_k,s_l;
+   si->gT().symmetrize();
 
-   for(int t_i = 0;t_i < n*n;++t_i){
+   for(int i = 0;i < si->gdim();++i)
+      si->gU(i).symmetrize();
 
-      s_i = t2s[t_i][0];
-      s_j = t2s[t_i][1];
+   //then V
+   int a,b,c,d;
 
-      for(int t_j = t_i;t_j < n*n;++t_j){
+   for(int i = 0;i < si->gdim()*si->gdim();++i){
 
-         s_k = t2s[t_j][0];
-         s_l = t2s[t_j][1];
+      a = SphInt::gt2s(i,0);
+      b = SphInt::gt2s(i,1);
 
-         (*V)(t_i,t_j) = si.gV(s2f[s_i],s2f[s_j],s2f[s_k],s2f[s_l]);
+      for(int j = i;j < si->gdim()*si->gdim();++j){
+
+         c = SphInt::gt2s(j,0);
+         d = SphInt::gt2s(j,1);
+
+         
+         if(SphInt::gs2inlm(a,0) != core || SphInt::gs2inlm(b,0) != core || SphInt::gs2inlm(c,0) != core || SphInt::gs2inlm(d,0) != core)
+            si->gV()(i,j) = 0.0;
 
       }
    }
 
-   V->symmetrize();
+   si->gV().symmetrize();
 
-   //construct the L matrix
-   L = new Matrix(si.gS());
-   
-   L->sqrt(1);
+   //construct the L matrix: linear transformation between the orthogonal and non-orthogonal basis
+   si->gS().sqrt(1);
 
    //rectangular matrix! More rows than columns
    W = new double [n*M/2];
@@ -129,7 +120,7 @@ SubSys::SubSys(int core,const SphInt &si){
          W[s + n*f] = 0.0;
 
          for(int i = 0;i < n;++i)
-            W[s + n*f] += (*L)(f,s2f[i]) * (*S)(i,s);
+            W[s + n*f] += si->gS()(f,s2f[i]) * (*S)(i,s);
 
       }
 
@@ -146,50 +137,18 @@ SubSys::SubSys(const SubSys &ss_copy){
    n = ss_copy.gn();
    s2f = ss_copy.gs2f();
 
+   //matrix already inverted!
    S = new Matrix(ss_copy.gS());
-   T = new Matrix(ss_copy.gT());
-   U = new Matrix(ss_copy.gU());
-   V = new Matrix(ss_copy.gV());
 
-   //construct "two-particle" lists on subspace
-   vector<int> v(2);
-
-   s2t = new int * [n];
-
-   for(int i = 0;i < n;++i)
-      s2t[i] = new int [n];
-
-   int iter = 0;
-
-   for(int i = 0;i < n;++i)
-      for(int j = 0;j < n;++j){
-
-         v[0] = i;
-         v[1] = j;
-
-         t2s.push_back(v);
-
-         s2t[i][j] = iter;
-
-         ++iter;
-
-      }
-
-   //construct the L matrix
-   L = new Matrix(ss_copy.gL());
+   //si already "cut down on subsystem space" and the overlap matrix has been sqrted
+   si = new SphInt(ss_copy.gsi());
 
    //rectangular matrix! More rows than columns
    W = new double [n*M/2];
 
    for(int s = 0;s < n;++s)
-      for(int f = 0;f < M/2;++f){
-
-         W[s + n*f] = 0.0;
-
-         for(int i = 0;i < n;++i)
-            W[s + n*f] += (*L)(f,i) * (*S)(i,s);
-
-      }
+      for(int f = 0;f < M/2;++f)
+         W[s + n*f] = ss_copy.gW(f,s);
 
 }
 
@@ -198,17 +157,9 @@ SubSys::SubSys(const SubSys &ss_copy){
  */
 SubSys::~SubSys(){
 
+   delete si;
+
    delete S;
-   delete T;
-   delete U;
-   delete V;
-
-   delete L;
-
-   for(int i = 0;i < n;++i)
-      delete [] s2t[i];
-
-   delete [] s2t;
 
    delete [] W;
 
@@ -269,7 +220,7 @@ double SubSys::subocc_func(const TPM &tpm) const {
 
          for(int a = 0;a < n;++a)
             for(int b = 0;b < n;++b)
-               N_sub(ga,gb) += (*L)(ga,s2f[a]) * (*S)(a,b) * (*L)(gb,s2f[b]);
+               N_sub(ga,gb) += si->gS()(ga,s2f[a]) * (*S)(a,b) * si->gS()(gb,s2f[b]);
 
       }
 
@@ -365,75 +316,6 @@ Matrix &SubSys::gS() {
 
 }
 
-/** 
- * @return the kinetic energy matrix, const version
- */
-const Matrix &SubSys::gT() const { 
-
-   return *T; 
-}
-
-/** 
- * @return the kinetic energy matrix
- */
-Matrix &SubSys::gT() { 
-
-   return *T;
-
-}
-
-/** 
- * @return the nuclear attraction matrix, const version
- */
-const Matrix &SubSys::gU() const { 
-
-   return *U; 
-}
-
-/** 
- * @return the nuclear attraction matrix
- */
-Matrix &SubSys::gU() { 
-
-   return *U;
-
-}
-
-/** 
- * @return the electronic repulsion matrix
- */
-const Matrix &SubSys::gV() const { 
-
-   return *V; 
-}
-
-/** 
- * @return the electronic repulsion matrix
- */
-Matrix &SubSys::gV() { 
-
-   return *V;
-
-}
-
-/** 
- * @return the linear transformation matrix
- */
-const Matrix &SubSys::gL() const { 
-
-   return *L; 
-
-}
-
-/** 
- * @return the linear transformation matrix
- */
-Matrix &SubSys::gL() { 
-
-   return *L;
-
-}
-
 /**
  * access to the W thingy
  * @param f full system index
@@ -469,10 +351,53 @@ int SubSys::gs2f(int s) const{
 }
 
 /**
- * access to the individual elements of the V matrix by use of single-particle indices
+ * @return the subsystem SphInt object
  */
-double SubSys::gV(int a,int b,int c,int d) const {
+const SphInt &SubSys::gsi() const {
 
-   return (*V)(s2t[a][b],s2t[c][d]);
+   return *si;
+
+}
+
+/**
+ * @return the subsystem SphInt object
+ */
+SphInt &SubSys::gsi() {
+
+   return *si;
+
+}
+
+/**
+ * transform the T,U and V components of the SphInt object so that they are a good projector in an orthogonal basis on the subsystem space.
+ */
+void SubSys::orthogonalize(){
+
+   //first T
+   Matrix backup_T(si->gdim());
+
+   for(int a = 0;a < si->gdim();++a)
+      for(int b = 0;b < si->gdim();++b){
+
+         backup_T(a,b) = 0.0;
+
+         //loop over subsystem index
+         for(int sa = 0;sa < n;++sa)
+            backup_T(a,b) += gW(a,sa) * si->gT()(s2f[sa],b);
+
+      }
+
+   for(int a = 0;a < si->gdim();++a)
+      for(int b = a;b < si->gdim();++b){
+
+         si->gT()(a,b) = 0.0;
+
+         //loop over subsystem index
+         for(int sb = 0;sb < n;++sb)
+            si->gT()(a,b) += backup_T(a,s2f[sb]) * gW(b,sb);
+
+      }
+
+   si->gT().symmetrize();
 
 }

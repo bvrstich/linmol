@@ -456,70 +456,6 @@ void SPM::si21dm(const Matrix &S){
  * construct the subsystem kinetic energy operator in a orthonormal basis and store it in a SPM object.
  * @param ss the SubSys object containing all the subsystem information
  */
-void SPM::sT(const SubSys &ss){
-
- for(int m = -l_max;m <= l_max;++m){
-
-      for(int a = 0;a < gdim(m + l_max);++a){
-
-         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
-
-         for(int b = a;b < gdim(m + l_max);++b){
-
-            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
-
-            (*this)[m + l_max](a,b) = 0.0;
-
-            //loop over the nonorthogonal indices
-            for(int sa = 0;sa < ss.gn();++sa)
-               for(int sb = 0;sb < ss.gn();++sb)
-                  (*this)[m + l_max](a,b) += ss.gW(ga,sa) * ss.gT()(sa,sb) * ss.gW(gb,sb);
-            
-         }
-      }
-
-   }
-
-   this->symmetrize();
-
-}
-
-/**
- * construct the subsystem kinetic energy operator in a orthonormal basis and store it in a SPM object.
- * @param ss the SubSys object containing all the subsystem information
- */
-void SPM::sU(const SubSys &ss){
-
- for(int m = -l_max;m <= l_max;++m){
-
-      for(int a = 0;a < gdim(m + l_max);++a){
-
-         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
-
-         for(int b = a;b < gdim(m + l_max);++b){
-
-            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
-
-            (*this)[m + l_max](a,b) = 0.0;
-
-            //loop over the nonorthogonal indices
-            for(int sa = 0;sa < ss.gn();++sa)
-               for(int sb = 0;sb < ss.gn();++sb)
-                  (*this)[m + l_max](a,b) += ss.gW(ga,sa) * ss.gU()(sa,sb) * ss.gW(gb,sb);
-            
-         }
-      }
-
-   }
-
-   this->symmetrize();
-
-}
-
-/**
- * construct the subsystem kinetic energy operator in a orthonormal basis and store it in a SPM object.
- * @param ss the SubSys object containing all the subsystem information
- */
 void SPM::subocc_op(const SubSys &ss){
 
  for(int m = -l_max;m <= l_max;++m){
@@ -537,7 +473,7 @@ void SPM::subocc_op(const SubSys &ss){
             //loop over the nonorthogonal indices
             for(int sa = 0;sa < ss.gn();++sa)
                for(int sb = 0;sb < ss.gn();++sb)
-                  (*this)[m + l_max](a,b) += ss.gL()(ga,ss.gs2f(sa)) * ss.gS()(sa,sb) * ss.gL()(gb,ss.gs2f(sb));
+                  (*this)[m + l_max](a,b) += ss.gsi().gS()(ga,ss.gs2f(sa)) * ss.gS()(sa,sb) * ss.gsi().gS()(gb,ss.gs2f(sb));
             
          }
       }

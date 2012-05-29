@@ -53,24 +53,6 @@ class SubSys{
 
       Matrix &gS();
 
-      const Matrix &gT() const;
-
-      Matrix &gT();
-
-      const Matrix &gU() const;
-
-      Matrix &gU();
-
-      const Matrix &gV() const;
-
-      Matrix &gV();
-
-      double gV(int,int,int,int) const;
-
-      const Matrix &gL() const;
-
-      Matrix &gL();
-
       double gW(int,int) const;
 
       void sW(int,int,double);
@@ -83,22 +65,19 @@ class SubSys{
 
       double subocc_func(const TPM &) const;
 
+      const SphInt &gsi() const;
+
+      SphInt &gsi();
+
+      void orthogonalize();
+
    private:
+
+      //!SphInt object containing the matrixelements for the subsystem
+      SphInt *si;
       
-      //!subsystem version of the T matrix
-      Matrix *T;
-
-      //!subsystem version of the U matrix
-      Matrix *U;
-
-      //!subsystem version of the V matrix
-      Matrix *V;
-
-      //!subsystem version of the S matrix
+      //!subsystem version of the overlap-matrix: different because the inverse in on the subsystem block ONLY!
       Matrix *S;
-
-      //!transformation between the non-orthogonal and orthogonal basis on full space
-      Matrix *L;
 
       //!transformation matrix between the non-orthogonal subsystem basis and the orthogonal full system on: Wath out, rectangular
       double *W;
@@ -111,12 +90,6 @@ class SubSys{
 
       //!list relating the full system index to the subsystem index (non-orthogonal basis!)
       vector<int> s2f;
-
-      //!list relating two particle to single-particle
-      vector< vector<int> > t2s;
-
-      //!list relating two particle to single-particle
-      int **s2t;
 
       //!dimension of the subspace
       int n;
