@@ -43,21 +43,22 @@ void LinIneq::init(int M_in,int N_in,const SphInt &si){
    for(int i = 0;i < nr;++i)
       li[i] = new LinCon();
 
-   for(int i = 0;i < nr;++i)
-      li[i]->fill_Random();
-/*
    //make the subsystem objects
    SubSys ss_Be(0,si);
    ss_Be.setBe();
 
+   ss_Be.orthogonalize();
+
    SubSys ss_B(1,si);
    ss_B.setB();
+
+   ss_B.orthogonalize();
 
    li[0]->subcon(ss_Be,0);
    li[1]->subcon(ss_Be,1);
    li[2]->subcon(ss_B,0);
    li[3]->subcon(ss_B,1);
-*/
+
    //what are the coef's of the overlap matrix without the linear constraints:
    init_overlap();
 

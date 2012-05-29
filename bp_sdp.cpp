@@ -54,23 +54,23 @@ int main(void){
 
    SubSys::init(M,N);
 
-   //if you construct from file!
-/* 
    CartInt ci;
    ci.norm();
-*/
-   CartInt ci("input/BeB/20");
 
    SphInt si(ci);
 
    SubSys ss_Be(0,si);
    ss_Be.setBe();
 
+   ss_Be.orthogonalize();
+
    SubSys ss_B(1,si);
    ss_B.setB();
 
-   //LinCon::init(M,N);
-   //LinIneq::init(M,N,si);
+   ss_B.orthogonalize();
+
+   LinCon::init(M,N);
+   LinIneq::init(M,N,si);
 
    SUP::init(M,N);
    EIG::init(M,N);
@@ -94,19 +94,27 @@ int main(void){
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   ss_Be.orthogonalize();
-
    TPM subham_Be;
    subham_Be.subham(ss_Be);
 
-   ss_B.orthogonalize();
+   TPM subocc_Be;
+   subocc_Be.subocc_op(ss_Be);
 
    TPM subham_B;
    subham_B.subham(ss_B);
 
-   cout << subham_Be.ddot(rdm) << "\t" << subham_B.ddot(rdm) << endl;
+   TPM subocc_B;
+   subocc_B.subocc_op(ss_B);
 
-   //LinIneq::clear();
+   cout << rdm.ddot(subocc_Be) << "\t" << ss_Be.subocc_func(rdm) << "\t" << rdm.ddot(subham_Be) << endl;
+   cout << rdm.ddot(subocc_B) << "\t" << ss_B.subocc_func(rdm) << "\t" << rdm.ddot(subham_B) << endl;
+
+   LinIneq li;
+   li.fill(rdm);
+
+   cout << li << endl;
+
+   LinIneq::clear();
 
    PPHM::clear();
    DPM::clear();

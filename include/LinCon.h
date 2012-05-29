@@ -56,6 +56,8 @@ class LinCon{
 
       void spincon(double);
 
+      void subcon(const SubSys &,int);
+
       static void init(int,int);
 
    private:

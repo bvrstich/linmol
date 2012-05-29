@@ -41,10 +41,6 @@ class SubSys{
 
       double gE(int,int) const;
 
-      const vector< vector<int> > &gE() const;
-
-      vector< vector<int> > &gE();
-
       const vector<int> &gs2f() const;
 
       int gs2f(int) const;
@@ -62,6 +58,10 @@ class SubSys{
       void setB();
 
       void setBe();
+
+      void setN();
+
+      void setO();
 
       double subocc_func(const TPM &) const;
 
@@ -83,7 +83,7 @@ class SubSys{
       double *W;
       
       //!array of energies for different occupations of the subsystem
-      vector< vector<int> > E;
+      double **E;
 
       //!the index of the subsystem core
       int core;

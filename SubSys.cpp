@@ -80,6 +80,11 @@ SubSys::SubSys(int core,const SphInt &si_in){
 
       }
 
+   E = new double * [3];
+
+   for(int i = 0;i < 3;++i)
+      E[i] = new double [2];
+
 }
 
 /**
@@ -106,6 +111,15 @@ SubSys::SubSys(const SubSys &ss_copy){
       for(int f = 0;f < M/2;++f)
          W[s + n*f] = ss_copy.gW(f,s);
 
+   E = new double * [3];
+
+   for(int i = 0;i < 3;++i)
+      E[i] = new double [2];
+
+   for(int i = 0;i < 3;++i)
+      for(int j = 0;j < 2;++j)
+         E[i][j] = ss_copy.gE(i,j);
+
 }
 
 /**
@@ -119,6 +133,11 @@ SubSys::~SubSys(){
 
    delete [] W;
 
+   for(int i = 0;i < 2;++i)
+      delete [] E[i];
+
+   delete [] E;
+
 }
 
 /**
@@ -128,24 +147,6 @@ SubSys::~SubSys(){
 double SubSys::gE(int index,int option) const{
 
    return E[index][option];
-
-}
-
-/**
- * @return the full vector< vector<int> > E object containing the subsystem energies and particle numbers
- */
-const vector< vector<int> > &SubSys::gE() const {
-
-   return E;
-
-}
-
-/**
- * @return the full vector< vector<int> > E object containing the subsystem energies and particle numbers
- */
-vector< vector<int> > &SubSys::gE() {
-
-   return E;
 
 }
 
@@ -193,25 +194,17 @@ double SubSys::subocc_func(const TPM &tpm) const {
  */
 void SubSys::setBe(){
 
-   vector<int> v(2);
-
    //3
-   v[0] = 3;
-   v[1] = -14.27612024;
-
-   E.push_back(v);
+   E[0][0] = 3;
+   E[0][1] = -14.27612024;
 
    //4
-   v[0] = 4;
-   v[1] = -14.61749376;
-
-   E.push_back(v);
+   E[1][0] = 4;
+   E[1][1] = -14.61749376;
 
    //5
-   v[0] = 5;
-   v[1] = -14.58336127;
-
-   E.push_back(v);
+   E[2][0] = 5;
+   E[2][1] = -14.58336127;
 
 }
 
@@ -220,25 +213,55 @@ void SubSys::setBe(){
  */
 void SubSys::setB(){
 
-   vector<int> v(2);
-
    //3
-   v[0] = 3;
-   v[1] = -23.372643;
-
-   E.push_back(v);
+   E[0][0] = 3;
+   E[0][1] = -23.372643;
 
    //4
-   v[0] = 4;
-   v[1] = -24.29393637;
-
-   E.push_back(v);
+   E[1][0] = 4;
+   E[1][1] = -24.29393637;
 
    //5
-   v[0] = 5;
-   v[1] = -24.60479038;
+   E[2][0] = 5;
+   E[2][1] = -24.60479038;
 
-   E.push_back(v);
+}
+
+/**
+ * set the subsystem energies for N with occupations 6, 7 and 8.
+ */
+void SubSys::setN(){
+
+   //6
+   E[0][0] = 6;
+   E[0][1] = -53.99302032;
+   //7
+   E[1][0] = 7;
+   E[1][1] = -54.51129851;
+
+   //8
+   E[2][0] = 8;
+   E[2][1] = -54.44180378;
+
+}
+
+/**
+ * set the subsystem energies for N with occupations 6, 7 and 8.
+ */
+void SubSys::setO(){
+
+   cout << "ERROR\t NO VALUES YET" << endl;
+
+   //6
+   E[0][0] = 6;
+   E[0][1] = 0;
+   //7
+   E[1][0] = 7;
+   E[1][1] = 0;
+
+   //8
+   E[2][0] = 8;
+   E[2][1] = 0;
 
 }
 

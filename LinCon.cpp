@@ -206,3 +206,31 @@ void LinCon::spincon(double spin){
    i_c = spin;
 
 }
+
+/**
+ * construct the subsystem constraint
+ * @param ss SubSys object defining the subsystem
+ * @param index indicating which constraint to be imposed on the subsystem (between N-1 and N or N and N+1 etc.)
+ */
+void LinCon::subcon(const SubSys &ss,int index){
+
+   TPM subocc;
+   subocc.subocc_op(ss);
+
+   I_c->subham(ss);
+
+   I_c->daxpy((ss.gE(index,1) - ss.gE(index + 1,1)),subocc);
+
+   i_c = ss.gE(index,1)* ss.gE(index + 1,0) - ss.gE(index + 1,1) * ss.gE(index,0);
+
+   for(int B = 0;B < I_c->gnr();++B)
+      for(int i = 0;i < I_c->gdim(B);++i)
+         (*I_c)(B,i,i) -= 2.0*i_c/(N*(N - 1.0));
+
+   I_c_tr = 2.0 * I_c->trace()/ (double)(M*(M - 1.0));
+
+   I_c->proj_Tr();
+
+   I_c_bar->bar(1.0,*I_c);
+
+}
