@@ -1404,16 +1404,18 @@ void TPM::subham(const SubSys &ss) {
             (*this)(B,i,j) = 0.0;
 
             if(b == d)
-               (*this)(B,i,j) +=  1.0/(N - 1.0) * ss.gsi().gT(a_me,c_me);
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ( ss.gsi().gT(a_me,c_me) + ss.gsi().gU(ss.gcore(),a_me,c_me) );
 
             if(a == d)
-               (*this)(B,i,j) +=  sign/(N - 1.0) * ss.gsi().gT(b_me,c_me);
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ( ss.gsi().gT(b_me,c_me) + ss.gsi().gU(ss.gcore(),b_me,c_me) );
 
             if(b == c)
-               (*this)(B,i,j) +=  sign/(N - 1.0) * ss.gsi().gT(a_me,d_me);
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ( ss.gsi().gT(a_me,d_me) + ss.gsi().gU(ss.gcore(),a_me,d_me) );
 
             if(a == c)
-               (*this)(B,i,j) +=  sign/(N - 1.0) * ss.gsi().gT(b_me,d_me);
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ( ss.gsi().gT(b_me,d_me) + ss.gsi().gU(ss.gcore(),b_me,d_me) );
+
+            (*this)(B,i,j) += ss.gsi().gV(a_me,b_me,c_me,d_me) + sign * ss.gsi().gV(a_me,b_me,d_me,c_me);
 
             (*this)(B,i,j) *= norm;
 

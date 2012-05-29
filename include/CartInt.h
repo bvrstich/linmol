@@ -33,6 +33,9 @@ class CartInt {
       //copy constructor
       CartInt(const CartInt &);
 
+      //construct from file
+      CartInt(const char *);
+
       //destructor
       virtual ~CartInt();
 
@@ -55,6 +58,8 @@ class CartInt {
       void norm();
 
       void orthogonalize();
+
+      void out();
 
       double gS(int,int) const;
 

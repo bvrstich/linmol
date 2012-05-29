@@ -61,50 +61,6 @@ SubSys::SubSys(int core,const SphInt &si_in){
 
    S->symmetrize();
 
-   //set the correct elements to zero in the T,U and V matrices
-
-   //first T and U
-   for(int a = 0;a < si->gdim();++a)
-      for(int b = a;b < si->gdim();++b){
-
-         if(SphInt::gs2inlm(a,0) != core || SphInt::gs2inlm(b,0) != core){
-
-            si->gT()(a,b) = 0.0;
-
-            for(int i = 0;i < si->gN_Z();++i)
-               si->gU(i)(a,b) = 0.0;
-
-         }
-
-      }
-
-   si->gT().symmetrize();
-
-   for(int i = 0;i < si->gdim();++i)
-      si->gU(i).symmetrize();
-
-   //then V
-   int a,b,c,d;
-
-   for(int i = 0;i < si->gdim()*si->gdim();++i){
-
-      a = SphInt::gt2s(i,0);
-      b = SphInt::gt2s(i,1);
-
-      for(int j = i;j < si->gdim()*si->gdim();++j){
-
-         c = SphInt::gt2s(j,0);
-         d = SphInt::gt2s(j,1);
-
-         
-         if(SphInt::gs2inlm(a,0) != core || SphInt::gs2inlm(b,0) != core || SphInt::gs2inlm(c,0) != core || SphInt::gs2inlm(d,0) != core)
-            si->gV()(i,j) = 0.0;
-
-      }
-   }
-
-   si->gV().symmetrize();
-
    //construct the L matrix: linear transformation between the orthogonal and non-orthogonal basis
    si->gS().sqrt(1);
 
@@ -373,17 +329,17 @@ SphInt &SubSys::gsi() {
  */
 void SubSys::orthogonalize(){
 
-   //first T
-   Matrix backup_T(si->gdim());
+   //make a backup si
+   SphInt backup_si(*si);
 
    for(int a = 0;a < si->gdim();++a)
       for(int b = 0;b < si->gdim();++b){
 
-         backup_T(a,b) = 0.0;
+         backup_si.gT()(a,b) = 0.0;
 
          //loop over subsystem index
          for(int sa = 0;sa < n;++sa)
-            backup_T(a,b) += gW(a,sa) * si->gT()(s2f[sa],b);
+            backup_si.gT()(a,b) += gW(a,sa) * si->gT()(s2f[sa],b);
 
       }
 
@@ -394,10 +350,113 @@ void SubSys::orthogonalize(){
 
          //loop over subsystem index
          for(int sb = 0;sb < n;++sb)
-            si->gT()(a,b) += backup_T(a,s2f[sb]) * gW(b,sb);
+            si->gT()(a,b) +=  backup_si.gT()(a,s2f[sb]) * gW(b,sb);
 
       }
 
    si->gT().symmetrize();
+
+   //the different U contributions
+   for(int i = 0;i < si->gN_Z();++i){
+
+      for(int a = 0;a < si->gdim();++a)
+         for(int b = 0;b < si->gdim();++b){
+
+            backup_si.gU(i)(a,b) = 0.0;
+
+            //loop over subsystem index
+            for(int sa = 0;sa < n;++sa)
+               backup_si.gU(i)(a,b) += gW(a,sa) * si->gU(i)(s2f[sa],b);
+
+         }
+
+      for(int a = 0;a < si->gdim();++a)
+         for(int b = a;b < si->gdim();++b){
+
+            si->gU(i)(a,b) = 0.0;
+
+            //loop over subsystem index
+            for(int sb = 0;sb < n;++sb)
+               si->gU(i)(a,b) +=  backup_si.gU(i)(a,s2f[sb]) * gW(b,sb);
+
+         }
+
+      si->gU(i).symmetrize();
+
+   }
+
+   int a,b,c,d;
+
+   for(int i = 0;i < si->gdim()*si->gdim();++i){
+
+      a = SphInt::gt2s(i,0);
+      b = SphInt::gt2s(i,1);
+
+      for(int j = 0;j < si->gdim()*si->gdim();++j){
+
+         c = SphInt::gt2s(j,0);
+         d = SphInt::gt2s(j,1);
+
+         backup_si.gV()(i,j) = 0.0;
+
+         for(int sa = 0;sa < n;++sa)
+            backup_si.gV()(i,j) += gW(a,sa) * si->gV(s2f[sa],b,c,d);
+
+      }
+   }
+
+   for(int i = 0;i < si->gdim()*si->gdim();++i){
+
+      a = SphInt::gt2s(i,0);
+      b = SphInt::gt2s(i,1);
+
+      for(int j = 0;j < si->gdim()*si->gdim();++j){
+
+         c = SphInt::gt2s(j,0);
+         d = SphInt::gt2s(j,1);
+
+         si->gV()(i,j) = 0.0;
+
+         for(int sb = 0;sb < n;++sb)
+            si->gV()(i,j) += gW(b,sb) * backup_si.gV(a,s2f[sb],c,d);
+
+      }
+   }
+
+   for(int i = 0;i < si->gdim()*si->gdim();++i){
+
+      a = SphInt::gt2s(i,0);
+      b = SphInt::gt2s(i,1);
+
+      for(int j = 0;j < si->gdim()*si->gdim();++j){
+
+         c = SphInt::gt2s(j,0);
+         d = SphInt::gt2s(j,1);
+
+         backup_si.gV()(i,j) = 0.0;
+
+         for(int sc = 0;sc < n;++sc)
+            backup_si.gV()(i,j) += si->gV(a,b,s2f[sc],d) * gW(c,sc);
+
+      }
+   }
+
+   for(int i = 0;i < si->gdim()*si->gdim();++i){
+
+      a = SphInt::gt2s(i,0);
+      b = SphInt::gt2s(i,1);
+
+      for(int j = 0;j < si->gdim()*si->gdim();++j){
+
+         c = SphInt::gt2s(j,0);
+         d = SphInt::gt2s(j,1);
+
+         si->gV()(i,j) = 0.0;
+
+         for(int sd = 0;sd < n;++sd)
+            si->gV()(i,j) += backup_si.gV(a,b,c,s2f[sd]) * gW(d,sd);
+
+      }
+   }
 
 }

@@ -54,8 +54,12 @@ int main(void){
 
    SubSys::init(M,N);
 
+   //if you construct from file!
+/* 
    CartInt ci;
    ci.norm();
+*/
+   CartInt ci("input/BeB/20");
 
    SphInt si(ci);
 
@@ -65,8 +69,8 @@ int main(void){
    SubSys ss_B(1,si);
    ss_B.setB();
 
-   LinCon::init(M,N);
-   LinIneq::init(M,N,si);
+   //LinCon::init(M,N);
+   //LinIneq::init(M,N,si);
 
    SUP::init(M,N);
    EIG::init(M,N);
@@ -90,7 +94,19 @@ int main(void){
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   LinIneq::clear();
+   ss_Be.orthogonalize();
+
+   TPM subham_Be;
+   subham_Be.subham(ss_Be);
+
+   ss_B.orthogonalize();
+
+   TPM subham_B;
+   subham_B.subham(ss_B);
+
+   cout << subham_Be.ddot(rdm) << "\t" << subham_B.ddot(rdm) << endl;
+
+   //LinIneq::clear();
 
    PPHM::clear();
    DPM::clear();

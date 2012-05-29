@@ -289,6 +289,68 @@ CartInt::CartInt(const CartInt &ci_c){
 
 }
 
+/** 
+ * construct from file
+ * @param filename path to the inputfiles
+ */
+CartInt::CartInt(const char *filename){
+
+   S = new Matrix(dim);
+   T = new Matrix(dim);
+   
+   U = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new Matrix(dim);
+
+   V = new Matrix(dim*dim);
+
+   //input overlap
+   ifstream in_S("input/BeB/20/S.in");
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         in_S >> i >> j >> (*S)(i,j);
+
+   S->symmetrize();
+
+   //input kinetic energy
+   ifstream in_T("input/BeB/20/T.in");
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         in_T >> i >> j >> (*T)(i,j);
+
+   T->symmetrize();
+
+   //input nuclear-electron attraction
+   ifstream in_UBe("input/BeB/20/UBe.in");
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         in_UBe >> i >> j >> (*U[0])(i,j);
+
+   U[0]->symmetrize();
+
+   ifstream in_UB("input/BeB/20/UB.in");
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         in_UB >> i >> j >> (*U[1])(i,j);
+
+   U[1]->symmetrize();
+
+   //and at last electron-electron repulsion
+   ifstream in_V("input/BeB/20/V.in");
+
+   for(int i = 0;i < dim*dim;++i)
+      for(int j = i;j < dim*dim;++j)
+         in_V >> i >> j >> (*V)(i,j);
+
+   V->symmetrize();
+
+}
+
 /**
  * standard destructor
  */
@@ -303,7 +365,7 @@ CartInt::~CartInt(){
    delete [] U;
 
    delete V;
-   
+
 }
 
 /** 
@@ -439,11 +501,11 @@ ostream &operator<<(ostream &output,CartInt &ci_p){
       for(int s_j = 0;s_j < ci_p.dim;++s_j){
 
          output << ci_p.s2inlxyz[s_i][0] << "\t" << ci_p.s2inlxyz[s_i][1] << "\t" << ci_p.s2inlxyz[s_i][2]
-         
+
             << "\t(" << ci_p.s2inlxyz[s_i][3] << "," << ci_p.s2inlxyz[s_i][4] << "," << ci_p.s2inlxyz[s_i][5] << ")\t|\t"
 
             << ci_p.s2inlxyz[s_j][0] << "\t" << ci_p.s2inlxyz[s_j][1] << "\t" << ci_p.s2inlxyz[s_j][2]
-         
+
             << "\t(" << ci_p.s2inlxyz[s_j][3] << "," << ci_p.s2inlxyz[s_j][4] << "," << ci_p.s2inlxyz[s_j][5] << ")\t|\t" << (ci_p.gS())(s_i,s_j) << endl;
 
       }
@@ -457,11 +519,11 @@ ostream &operator<<(ostream &output,CartInt &ci_p){
       for(int s_j = 0;s_j < ci_p.dim;++s_j){
 
          output << ci_p.s2inlxyz[s_i][0] << "\t" << ci_p.s2inlxyz[s_i][1] << "\t" << ci_p.s2inlxyz[s_i][2]
-         
+
             << "\t(" << ci_p.s2inlxyz[s_i][3] << "," << ci_p.s2inlxyz[s_i][4] << "," << ci_p.s2inlxyz[s_i][5] << ")\t|\t"
 
             << ci_p.s2inlxyz[s_j][0] << "\t" << ci_p.s2inlxyz[s_j][1] << "\t" << ci_p.s2inlxyz[s_j][2]
-         
+
             << "\t(" << ci_p.s2inlxyz[s_j][3] << "," << ci_p.s2inlxyz[s_j][4] << "," << ci_p.s2inlxyz[s_j][5] << ")\t|\t" << (ci_p.gT())(s_i,s_j) << endl;
 
       }
@@ -796,5 +858,55 @@ double CartInt::gV(int a,int b,int c,int d) const {
 double CartInt::gNucRepEn() {
 
    return NucRepEn;
+
+}
+
+/**
+ * output the CartInt object to a file
+ */
+void CartInt::out(){
+
+   //first overlapmatrix
+   ofstream out_S("input/BeB/20/S.in");
+   out_S.precision(15);
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         out_S << i << "\t" << j << "\t" << (*S)(i,j) << endl;
+
+   //then kinetic energy
+   ofstream out_T("input/BeB/20/T.in");
+   out_T.precision(15);
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         out_T << i << "\t" << j << "\t" << (*T)(i,j) << endl;
+
+   //then the two nuclear attraction terms
+
+   //first Be
+   ofstream out_UBe("input/BeB/20/UBe.in");
+   out_UBe.precision(15);
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         out_UBe << i << "\t" << j << "\t" << (*U[0])(i,j) << endl;
+
+   //then B
+   ofstream out_UB("input/BeB/20/UB.in");
+   out_UB.precision(15);
+
+   for(int i = 0;i < dim;++i)
+      for(int j = i;j < dim;++j)
+         out_UB << i << "\t" << j << "\t" << (*U[1])(i,j) << endl;
+
+
+   //and at last the interelectronic repuslion
+   ofstream out_V("input/BeB/20/V.in");
+   out_V.precision(15);
+
+   for(int i = 0;i < dim*dim;++i)
+      for(int j = i;j < dim*dim;++j)
+         out_V << i << "\t" << j << "\t" << (*V)(i,j) << endl;
 
 }
