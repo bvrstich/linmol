@@ -756,3 +756,5 @@ int SphInt::gt2s(int t,int option){
    return t2s[t][option];
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

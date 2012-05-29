@@ -576,3 +576,5 @@ void LinIneq::sep_pm(LinIneq &p,LinIneq &m){
    }
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/
