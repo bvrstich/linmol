@@ -795,3 +795,5 @@ double MxElemFiller::FactHelper(int ni){
    return pow(1.0/result,0.5)*pow(0.5,0.5*double(expon));
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

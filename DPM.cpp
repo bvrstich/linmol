@@ -1025,3 +1025,5 @@ void DPM::hat(const TPM &tpm){
    this->T(a,b,c,tpm);
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

@@ -234,3 +234,5 @@ void LinCon::subcon(const SubSys &ss,int index){
    I_c_bar->bar(1.0,*I_c);
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

@@ -324,3 +324,5 @@ double Vector::max() const {
    return vector[n - 1];
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/

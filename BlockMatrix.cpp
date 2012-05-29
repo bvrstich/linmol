@@ -432,3 +432,5 @@ void BlockMatrix::sep_pm(BlockMatrix &p,BlockMatrix &m){
       blockmatrix[i]->sep_pm(p[i],m[i]);
 
 }
+
+/* vim: set ts=3 sw=3 expandtab :*/
