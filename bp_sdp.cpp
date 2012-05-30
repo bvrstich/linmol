@@ -240,6 +240,8 @@ int main(int argc, char **argv){
 
    Z.gI().SaveToFile("output.h5");
 
+   ci.SaveToFile("output.h5",true);
+
    LinIneq::clear();
 
    PPHM::clear();
