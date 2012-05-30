@@ -230,6 +230,8 @@ int main(int argc, char **argv){
 
    Z.gI().SaveToFile("output.h5");
 
+   ci.SaveToFile("output.h5",true);
+
    PPHM::clear();
    DPM::clear();
    PHM::clear();
