@@ -27,16 +27,18 @@ int main(int argc, char **argv)
    cout.precision(10);
 
    char *filename = 0;
+   char *setupfile = 0;
 
    struct option long_options[] =
    {
       {"file",  required_argument, 0, 'f'},
+      {"setup",  required_argument, 0, 's'},
       {"help",  no_argument, 0, 'h'},
       {0, 0, 0, 0}
    };
 
    int i,j;
-   while( (j = getopt_long (argc, argv, "hf:", long_options, &i)) != -1)
+   while( (j = getopt_long (argc, argv, "hf:s:", long_options, &i)) != -1)
       switch(j)
       {
          case 'h':
@@ -44,7 +46,11 @@ int main(int argc, char **argv)
             cout << "Usage: " << argv[0] << " [OPTIONS]\n"
                "\n"
                "    -f, --file=file.h5           file to read (in HDF5 format)\n"
+               "    -s  --setup=file.h5          use file to read in the hamiltonian matrix elements\n"
                "    -h, --help                   Display this help\n"
+               "\n"
+               "By default, the program rebuilds the hamiltonian matrix unless -s is given. The file\n"
+               "and setupfile can be the same.\n"
                "\n";
             return 0;
             break;
@@ -56,6 +62,14 @@ int main(int argc, char **argv)
                return -1;
             }
             break;
+         case 's':
+            setupfile = optarg;
+            if( strlen(optarg) <= 0 )
+            {
+               std::cerr << "Couldn't find a setupfile. Please specify the file to read." << endl;
+               return -1;
+            }
+            break;
       }
 
    if(!filename)
@@ -63,18 +77,28 @@ int main(int argc, char **argv)
       cout << "Usage: " << argv[0] << " [OPTIONS]\n"
          "\n"
          "    -f, --file=file.h5           file to read (in HDF5 format)\n"
+         "    -s  --setup=file.h5          use file to read in the hamiltonian matrix elements\n"
          "    -h, --help                   Display this help\n"
+         "\n"
+         "By default, the program rebuilds the hamiltonian matrix unless -s is given. The file\n"
+         "and setupfile can be the same.\n"
          "\n";
       return 0;
    }
 
    cout << "Reading: " << filename << endl;
 
-   string setupdata;
+   if(setupfile)
+      CartInt::initfromfile(setupfile);
+   else
+   {
+      string setupdata;
 
-   TPM::ReadInitfromFile(filename,setupdata);
+      TPM::ReadInitfromFile(filename,setupdata);
 
-   CartInt::init(setupdata,false);
+      CartInt::init(setupdata,false);
+   }
+
    SphInt::init();
 
    int M = 2*SphInt::gdim();//dim sp hilbert space
@@ -91,10 +115,16 @@ int main(int argc, char **argv)
    SUP::init(M,N);
    EIG::init(M,N);
 
-   CartInt ci;
-   ci.norm();
+   CartInt *ci;
 
-   SphInt si(ci);
+   if(setupfile)
+      ci = new CartInt(setupfile);
+   else
+      ci = new CartInt;
+
+   ci->norm();
+
+   SphInt si(*ci);
    si.orthogonalize();
 
    //hamiltoniaan
@@ -104,7 +134,7 @@ int main(int argc, char **argv)
    TPM rdm;
    rdm.ReadfromFile(filename);
 
-   cout << "Energy = " << rdm.ddot(ham) << endl;
+   cout << "Energy = " << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
    PPHM::clear();
    DPM::clear();
@@ -116,6 +146,8 @@ int main(int argc, char **argv)
 
    SphInt::clear();
    CartInt::clear();
+
+   delete ci;
 
    return 0;
 }
