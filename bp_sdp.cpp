@@ -91,15 +91,15 @@ int main(int argc, char **argv){
 
    SphInt si(ci);
 
-   SubSys ss_Be(0,si);
-   ss_Be.setBe();
+   SubSys ss_N(0,si);
+   ss_N.setN();
 
-   ss_Be.orthogonalize();
+   ss_N.orthogonalize();
 
-   SubSys ss_B(1,si);
-   ss_B.setB();
+   SubSys ss_O(1,si);
+   ss_O.setO();
 
-   ss_B.orthogonalize();
+   ss_O.orthogonalize();
 
    LinCon::init(M,N);
    LinIneq::init(M,N,si);
@@ -113,7 +113,7 @@ int main(int argc, char **argv){
    TPM ham;
    ham.molecule(si);
 
-   ifstream in("/home/bright/bestanden/results/linmol/BeB/DM_out/BeB-20.rdm");
+   ifstream in("/home/bright/bestanden/results/linmol/NO/DM_out/NO-5.rdm");
 
    TPM rdm;
 
@@ -126,20 +126,20 @@ int main(int argc, char **argv){
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   TPM subham_Be;
-   subham_Be.subham(ss_Be);
+   TPM subham_N;
+   subham_N.subham(ss_N);
 
-   TPM subocc_Be;
-   subocc_Be.subocc_op(ss_Be);
+   TPM subocc_N;
+   subocc_N.subocc_op(ss_N);
 
-   TPM subham_B;
-   subham_B.subham(ss_B);
+   TPM subham_O;
+   subham_O.subham(ss_O);
 
-   TPM subocc_B;
-   subocc_B.subocc_op(ss_B);
+   TPM subocc_O;
+   subocc_O.subocc_op(ss_O);
 
-   cout << rdm.ddot(subocc_Be) << "\t" << ss_Be.subocc_func(rdm) << "\t" << rdm.ddot(subham_Be) << endl;
-   cout << rdm.ddot(subocc_B) << "\t" << ss_B.subocc_func(rdm) << "\t" << rdm.ddot(subham_B) << endl;
+   cout << rdm.ddot(subocc_N) << "\t" << ss_N.subocc_func(rdm) << "\t" << rdm.ddot(subham_N) << endl;
+   cout << rdm.ddot(subocc_O) << "\t" << ss_O.subocc_func(rdm) << "\t" << rdm.ddot(subham_O) << endl;
 
    LinIneq li;
    li.fill(rdm);
