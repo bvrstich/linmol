@@ -2,6 +2,7 @@
 #include <fstream>
 #include <cmath>
 #include <vector>
+#include <hdf5.h>
 
 using std::endl;
 using std::ostream;
@@ -288,68 +289,6 @@ CartInt::CartInt(const CartInt &ci_c){
       U[i] = new Matrix(ci_c.gU(i));
    
    V = new Matrix(ci_c.gV());
-
-}
-
-/** 
- * construct from file
- * @param filename path to the inputfiles
- */
-CartInt::CartInt(const char *filename){
-
-   S = new Matrix(dim);
-   T = new Matrix(dim);
-   
-   U = new Matrix * [N_Z];
-
-   for(int i = 0;i < N_Z;++i)
-      U[i] = new Matrix(dim);
-
-   V = new Matrix(dim*dim);
-
-   //input overlap
-   ifstream in_S("input/BeB/20/S.in");
-
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         in_S >> i >> j >> (*S)(i,j);
-
-   S->symmetrize();
-
-   //input kinetic energy
-   ifstream in_T("input/BeB/20/T.in");
-
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         in_T >> i >> j >> (*T)(i,j);
-
-   T->symmetrize();
-
-   //input nuclear-electron attraction
-   ifstream in_UBe("input/BeB/20/UBe.in");
-
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         in_UBe >> i >> j >> (*U[0])(i,j);
-
-   U[0]->symmetrize();
-
-   ifstream in_UB("input/BeB/20/UB.in");
-
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         in_UB >> i >> j >> (*U[1])(i,j);
-
-   U[1]->symmetrize();
-
-   //and at last electron-electron repulsion
-   ifstream in_V("input/BeB/20/V.in");
-
-   for(int i = 0;i < dim*dim;++i)
-      for(int j = i;j < dim*dim;++j)
-         in_V >> i >> j >> (*V)(i,j);
-
-   V->symmetrize();
 
 }
 
@@ -864,53 +803,143 @@ double CartInt::gNucRepEn() {
 }
 
 /**
- * output the CartInt object to a file
+ * Save this CartInt object to a HDF5 file.
+ * @param filename the name of the file
+ * @param append append or overwrite file. Set to true to append (defaults to false)
  */
-void CartInt::out(){
+int CartInt::SaveToFile(const char *filename,bool append)
+{
+   hid_t       file_id, group_id, group2_id, dataset_id, dataspace_id, strtype;
+   hsize_t     dims = 1;
+   herr_t      status;
 
-   //first overlapmatrix
-   ofstream out_S("input/BeB/20/S.in");
-   out_S.precision(15);
+   if(append)
+   {
+      file_id = H5Fopen(filename,H5F_ACC_RDWR,H5P_DEFAULT);
+      HDF5_STATUS_CHECK(file_id);
+   }
+   else
+   {
+      // new file
+      file_id = H5Fcreate(filename, H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+      HDF5_STATUS_CHECK(file_id);
+   }
 
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         out_S << i << "\t" << j << "\t" << (*S)(i,j) << endl;
-
-   //then kinetic energy
-   ofstream out_T("input/BeB/20/T.in");
-   out_T.precision(15);
-
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         out_T << i << "\t" << j << "\t" << (*T)(i,j) << endl;
-
-   //then the two nuclear attraction terms
-
-   //first Be
-   ofstream out_UBe("input/BeB/20/UBe.in");
-   out_UBe.precision(15);
-
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         out_UBe << i << "\t" << j << "\t" << (*U[0])(i,j) << endl;
-
-   //then B
-   ofstream out_UB("input/BeB/20/UB.in");
-   out_UB.precision(15);
-
-   for(int i = 0;i < dim;++i)
-      for(int j = i;j < dim;++j)
-         out_UB << i << "\t" << j << "\t" << (*U[1])(i,j) << endl;
+   // make group for rdm
+   group_id = H5Gcreate(file_id, "/CartInt", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
 
 
-   //and at last the interelectronic repuslion
-   ofstream out_V("input/BeB/20/V.in");
-   out_V.precision(15);
+   // save start.stp data, needed for init
+   dataspace_id = H5Screate_simple(1, &dims, NULL);
 
-   for(int i = 0;i < dim*dim;++i)
-      for(int j = i;j < dim*dim;++j)
-         out_V << i << "\t" << j << "\t" << (*V)(i,j) << endl;
+   std::ifstream specs("start.stp");
+   std::stringstream specs_buffer;
+   specs_buffer << specs.rdbuf();
+   std::string specs_string = specs_buffer.str();
 
+   strtype = H5Tcopy(H5T_C_S1);
+   H5Tset_size(strtype,specs_string.size());
+
+   dataset_id = H5Dcreate(group_id, "start.stp", strtype, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+   status = H5Dwrite(dataset_id, strtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, specs_string.c_str());
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Tclose(strtype);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Sclose(dataspace_id);
+   HDF5_STATUS_CHECK(status);
+
+
+   // save S, T and U matrices
+   dims = dim*dim;
+
+   dataspace_id = H5Screate_simple(1, &dims, NULL);
+   HDF5_STATUS_CHECK(dataspace_id);
+
+   dataset_id = H5Dcreate(group_id, "T", H5T_IEEE_F64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   double **matrix = T->gMatrix();
+
+   status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+   dataset_id = H5Dcreate(group_id, "S", H5T_IEEE_F64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   matrix = S->gMatrix();
+
+   status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+
+   group2_id = H5Gcreate(group_id, "U", H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+   for(int i=0;i<N_Z;i++)
+   {
+      char name[16];
+      sprintf(name,"%d",i);
+
+      // make dataset
+      dataset_id = H5Dcreate(group2_id, name, H5T_IEEE_F64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+
+      matrix = U[i]->gMatrix();
+
+      // fill dataset
+      status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0] );
+      HDF5_STATUS_CHECK(status);
+
+      /* End access to the dataset and release resources used by it. */
+      status = H5Dclose(dataset_id);
+      HDF5_STATUS_CHECK(status);
+   }
+
+   status = H5Gclose(group2_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Sclose(dataspace_id);
+   HDF5_STATUS_CHECK(status);
+
+
+   // save V matrix
+   dims = dim*dim*dim*dim;
+
+   dataspace_id = H5Screate_simple(1, &dims, NULL);
+   HDF5_STATUS_CHECK(dataspace_id);
+
+   dataset_id = H5Dcreate(group_id, "V", H5T_IEEE_F64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   matrix = V->gMatrix();
+
+   status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Sclose(dataspace_id);
+   HDF5_STATUS_CHECK(status);
+
+   /* Close the group. */
+   status = H5Gclose(group_id);
+   HDF5_STATUS_CHECK(status);
+
+   /* Terminate access to the file. */
+   status = H5Fclose(file_id);
+   HDF5_STATUS_CHECK(status);
+
+   return 0;
 }
 
 /* vim: set ts=3 sw=3 expandtab :*/
