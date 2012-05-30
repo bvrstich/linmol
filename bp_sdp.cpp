@@ -129,7 +129,7 @@ int main(int argc, char **argv){
    //what does this do?
    double sigma = 1.0;
 
-   double tolerance = 1.0e-7;
+   double tolerance = 1.0e-5;
 
    double D_conv(1.0),P_conv(1.0),convergence(1.0);
 
