@@ -89,6 +89,8 @@ class CartInt {
 
       static void clear();
 
+      int SaveToFile(const char *filename,bool append = false);
+
    private:
 
       //!static objects needed to construct and destruct all the lists
