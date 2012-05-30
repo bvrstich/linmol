@@ -1226,6 +1226,7 @@ int TPM::ReadInitfromFile(const char *filename, string &setupdata)
    sdim = H5Tget_size(strtype);
 
    char *specs = new char[sdim+1];
+   specs[sdim] = '\0';
 
    status = H5Aread(attribute_id, strtype, specs);
    HDF5_STATUS_CHECK(status);
