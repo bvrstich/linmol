@@ -176,6 +176,57 @@ void CartInt::init(string inputdata, bool isfile){
 
 }
 
+/**
+ * Inits the CartInt class using the stored information
+ * from a HDF5 file
+ * @param filename the file to read
+ */
+void CartInt::initfromfile(const char *filename)
+{
+   hid_t file_id, group_id, dataset_id, strtype;
+   herr_t status;
+   size_t sdim;
+   std::string setupdata;
+
+   // open file
+   file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(file_id);
+
+   // open group for rdm
+   group_id = H5Gopen(file_id, "/CartInt", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(group_id);
+
+   dataset_id = H5Dopen(group_id, "start.stp", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   strtype = H5Dget_type(dataset_id);
+   sdim = H5Tget_size(strtype);
+
+   char *specs = new char[sdim+1];
+   specs[sdim] = '\0';
+
+   status = H5Dread(dataset_id, strtype, H5S_ALL, H5S_ALL, H5P_DEFAULT, specs);
+   HDF5_STATUS_CHECK(status);
+
+   setupdata = specs;
+
+   delete [] specs;
+
+   status = H5Tclose(strtype);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Gclose(group_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Fclose(file_id);
+   HDF5_STATUS_CHECK(status);
+
+   init(setupdata,false);
+}
+
 /** 
  * function that deallocates the static members
  */
@@ -291,6 +342,130 @@ CartInt::CartInt(const CartInt &ci_c){
    V = new Matrix(ci_c.gV());
 
 }
+
+/**
+ * This constructor builds a CartInt object from a HDF5 file. You first
+ * must call initfromfile() before you can use this method
+ * @param filename the file to use
+ */
+CartInt::CartInt(const char *filename)
+{
+   hid_t       file_id, group_id, group2_id, dataset_id;
+   herr_t      status;
+
+   S = new Matrix(dim);
+   T = new Matrix(dim);
+   U = new Matrix * [N_Z];
+
+   for(int i = 0;i < N_Z;++i)
+      U[i] = new Matrix(dim);
+
+   V = new Matrix(dim*dim);
+
+   file_id = H5Fopen(filename, H5F_ACC_RDONLY, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(file_id);
+
+   // open group for rdm
+   group_id = H5Gopen(file_id, "/CartInt", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(group_id);
+
+   // make dataset
+   dataset_id = H5Dopen(group_id, "T", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   double **matrix = T->gMatrix();
+
+   // fill dataset
+   status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+
+   // make dataset
+   dataset_id = H5Dopen(group_id, "S", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   matrix = S->gMatrix();
+
+   // fill dataset
+   status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+   group2_id = H5Gopen(group_id, "U", H5P_DEFAULT);
+
+   for(int i=0;i<N_Z;i++)
+   {
+      char name[16];
+      sprintf(name,"%d",i);
+
+   // make dataset
+   dataset_id = H5Dopen(group2_id, name, H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   matrix = U[i]->gMatrix();
+
+   // fill dataset
+   status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+//      // make dataset
+//      dataset_id = H5Dcreate(group2_id, name, H5T_IEEE_F64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
+//
+//      matrix = U[i]->gMatrix();
+//
+//      // fill dataset
+//      status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0] );
+//      HDF5_STATUS_CHECK(status);
+//
+//      /* End access to the dataset and release resources used by it. */
+//      status = H5Dclose(dataset_id);
+//      HDF5_STATUS_CHECK(status);
+   }
+
+//   // make dataset
+//   dataset_id = H5Dopen(group_id, "U", H5P_DEFAULT);
+//   HDF5_STATUS_CHECK(dataset_id);
+//
+//   matrix = U->gMatrix();
+//
+//   // fill dataset
+//   status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+//   HDF5_STATUS_CHECK(status);
+//
+//   status = H5Dclose(dataset_id);
+//   HDF5_STATUS_CHECK(status);
+
+
+
+
+   // make dataset
+   dataset_id = H5Dopen(group_id, "V", H5P_DEFAULT);
+   HDF5_STATUS_CHECK(dataset_id);
+
+   matrix = V->gMatrix();
+
+   // fill dataset
+   status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Dclose(dataset_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Gclose(group_id);
+   HDF5_STATUS_CHECK(status);
+
+   status = H5Fclose(file_id);
+   HDF5_STATUS_CHECK(status);
+}
+
 
 /**
  * standard destructor
@@ -807,7 +982,7 @@ double CartInt::gNucRepEn() {
  * @param filename the name of the file
  * @param append append or overwrite file. Set to true to append (defaults to false)
  */
-int CartInt::SaveToFile(const char *filename,bool append)
+int CartInt::SaveToFile(const char *filename,bool append) const
 {
    hid_t       file_id, group_id, group2_id, dataset_id, dataspace_id, strtype;
    hsize_t     dims = 1;

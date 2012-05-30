@@ -33,8 +33,7 @@ class CartInt {
       //copy constructor
       CartInt(const CartInt &);
 
-      //construct from file
-      CartInt(const char *);
+      CartInt(const char *filename);
 
       //destructor
       virtual ~CartInt();
@@ -87,9 +86,11 @@ class CartInt {
 
       static void init(string inputdata = "start.stp", bool isfile = true);
 
+      static void initfromfile(const char *filename);
+
       static void clear();
 
-      int SaveToFile(const char *filename,bool append = false);
+      int SaveToFile(const char *filename,bool append = false) const;
 
    private:
 
