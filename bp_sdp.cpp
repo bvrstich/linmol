@@ -4,7 +4,7 @@
  * for linear molecules, in which the axial and spin symmetry present in these systems is exploited. The available N-representability conditions are
  * the P, Q, G, T1 and T2 conditions.
  * Compiling is done with the options PQ, PQG, PQGT1, PQGT2 and PQGT (for all conditions active) with logical consequences for the program.
- * @author Brecht Verstichel, Ward Poelmans
+ * @author Orecht Verstichel, Ward Poelmans
  * @date 19-04-2012
  */
 
@@ -113,16 +113,9 @@ int main(int argc, char **argv){
    TPM ham;
    ham.molecule(si);
 
-   ifstream in("/home/bright/bestanden/results/linmol/NO/DM_out/NO-5.rdm");
-
    TPM rdm;
 
-   for(int B = 0;B < rdm.gnr();++B)
-      for(int i = 0;i < rdm.gdim(B);++i)
-         for(int j = i;j < rdm.gdim(B);++j)
-            in >> B >> i >> j >> rdm(B,i,j);
-
-   rdm.symmetrize();
+   rdm.ReadfromFile("/home/bright/bestanden/results/linmol/NO/sub/DM_out/NO-10.h5");
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
