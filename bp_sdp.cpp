@@ -89,17 +89,19 @@ int main(int argc, char **argv){
    CartInt ci;
    ci.norm();
 
+   ci.SaveToFile("~/bestanden/programmas/linmol/input/BeB/20/cartint.h5",true);
+/*
    SphInt si(ci);
 
-   SubSys ss_N(0,si);
-   ss_N.setN();
+   SubSys ss_Be(0,si);
+   ss_Be.setN();
 
-   ss_N.orthogonalize();
+   ss_Be.orthogonalize();
 
-   SubSys ss_O(1,si);
-   ss_O.setO();
+   SubSys ss_B(1,si);
+   ss_B.setO();
 
-   ss_O.orthogonalize();
+   ss_B.orthogonalize();
 
    LinCon::init(M,N);
    LinIneq::init(M,N,si);
@@ -113,34 +115,35 @@ int main(int argc, char **argv){
    TPM ham;
    ham.molecule(si);
 
+   //
    TPM rdm;
 
-   rdm.ReadfromFile("/home/bright/bestanden/results/linmol/NO/sub/DM_out/NO-10.h5");
+   //if hdf5 file:
+   //rdm.ReadfromFile("/home/bright/bestanden/results/linmol/NO/sub/DM_out/NO-10.h5");
+
+   //if old .rdm file
+   ifstream input("/home/bright/bestanden/results/linmol/BeB/nosub/DM_out/BeB-20.rdm");
+
+   for(int B = 0;B < rdm.gnr();++B)
+      for(int i = 0;i < rdm.gdim(B);++i)
+         for(int j = i;j < rdm.gdim(B);++j)
+            input >> B >> i >> j >> rdm(B,i,j);
+
+   rdm.symmetrize();
+
+   SPM spm;
+   spm.bar(1.0/(N - 1.0),rdm);
+
+   cout << spm.trace() << endl;
+
+   spm.projsub(ss_Be);
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   TPM subham_N;
-   subham_N.subham(ss_N);
-
-   TPM subocc_N;
-   subocc_N.subocc_op(ss_N);
-
-   TPM subham_O;
-   subham_O.subham(ss_O);
-
-   TPM subocc_O;
-   subocc_O.subocc_op(ss_O);
-
-   cout << rdm.ddot(subocc_N) << "\t" << ss_N.subocc_func(rdm) << "\t" << rdm.ddot(subham_N) << endl;
-   cout << rdm.ddot(subocc_O) << "\t" << ss_O.subocc_func(rdm) << "\t" << rdm.ddot(subham_O) << endl;
-
-   LinIneq li;
-   li.fill(rdm);
-
-   cout << li << endl;
+   cout << ss_Be.subocc_func(rdm) << "\t" << ss_B.subocc_func(rdm) << endl;
 
    LinIneq::clear();
-
+*/
    PPHM::clear();
    DPM::clear();
    PHM::clear();

@@ -75,6 +75,8 @@ class SphInt {
 
       static int gg2s(int);
 
+      static int gs2g(int);
+
       static int gl_max();
 
       static int gdim();

@@ -749,6 +749,24 @@ int SphInt::gg2s(int g){
 }
 
 /**
+ * @param s input SphInt single-particle index
+ * @return the SPM single-particle index
+ */
+int SphInt::gs2g(int s){
+
+   int i = s2inlm[s][0];
+   int n = s2inlm[s][1];
+   int l = s2inlm[s][2];
+   int m = s2inlm[s][3];
+
+   int s_spm = SPM::ginl2s(m,i,n,l);
+
+   return SPM::gms2g(m,s_spm);
+
+}
+
+
+/**
  * access to the t2s list:
  */
 int SphInt::gt2s(int t,int option){

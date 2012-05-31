@@ -484,4 +484,47 @@ void SPM::subocc_op(const SubSys &ss){
 
 }
 
+/**
+ * orthogonaly project the 1DM on the subsystem defined by ss
+ * @param ss the SubSys object defining the subsystem
+ */
+void SPM::projsub(const SubSys &ss){
+
+   Matrix subno(ss.gn());
+
+   for(int sa = 0;sa < ss.gn();++sa)
+      for(int sb = sa;sb < ss.gn();++sb){
+
+         subno(sa,sb) = 0.0;
+
+         //loop over the SphInt indices, all of them
+         for(int a = 0;a < M/2;++a){
+
+            int i_a = SphInt::gs2inlm(a,0);
+            int n_a = SphInt::gs2inlm(a,1);
+            int l_a = SphInt::gs2inlm(a,2);
+            int m_a = SphInt::gs2inlm(a,3);
+
+            int s_a = SPM::ginl2s(m_a,i_a,n_a,l_a);
+
+            for(int b = 0;b < M/2;++b){
+
+               int i_b = SphInt::gs2inlm(b,0);
+               int n_b = SphInt::gs2inlm(b,1);
+               int l_b = SphInt::gs2inlm(b,2);
+               int m_b = SphInt::gs2inlm(b,3);
+
+               int s_b = SPM::ginl2s(m_b,i_b,n_b,l_b);
+
+               if(m_a == m_b)
+                  subno(sa,sb) += ss.gW(a,sa) * (*this)[m_a + l_max](s_a,s_b) * ss.gW(b,sb);
+
+            }
+         }
+
+      }
+
+   subno.symmetrize();
+
+}
 /* vim: set ts=3 sw=3 expandtab :*/
