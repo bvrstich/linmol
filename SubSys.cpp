@@ -51,6 +51,10 @@ SubSys::SubSys(int core,const SphInt &si_in){
 
    si = new SphInt(si_in);
 
+   //make the transformation matrix
+   L = new Matrix(si->gS());
+   L->sqrt(1);
+
    //overlap matrix
    S = new Matrix(n);
 
@@ -61,8 +65,8 @@ SubSys::SubSys(int core,const SphInt &si_in){
 
    S->symmetrize();
 
-   //construct the L matrix: linear transformation between the orthogonal and non-orthogonal basis
-   si->gS().sqrt(1);
+   //construct the transformation between the orthogonal and non-orthogonal basis
+   si->gS().sqrt(-1);
 
    //rectangular matrix! More rows than columns
    W = new double [n*M/2];
@@ -76,7 +80,7 @@ SubSys::SubSys(int core,const SphInt &si_in){
          W[s + n*f] = 0.0;
 
          for(int i = 0;i < n;++i)
-            W[s + n*f] += si->gS()(f,s2f[i]) * (*S)(i,s);
+            W[s + n*f] += (*L)(f,s2f[i]) * (*S)(i,s);
 
       }
 
@@ -97,6 +101,8 @@ SubSys::SubSys(const SubSys &ss_copy){
 
    n = ss_copy.gn();
    s2f = ss_copy.gs2f();
+
+   L = new Matrix(ss_copy.gL());
 
    //matrix already inverted!
    S = new Matrix(ss_copy.gS());
@@ -131,9 +137,11 @@ SubSys::~SubSys(){
 
    delete S;
 
+   delete L;
+
    delete [] W;
 
-   for(int i = 0;i < 2;++i)
+   for(int i = 0;i < 3;++i)
       delete [] E[i];
 
    delete [] E;
@@ -177,7 +185,7 @@ double SubSys::subocc_func(const TPM &tpm) const {
 
          for(int a = 0;a < n;++a)
             for(int b = 0;b < n;++b)
-               N_sub(ga,gb) += si->gS()(ga,s2f[a]) * (*S)(a,b) * si->gS()(gb,s2f[b]);
+               N_sub(ga,gb) += (*L)(ga,s2f[a]) * (*S)(a,b) * (*L)(gb,s2f[b]);
 
       }
 
@@ -291,6 +299,24 @@ const Matrix &SubSys::gS() const {
 Matrix &SubSys::gS() { 
 
    return *S;
+
+}
+
+/** 
+ * @return the overlapmatrix, const version
+ */
+const Matrix &SubSys::gL() const { 
+
+   return *L;
+
+}
+
+/** 
+ * @return the overlapmatrix
+ */
+Matrix &SubSys::gL() { 
+
+   return *L;
 
 }
 

@@ -473,14 +473,14 @@ void SPM::subocc_op(const SubSys &ss){
             //loop over the nonorthogonal indices
             for(int sa = 0;sa < ss.gn();++sa)
                for(int sb = 0;sb < ss.gn();++sb)
-                  (*this)[m + l_max](a,b) += ss.gsi().gS()(ga,ss.gs2f(sa)) * ss.gS()(sa,sb) * ss.gsi().gS()(gb,ss.gs2f(sb));
-            
+                  (*this)[m + l_max](a,b) += ss.gL()(ga,ss.gs2f(sa)) * ss.gS()(sa,sb) * ss.gL()(gb,ss.gs2f(sb));
+
          }
       }
 
-   }
+ }
 
-   this->symmetrize();
+ this->symmetrize();
 
 }
 
@@ -526,5 +526,29 @@ void SPM::projsub(const SubSys &ss){
 
    subno.symmetrize();
 
+   for(int m = -l_max;m <= l_max;++m){
+
+      for(int a = 0;a < gdim(m + l_max);++a){
+
+         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
+
+         for(int b = a;b < gdim(m + l_max);++b){
+
+            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
+
+            (*this)[m + l_max](a,b) = 0.0;
+
+            for(int sa = 0;sa < ss.gn();++sa)
+               for(int sb = 0;sb < ss.gn();++sb)
+                  (*this)[m + l_max](a,b) += ss.gsi().gS()(ga,ss.gs2f(sa)) * subno(sa,sb) * ss.gsi().gS()(gb,ss.gs2f(sb));
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
 }
+
 /* vim: set ts=3 sw=3 expandtab :*/

@@ -49,6 +49,10 @@ class SubSys{
 
       Matrix &gS();
 
+      const Matrix &gL() const;
+
+      Matrix &gL();
+
       double gW(int,int) const;
 
       void sW(int,int,double);
@@ -78,6 +82,9 @@ class SubSys{
       
       //!subsystem version of the overlap-matrix: different because the inverse in on the subsystem block ONLY!
       Matrix *S;
+
+      //!linear transformation between the ortho and non-ortho basis, S^{1/2} of the full system
+      Matrix *L;
 
       //!transformation matrix between the non-orthogonal subsystem basis and the orthogonal full system on: Wath out, rectangular
       double *W;

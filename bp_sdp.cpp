@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 
    cout.precision(10);
 
-   CartInt::init();
+   CartInt::initfromfile("input/BeB/20/cartint.h5");
    SphInt::init();
 
    const int M = 2*SphInt::gdim();//dim sp hilbert space
@@ -86,20 +86,17 @@ int main(int argc, char **argv){
 
    SubSys::init(M,N);
 
-   CartInt ci;
-   ci.norm();
+   CartInt ci("input/BeB/20/cartint.h5");
 
-   ci.SaveToFile("~/bestanden/programmas/linmol/input/BeB/20/cartint.h5",true);
-/*
    SphInt si(ci);
 
    SubSys ss_Be(0,si);
-   ss_Be.setN();
+   ss_Be.setBe();
 
    ss_Be.orthogonalize();
 
    SubSys ss_B(1,si);
-   ss_B.setO();
+   ss_B.setB();
 
    ss_B.orthogonalize();
 
@@ -115,7 +112,7 @@ int main(int argc, char **argv){
    TPM ham;
    ham.molecule(si);
 
-   //
+   //input rdm
    TPM rdm;
 
    //if hdf5 file:
@@ -131,6 +128,12 @@ int main(int argc, char **argv){
 
    rdm.symmetrize();
 
+   TPM subocc_Be;
+   subocc_Be.subocc_op(ss_Be);
+
+   TPM subocc_B;
+   subocc_B.subocc_op(ss_B);
+
    SPM spm;
    spm.bar(1.0/(N - 1.0),rdm);
 
@@ -138,12 +141,18 @@ int main(int argc, char **argv){
 
    spm.projsub(ss_Be);
 
+   cout << spm.trace() << endl;
+
+   spm.projsub(ss_Be);
+   
+   cout << spm.trace() << endl;
+
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   cout << ss_Be.subocc_func(rdm) << "\t" << ss_B.subocc_func(rdm) << endl;
+   cout << rdm.ddot(subocc_Be) << "\t" << rdm.ddot(subocc_B) << endl;
 
    LinIneq::clear();
-*/
+
    PPHM::clear();
    DPM::clear();
    PHM::clear();

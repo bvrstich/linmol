@@ -403,48 +403,20 @@ CartInt::CartInt(const char *filename)
       char name[16];
       sprintf(name,"%d",i);
 
-   // make dataset
-   dataset_id = H5Dopen(group2_id, name, H5P_DEFAULT);
-   HDF5_STATUS_CHECK(dataset_id);
+      // make dataset
+      dataset_id = H5Dopen(group2_id, name, H5P_DEFAULT);
+      HDF5_STATUS_CHECK(dataset_id);
 
-   matrix = U[i]->gMatrix();
+      matrix = U[i]->gMatrix();
 
-   // fill dataset
-   status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
-   HDF5_STATUS_CHECK(status);
+      // fill dataset
+      status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
+      HDF5_STATUS_CHECK(status);
 
-   status = H5Dclose(dataset_id);
-   HDF5_STATUS_CHECK(status);
+      status = H5Dclose(dataset_id);
+      HDF5_STATUS_CHECK(status);
 
-//      // make dataset
-//      dataset_id = H5Dcreate(group2_id, name, H5T_IEEE_F64LE, dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
-//
-//      matrix = U[i]->gMatrix();
-//
-//      // fill dataset
-//      status = H5Dwrite(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0] );
-//      HDF5_STATUS_CHECK(status);
-//
-//      /* End access to the dataset and release resources used by it. */
-//      status = H5Dclose(dataset_id);
-//      HDF5_STATUS_CHECK(status);
    }
-
-//   // make dataset
-//   dataset_id = H5Dopen(group_id, "U", H5P_DEFAULT);
-//   HDF5_STATUS_CHECK(dataset_id);
-//
-//   matrix = U->gMatrix();
-//
-//   // fill dataset
-//   status = H5Dread(dataset_id, H5T_NATIVE_DOUBLE, H5S_ALL, H5S_ALL, H5P_DEFAULT, matrix[0]);
-//   HDF5_STATUS_CHECK(status);
-//
-//   status = H5Dclose(dataset_id);
-//   HDF5_STATUS_CHECK(status);
-
-
-
 
    // make dataset
    dataset_id = H5Dopen(group_id, "V", H5P_DEFAULT);
