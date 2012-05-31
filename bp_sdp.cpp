@@ -224,7 +224,7 @@ int main(int argc, char **argv){
 
       convergence = ham.ddot(Z.gI()) + u_0.ddot(X);
 
-      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << "\t" << Z.gI().ddot(S_2) << endl;
+      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << endl;
 
    }
 
