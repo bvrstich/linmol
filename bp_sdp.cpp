@@ -90,16 +90,6 @@ int main(int argc, char **argv){
 
    SphInt si(ci);
 
-   SubSys ss_Be(0,si);
-   ss_Be.setBe();
-
-   ss_Be.orthogonalize();
-
-   SubSys ss_B(1,si);
-   ss_B.setB();
-
-   ss_B.orthogonalize();
-
    LinCon::init(M,N);
    LinIneq::init(M,N,si);
 
@@ -128,28 +118,7 @@ int main(int argc, char **argv){
 
    rdm.symmetrize();
 
-   TPM subocc_Be;
-   subocc_Be.subocc_op(ss_Be);
-
-   TPM subocc_B;
-   subocc_B.subocc_op(ss_B);
-
-   SPM spm;
-   spm.bar(1.0/(N - 1.0),rdm);
-
-   cout << spm.trace() << endl;
-
-   spm.projsub(ss_Be);
-
-   cout << spm.trace() << endl;
-
-   spm.projsub(ss_Be);
-   
-   cout << spm.trace() << endl;
-
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
-
-   cout << rdm.ddot(subocc_Be) << "\t" << rdm.ddot(subocc_B) << endl;
 
    LinIneq::clear();
 

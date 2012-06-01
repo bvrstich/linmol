@@ -84,6 +84,22 @@ SubSys::SubSys(int core,const SphInt &si_in){
 
       }
 
+   //now make the projection matrix
+   P = new Matrix(M/2);
+
+   for(int a = 0;a < M/2;++a)
+      for(int b = a;b < M/2;++b){
+
+         (*P)(a,b) = 0.0;
+
+         for(int sa = 0;sa < n;++sa)
+            for(int sb = 0;sb < n;++sb)
+               (*P)(a,b) += (*L)(a,s2f[sa]) * (*S)(sa,sb) * (*L)(b,s2f[sb]);
+
+      }
+
+   P->symmetrize();
+
    E = new double * [3];
 
    for(int i = 0;i < 3;++i)
@@ -103,6 +119,8 @@ SubSys::SubSys(const SubSys &ss_copy){
    s2f = ss_copy.gs2f();
 
    L = new Matrix(ss_copy.gL());
+
+   P = new Matrix(ss_copy.gP());
 
    //matrix already inverted!
    S = new Matrix(ss_copy.gS());
@@ -138,6 +156,8 @@ SubSys::~SubSys(){
    delete S;
 
    delete L;
+
+   delete P;
 
    delete [] W;
 
@@ -303,7 +323,7 @@ Matrix &SubSys::gS() {
 }
 
 /** 
- * @return the overlapmatrix, const version
+ * @return the L matrix, transformation between ortho and non-ortho basis
  */
 const Matrix &SubSys::gL() const { 
 
@@ -312,11 +332,29 @@ const Matrix &SubSys::gL() const {
 }
 
 /** 
- * @return the overlapmatrix
+ * @return the L matrix, transformation between ortho and non-ortho basis
  */
 Matrix &SubSys::gL() { 
 
    return *L;
+
+}
+
+/** 
+ * @return the projection matrix on the subsystem
+ */
+const Matrix &SubSys::gP() const { 
+
+   return *P;
+
+}
+
+/** 
+ * @return the projection matrix on the subsystem
+ */
+Matrix &SubSys::gP() { 
+
+   return *P;
 
 }
 

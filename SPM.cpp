@@ -485,69 +485,42 @@ void SPM::subocc_op(const SubSys &ss){
 }
 
 /**
- * orthogonaly project the 1DM on the subsystem defined by ss
+ * project a 1DM onto the susbsystem defined by 
  * @param ss the SubSys object defining the subsystem
  */
 void SPM::projsub(const SubSys &ss){
 
-   Matrix subno(ss.gn());
+   Matrix spm(M/2);
 
-   for(int sa = 0;sa < ss.gn();++sa)
-      for(int sb = sa;sb < ss.gn();++sb){
+   for(int a = 0;a < M/2;++a){
 
-         subno(sa,sb) = 0.0;
+      int i_a = SphInt::gs2inlm(a,0);
+      int n_a = SphInt::gs2inlm(a,1);
+      int l_a = SphInt::gs2inlm(a,2);
+      int m_a = SphInt::gs2inlm(a,3);
 
-         //loop over the SphInt indices, all of them
-         for(int a = 0;a < M/2;++a){
+      for(int b = a;b < M/2;++b){
 
-            int i_a = SphInt::gs2inlm(a,0);
-            int n_a = SphInt::gs2inlm(a,1);
-            int l_a = SphInt::gs2inlm(a,2);
-            int m_a = SphInt::gs2inlm(a,3);
+         int i_b = SphInt::gs2inlm(b,0);
+         int n_b = SphInt::gs2inlm(b,1);
+         int l_b = SphInt::gs2inlm(b,2);
+         int m_b = SphInt::gs2inlm(b,3);
 
-            int s_a = SPM::ginl2s(m_a,i_a,n_a,l_a);
+         spm(a,b) = 0.0;
 
-            for(int b = 0;b < M/2;++b){
-
-               int i_b = SphInt::gs2inlm(b,0);
-               int n_b = SphInt::gs2inlm(b,1);
-               int l_b = SphInt::gs2inlm(b,2);
-               int m_b = SphInt::gs2inlm(b,3);
-
-               int s_b = SPM::ginl2s(m_b,i_b,n_b,l_b);
-
-               if(m_a == m_b)
-                  subno(sa,sb) += ss.gW(a,sa) * (*this)[m_a + l_max](s_a,s_b) * ss.gW(b,sb);
-
-            }
-         }
+         if(m_a == m_b)
+            spm(a,b) = (*this)[m_a + l_max](ginl2s(m_a,i_a,n_a,l_a),ginl2s(m_b,i_b,n_b,l_b));
 
       }
-
-   subno.symmetrize();
-
-   for(int m = -l_max;m <= l_max;++m){
-
-      for(int a = 0;a < gdim(m + l_max);++a){
-
-         int ga = SphInt::gg2s(ms2g[m + l_max][a]);
-
-         for(int b = a;b < gdim(m + l_max);++b){
-
-            int gb = SphInt::gg2s(ms2g[m + l_max][b]);
-
-            (*this)[m + l_max](a,b) = 0.0;
-
-            for(int sa = 0;sa < ss.gn();++sa)
-               for(int sb = 0;sb < ss.gn();++sb)
-                  (*this)[m + l_max](a,b) += ss.gsi().gS()(ga,ss.gs2f(sa)) * subno(sa,sb) * ss.gsi().gS()(gb,ss.gs2f(sb));
-
-         }
-      }
-
    }
 
-   this->symmetrize();
+   spm.symmetrize();
+
+   Matrix hulp(M/2);
+
+   hulp.L_map(ss.gP(),spm);
+
+   this->si21dm(hulp);
 
 }
 

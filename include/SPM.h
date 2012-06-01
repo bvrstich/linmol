@@ -55,6 +55,8 @@ class SPM : public BlockMatrix {
       
       void bar(double,const PPHM &);
 
+      void mult(const TPM &,const SPM &);
+
       void subocc_op(const SubSys &);
 
       void projsub(const SubSys &);
