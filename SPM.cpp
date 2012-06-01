@@ -524,4 +524,45 @@ void SPM::projsub(const SubSys &ss){
 
 }
 
+/**
+ * inproduct of a 2DM and a 1DM, partially tracing a 2DM and a 1DM into a new 1DM object
+ * @param tpm input TPM
+ * @param spm inpus SPM
+ */
+void SPM::mult(const TPM &tpm,const SPM &spm){
+
+   for(int m = -l_max;m <= l_max;++m)
+      for(int a = 0;a < gdim(m + l_max);++a)
+         for(int c = a;c < gdim(m + l_max);++c){
+
+            (*this)[m + l_max](a,c) = 0.0;
+
+            //now loop over SPM which will be traced out
+            for(int m_b = -l_max;m_b <= l_max;++m_b)
+               for(int b = 0;b < gdim(m + l_max);++b)
+                  for(int d = 0;d < gdim(m + l_max);++d){
+
+                     double ward = 0.0;
+
+                     for(int S = 0;S < 2;++S)
+                        ward += (2.0*S + 1.0) * tpm(S,m + m_b,m,a,m_b,b,m,c,m_b,d) * spm[m_b + l_max](b,d);
+
+                     if(m == m_b){
+
+                        if(a == b)
+                           ward *= std::sqrt(2.0);
+
+                        if(c == d)
+                           ward *= std::sqrt(2.0);
+
+                     }
+
+                     (*this)[m + l_max](a,c) += 0.5 * ward;
+
+                  }
+
+         }
+
+}
+
 /* vim: set ts=3 sw=3 expandtab :*/

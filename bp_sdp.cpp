@@ -96,6 +96,9 @@ int main(int argc, char **argv){
    SUP::init(M,N);
    EIG::init(M,N);
 
+   SubSys ss_Be(0,si);
+   ss_Be.setBe();
+
    //hamiltoniaan
    si.orthogonalize();
 
@@ -119,6 +122,22 @@ int main(int argc, char **argv){
    rdm.symmetrize();
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
+
+   //make 1DM
+   SPM spm;
+   spm.bar(1.0/(N - 1.0),rdm);
+
+   //copy
+   SPM ortho(spm);
+
+   //project
+   spm.projsub(ss_Be);
+
+   ortho -= spm;
+
+   SPM meanfield;
+
+   meanfield.mult(ham,ortho);
 
    LinIneq::clear();
 
