@@ -539,8 +539,8 @@ void SPM::mult(const TPM &tpm,const SPM &spm){
 
             //now loop over SPM which will be traced out
             for(int m_b = -l_max;m_b <= l_max;++m_b)
-               for(int b = 0;b < gdim(m + l_max);++b)
-                  for(int d = 0;d < gdim(m + l_max);++d){
+               for(int b = 0;b < gdim(m_b + l_max);++b)
+                  for(int d = 0;d < gdim(m_b + l_max);++d){
 
                      double ward = 0.0;
 

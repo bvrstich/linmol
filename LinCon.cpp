@@ -212,12 +212,12 @@ void LinCon::spincon(double spin){
  * @param ss SubSys object defining the subsystem
  * @param index indicating which constraint to be imposed on the subsystem (between N-1 and N or N and N+1 etc.)
  */
-void LinCon::subcon(const SubSys &ss,int index){
+void LinCon::subcon_atomic(const SubSys &ss,int index){
 
    TPM subocc;
    subocc.subocc_op(ss);
 
-   I_c->subham(ss);
+   I_c->subham_atomic(ss);
 
    I_c->daxpy((ss.gE(index,1) - ss.gE(index + 1,1)),subocc);
 

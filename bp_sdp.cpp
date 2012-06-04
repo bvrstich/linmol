@@ -96,6 +96,7 @@ int main(int argc, char **argv){
    SUP::init(M,N);
    EIG::init(M,N);
 
+   //make subsystem object
    SubSys ss_Be(0,si);
    ss_Be.setBe();
 
@@ -123,21 +124,23 @@ int main(int argc, char **argv){
 
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
-   //make 1DM
-   SPM spm;
-   spm.bar(1.0/(N - 1.0),rdm);
+   //construct the subsystem mean-field
+   ss_Be.construct_mf(rdm,si);
 
-   //copy
-   SPM ortho(spm);
+   //print the addition hamiltonian terms to a file
+   ss_Be.print_addham("test");
 
-   //project
-   spm.projsub(ss_Be);
+   //orthogonalize the subsystem hamiltonian terms
+   ss_Be.orthogonalize();
 
-   ortho -= spm;
+   //construct the subsystem hamiltonian
+   TPM subham_atomic;
+   subham_atomic.subham_atomic(ss_Be);
 
-   SPM meanfield;
+   TPM subham_mf;
+   subham_mf.subham_mf(ss_Be);
 
-   meanfield.mult(ham,ortho);
+   cout << rdm.ddot(subham_mf) << "\t" << rdm.ddot(subham_atomic) << endl;
 
    LinIneq::clear();
 

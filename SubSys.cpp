@@ -105,6 +105,9 @@ SubSys::SubSys(int core,const SphInt &si_in){
    for(int i = 0;i < 3;++i)
       E[i] = new double [2];
 
+   //allocate mean field matrix
+   h = new Matrix(M/2);
+
 }
 
 /**
@@ -124,6 +127,8 @@ SubSys::SubSys(const SubSys &ss_copy){
 
    //matrix already inverted!
    S = new Matrix(ss_copy.gS());
+
+   h = new Matrix(ss_copy.gh());
 
    //si already "cut down on subsystem space" and the overlap matrix has been sqrted
    si = new SphInt(ss_copy.gsi());
@@ -158,6 +163,8 @@ SubSys::~SubSys(){
    delete L;
 
    delete P;
+
+   delete h;
 
    delete [] W;
 
@@ -358,6 +365,24 @@ Matrix &SubSys::gP() {
 
 }
 
+/** 
+ * @return the mean-field matrix, const version
+ */
+const Matrix &SubSys::gh() const { 
+
+   return *h;
+
+}
+
+/** 
+ * @return the mean-field matrix
+ */
+Matrix &SubSys::gh() { 
+
+   return *h;
+
+}
+
 /**
  * access to the W thingy
  * @param f full system index
@@ -471,6 +496,33 @@ void SubSys::orthogonalize(){
 
    }
 
+   //make a backup h
+   Matrix backup_h(M/2);
+
+   for(int a = 0;a < si->gdim();++a)
+      for(int b = 0;b < si->gdim();++b){
+
+         backup_h(a,b) = 0.0;
+
+         //loop over subsystem index
+         for(int sa = 0;sa < n;++sa)
+            backup_h(a,b) += gW(a,sa) * (*h)(s2f[sa],b);
+
+      }
+
+   for(int a = 0;a < si->gdim();++a)
+      for(int b = a;b < si->gdim();++b){
+
+         (*h)(a,b) = 0.0;
+
+         //loop over subsystem index
+         for(int sb = 0;sb < n;++sb)
+            (*h)(a,b) +=  backup_h(a,s2f[sb]) * gW(b,sb);
+
+      }
+
+   h->symmetrize();
+
    int a,b,c,d;
 
    for(int i = 0;i < si->gdim()*si->gdim();++i){
@@ -544,6 +596,95 @@ void SubSys::orthogonalize(){
 
       }
    }
+
+}
+
+/**
+ * construct the subsystem mean-field h, given an input TPM
+ * @param tpm input TPM defining the full system
+ * @param si_full SphInt object of the full system, orthogonalized on the full system
+ */
+void SubSys::construct_mf(const TPM &tpm, const SphInt &si_full){
+
+   //make 1DM
+   SPM spm;
+   spm.bar(1.0/(N - 1.0),tpm);
+
+   //make a copy
+   SPM ortho(spm);
+
+   //project onto subsystem
+   spm.projsub(*this);
+
+   //construct projection on orthogonal complement
+   ortho -= spm;
+
+   //make potential
+   TPM potential;
+   potential.potential(si_full);
+
+   SPM meanfield;
+   meanfield.mult(potential,ortho);
+
+   //filter out the non-subsystem part of the mean field
+   meanfield.projsub(*this);
+
+   //transform to SphInt spm object
+   Matrix mf(M/2);
+
+   for(int a = 0;a < M/2;++a){
+
+      int i_a = SphInt::gs2inlm(a,0);
+      int n_a = SphInt::gs2inlm(a,1);
+      int l_a = SphInt::gs2inlm(a,2);
+      int m_a = SphInt::gs2inlm(a,3);
+
+      for(int b = a;b < M/2;++b){
+
+         int i_b = SphInt::gs2inlm(b,0);
+         int n_b = SphInt::gs2inlm(b,1);
+         int l_b = SphInt::gs2inlm(b,2);
+         int m_b = SphInt::gs2inlm(b,3);
+
+         mf(a,b) = 0.0;
+
+         if(m_a == m_b)
+            mf(a,b) = meanfield[m_a + SPM::gl_max()](SPM::ginl2s(m_a,i_a,n_a,l_a),SPM::ginl2s(m_b,i_b,n_b,l_b));
+
+      }
+   }
+
+   mf.symmetrize();
+
+   //fill the h-Matrix with this the deorthogonalized mean-field
+   h->L_map(*L,mf);
+
+}
+
+/**
+ * output the additional terms to the atomic hamiltonian, i.e. the mean field and non-subsytem nucl-el attraction, to a file
+ */
+void SubSys::print_addham(const char *filename){
+
+   ofstream out(filename);
+   out.precision(15);
+
+   Matrix addham(n);
+
+   for(int a = 0;a < n;++a)
+      for(int b = a;b < n;++b){
+
+         addham(a,b) = (*h)(a,b);
+
+         for(int i = 0;i < si->gN_Z();++i)
+            if(i != core)
+               addham(a,b) += si->gU(i)(a,b);
+
+      }
+
+   addham.symmetrize();
+
+   out << addham;
 
 }
 

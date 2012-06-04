@@ -1353,10 +1353,10 @@ void TPM::subocc_op(const SubSys &ss){
 }
 
 /**
- * construct the subsystem hamiltonian corresponding to the input SubSys object ss
+ * construct the atomic subsystem hamiltonian corresponding to the input SubSys object ss
  * @param ss input SubSys object
  */
-void TPM::subham(const SubSys &ss) {
+void TPM::subham_atomic(const SubSys &ss) {
 
    int a,b,c,d;
    int sign;
@@ -1428,6 +1428,116 @@ void TPM::subham(const SubSys &ss) {
    this->symmetrize();
 
 }
+
+/**
+ * fill the (*this) object with the subsystem Hamiltonian added with a meanfield
+ * @param ss input SubSys object
+ */
+void TPM::subham_mf(const SubSys &ss){
+
+   int a,b,c,d;
+   int sign;
+
+   int a_me,b_me,c_me,d_me;
+
+   int S;
+
+   double norm;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      sign = 1 - 2*S;
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = t2s[B][i][0];
+         b = t2s[B][i][1];
+
+         a_me = SphInt::gg2s(a);
+         b_me = SphInt::gg2s(b);
+
+         for(int j = i;j < gdim(B);++j){
+
+            c = t2s[B][j][0];
+            d = t2s[B][j][1];
+
+            c_me = SphInt::gg2s(c);
+            d_me = SphInt::gg2s(d);
+
+            //determine the norm for the basisset
+            norm = 1.0;
+
+            if(S == 0){
+
+               if(a == b)
+                  norm /= std::sqrt(2.0);
+
+               if(c == d)
+                  norm /= std::sqrt(2.0);
+
+            }
+
+            (*this)(B,i,j) = 0.0;
+
+            if(b == d){
+
+               double ward = ss.gsi().gT(a_me,c_me) + ss.gh()(a_me,c_me);
+
+               for(int core = 0;core < ss.gsi().gN_Z();++core)
+                  ward += ss.gsi().gU(core,a_me,c_me);
+
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ward;
+
+            }
+
+            if(a == d){
+
+               double ward = ss.gsi().gT(b_me,c_me) + ss.gh()(b_me,c_me);
+
+               for(int core = 0;core < ss.gsi().gN_Z();++core)
+                  ward += ss.gsi().gU(core,b_me,c_me);
+
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ward;
+
+            }
+
+            if(b == c){
+
+               double ward = ss.gsi().gT(a_me,d_me) + ss.gh()(a_me,d_me);
+
+               for(int core = 0;core < ss.gsi().gN_Z();++core)
+                  ward += ss.gsi().gU(core,a_me,d_me);
+
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ward;
+
+            }
+
+            if(a == c){
+
+               double ward = ss.gsi().gT(b_me,d_me) + ss.gh()(b_me,d_me);
+
+               for(int core = 0;core < ss.gsi().gN_Z();++core)
+                  ward += ss.gsi().gU(core,b_me,d_me);
+
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ward;
+
+            }
+
+            (*this)(B,i,j) += ss.gsi().gV(a_me,b_me,c_me,d_me) + sign * ss.gsi().gV(a_me,b_me,d_me,c_me);
+
+            (*this)(B,i,j) *= norm;
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
 
 int TPM::SaveToFile(const char *filename)
 {
@@ -1752,6 +1862,69 @@ int TPM::ReadfromFile(const char *filename)
    HDF5_STATUS_CHECK(status);
 
    return 0;
+}
+
+/**
+ * fill the (*this) object with the interelectronic potential in an orthonormal basis
+ * @param si the input SphInt object containing the spherical matrixelements
+ */
+void TPM::potential(const SphInt &si){
+
+   int a,b,c,d;
+   int sign;
+
+   int a_me,b_me,c_me,d_me;
+
+   int S;
+
+   double norm;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      sign = 1 - 2*S;
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = t2s[B][i][0];
+         b = t2s[B][i][1];
+
+         a_me = SphInt::gg2s(a);
+         b_me = SphInt::gg2s(b);
+
+         for(int j = i;j < gdim(B);++j){
+
+            c = t2s[B][j][0];
+            d = t2s[B][j][1];
+
+            c_me = SphInt::gg2s(c);
+            d_me = SphInt::gg2s(d);
+
+            //determine the norm for the basisset
+            norm = 1.0;
+
+            if(S == 0){
+
+               if(a == b)
+                  norm /= std::sqrt(2.0);
+
+               if(c == d)
+                  norm /= std::sqrt(2.0);
+
+            }
+
+            (*this)(B,i,j) = si.gV(a_me,b_me,c_me,d_me) + sign * si.gV(a_me,b_me,d_me,c_me);
+
+            (*this)(B,i,j) *= norm;
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
 }
 
 /* vim: set ts=3 sw=3 expandtab :*/

@@ -57,6 +57,10 @@ class SubSys{
 
       Matrix &gP();
 
+      const Matrix &gh() const;
+
+      Matrix &gh();
+
       double gW(int,int) const;
 
       void sW(int,int,double);
@@ -72,6 +76,10 @@ class SubSys{
       void setO();
 
       double subocc_func(const TPM &) const;
+
+      void construct_mf(const TPM &,const SphInt &);
+      
+      void print_addham(const char *);
 
       const SphInt &gsi() const;
 

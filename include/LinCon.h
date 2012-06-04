@@ -56,7 +56,7 @@ class LinCon{
 
       void spincon(double);
 
-      void subcon(const SubSys &,int);
+      void subcon_atomic(const SubSys &,int);
 
       static void init(int,int);
 

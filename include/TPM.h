@@ -58,7 +58,11 @@ class TPM : public BlockMatrix {
 
       void molecule(const SphInt &);
 
-      void subham(const SubSys &);
+      void subham_atomic(const SubSys &);
+
+      void subham_mf(const SubSys &);
+
+      void potential(const SphInt &);
 
       void unit();
 
