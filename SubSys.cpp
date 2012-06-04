@@ -671,14 +671,14 @@ void SubSys::print_addham(const char *filename){
 
    Matrix addham(n);
 
-   for(int a = 0;a < n;++a)
-      for(int b = a;b < n;++b){
+   for(int sa = 0;sa < n;++sa)
+      for(int sb = sa;sb < n;++sb){
 
-         addham(a,b) = (*h)(a,b);
+         addham(sa,sb) = (*h)(s2f[sa],s2f[sb]);
 
          for(int i = 0;i < si->gN_Z();++i)
             if(i != core)
-               addham(a,b) += si->gU(i)(a,b);
+               addham(sa,sb) += si->gU(i)(s2f[sa],s2f[sb]);
 
       }
 
