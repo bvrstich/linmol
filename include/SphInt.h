@@ -49,6 +49,10 @@ class SphInt {
 
       Matrix &gU();
 
+      const Matrix &gh() const;
+
+      Matrix &gh();
+
       const Matrix &gV() const;
 
       Matrix &gV();
@@ -58,6 +62,8 @@ class SphInt {
       double gT(int,int) const;
 
       double gU(int,int) const;
+
+      double gh(int,int) const;
 
       double gV(int,int,int,int) const;
 
@@ -115,6 +121,9 @@ class SphInt {
 
       //!nuclear attraction energy matrix
       Matrix *U;
+
+      //!mean field of the "other" core
+      Matrix *h;
 
       //!electronic repulsion matrix
       Matrix *V;

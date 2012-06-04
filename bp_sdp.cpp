@@ -95,7 +95,7 @@ int main(int argc, char **argv){
 
    //hamiltoniaan
    TPM ham;
-   ham.molecule(si);
+   ham.atom_mf(si);
 
    TPM ham_copy(ham);
 

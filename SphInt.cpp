@@ -149,6 +149,7 @@ SphInt::SphInt(const CartInt &ci){
    S = new Matrix(dim);
    T = new Matrix(dim);
    U = new Matrix(dim);
+   h = new Matrix(dim);
 
    V = new Matrix(dim*dim);
 
@@ -275,6 +276,13 @@ SphInt::SphInt(const CartInt &ci){
 
    V->symmetrize();
 
+   //fill the mean-field operator:
+   ifstream input("/home/bright/bestanden/results/linmol/subham/BeB/20/Be.ham");
+
+   for(int i = 0;i < dim;++i)
+      for(int j = 0;j < dim;++j)
+         input >> i >> j >> (*h)(i,j);
+
 }
 
 /** 
@@ -286,6 +294,7 @@ SphInt::SphInt(const SphInt &ci_c){
    S = new Matrix(ci_c.gS());
    T = new Matrix(ci_c.gT());
    U = new Matrix(ci_c.gU());
+   h = new Matrix(ci_c.gh());
 
    V = new Matrix(ci_c.gV());
 
@@ -299,6 +308,7 @@ SphInt::~SphInt(){
    delete S;
    delete T;
    delete U;
+   delete h;
 
    delete V;
 
@@ -353,6 +363,24 @@ const Matrix &SphInt::gU() const {
 Matrix &SphInt::gU() { 
 
    return *U;
+
+}
+
+/** 
+ * @return mean field matrix const version
+ */
+const Matrix &SphInt::gh() const { 
+
+   return *h;
+
+}
+
+/** 
+ * @return the mean field matrix
+ */
+Matrix &SphInt::gh() { 
+
+   return *h;
 
 }
 
@@ -482,9 +510,11 @@ void SphInt::orthogonalize() {
 
    Matrix T_copy(dim);
    Matrix U_copy(dim);
+   Matrix h_copy(dim);
 
    T_copy = 0.0;
    U_copy = 0.0;
+   h_copy = 0.0;
 
    //transform T
    for(int i = 0;i < dim;++i)
@@ -494,6 +524,7 @@ void SphInt::orthogonalize() {
 
             T_copy(i,j) += (*S)(i,k) * (*T)(k,j);
             U_copy(i,j) += (*S)(i,k) * (*U)(k,j);
+            h_copy(i,j) += (*S)(i,k) * (*h)(k,j);
 
          }
 
@@ -509,6 +540,7 @@ void SphInt::orthogonalize() {
 
             (*T)(i,j) += T_copy(i,k) * (*S)(k,j);
             (*U)(i,j) += U_copy(i,k) * (*S)(k,j);
+            (*h)(i,j) += h_copy(i,k) * (*S)(k,j);
 
          }
 
@@ -596,6 +628,7 @@ void SphInt::orthogonalize() {
 
    T->symmetrize();
    U->symmetrize();
+   h->symmetrize();
 
 }
 
@@ -632,6 +665,15 @@ double SphInt::gU(int i,int j) const {
 double SphInt::gV(int a,int b,int c,int d) const {
 
    return (*V)(s2t[a][b],s2t[c][d]);
+
+}
+
+/**
+ * access to the individual elements of the matrices
+ */
+double SphInt::gh(int i,int j) const {
+
+   return (*h)(i,j);
 
 }
 
