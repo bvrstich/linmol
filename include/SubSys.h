@@ -78,6 +78,8 @@ class SubSys{
       double subocc_func(const TPM &) const;
 
       void construct_mf(const TPM &,const SphInt &);
+
+      void construct_pc(const TPM &);
       
       void print_addham(const char *);
 

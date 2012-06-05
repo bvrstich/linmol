@@ -1089,4 +1089,14 @@ int CartInt::SaveToFile(const char *filename,bool append) const
    return 0;
 }
 
+/**
+ * @return the charge of the core with index i
+ * @param i the index of the core
+ */
+int CartInt::gZ(int i){
+
+   return readin->gcore(i);
+
+}
+
 /* vim: set ts=3 sw=3 expandtab :*/

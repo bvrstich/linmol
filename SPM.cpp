@@ -527,7 +527,7 @@ void SPM::projsub(const SubSys &ss){
 /**
  * inproduct of a 2DM and a 1DM, partially tracing a 2DM and a 1DM into a new 1DM object
  * @param tpm input TPM
- * @param spm inpus SPM
+ * @param spm input SPM
  */
 void SPM::mult(const TPM &tpm,const SPM &spm){
 

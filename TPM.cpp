@@ -1430,6 +1430,83 @@ void TPM::subham_atomic(const SubSys &ss) {
 }
 
 /**
+ * construct the atomic subsystem hamiltonian, with a pointcharge at a certain distance, corresponding to the input SubSys object ss
+ * @param ss input SubSys object
+ */
+void TPM::subham_pc(const SubSys &ss) {
+
+   int a,b,c,d;
+   int sign;
+
+   int a_me,b_me,c_me,d_me;
+
+   int S;
+
+   double norm;
+
+   for(int B = 0;B < gnr();++B){
+
+      S = B2SM[B][0];
+
+      sign = 1 - 2*S;
+
+      for(int i = 0;i < gdim(B);++i){
+
+         a = t2s[B][i][0];
+         b = t2s[B][i][1];
+
+         a_me = SphInt::gg2s(a);
+         b_me = SphInt::gg2s(b);
+
+         for(int j = i;j < gdim(B);++j){
+
+            c = t2s[B][j][0];
+            d = t2s[B][j][1];
+
+            c_me = SphInt::gg2s(c);
+            d_me = SphInt::gg2s(d);
+
+            //determine the norm for the basisset
+            norm = 1.0;
+
+            if(S == 0){
+
+               if(a == b)
+                  norm /= std::sqrt(2.0);
+
+               if(c == d)
+                  norm /= std::sqrt(2.0);
+
+            }
+
+            (*this)(B,i,j) = 0.0;
+
+            if(b == d)
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ( ss.gsi().gT(a_me,c_me) + ss.gsi().gU(ss.gcore(),a_me,c_me) + ss.gh()(a_me,c_me) );
+
+            if(a == d)
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ( ss.gsi().gT(b_me,c_me) + ss.gsi().gU(ss.gcore(),b_me,c_me) + ss.gh()(b_me,c_me) );
+
+            if(b == c)
+               (*this)(B,i,j) +=  sign/(N - 1.0) * ( ss.gsi().gT(a_me,d_me) + ss.gsi().gU(ss.gcore(),a_me,d_me) + ss.gh()(a_me,d_me) );
+
+            if(a == c)
+               (*this)(B,i,j) +=  1.0/(N - 1.0) * ( ss.gsi().gT(b_me,d_me) + ss.gsi().gU(ss.gcore(),b_me,d_me) + ss.gh()(b_me,d_me));
+
+            (*this)(B,i,j) += ss.gsi().gV(a_me,b_me,c_me,d_me) + sign * ss.gsi().gV(a_me,b_me,d_me,c_me);
+
+            (*this)(B,i,j) *= norm;
+
+         }
+      }
+
+   }
+
+   this->symmetrize();
+
+}
+
+/**
  * fill the (*this) object with the subsystem Hamiltonian added with a meanfield
  * @param ss input SubSys object
  */

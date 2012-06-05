@@ -128,12 +128,12 @@ int main(int argc, char **argv){
    cout << N*(N - 1)/2 << "\t" << rdm.trace() << "\t" << rdm.ddot(ham) + CartInt::gNucRepEn() << endl;
 
    //construct the subsystem mean-field
-   ss_Be.construct_mf(rdm,si);
-   ss_B.construct_mf(rdm,si);
+   ss_Be.construct_pc(rdm);
+   ss_B.construct_pc(rdm);
 
-   //print the addition hamiltonian terms to a file in a non-orthogonal basis
-   ss_Be.print_addham("/home/bright/bestanden/results/linmol/subham/Be.ham");
-   ss_B.print_addham("/home/bright/bestanden/results/linmol/subham/B.ham");
+   //print the additional hamiltonian terms to a file in a non-orthogonal basis
+   ss_Be.print_addham("/home/bright/bestanden/results/linmol/subham/BeB/20/Be.ham");
+   ss_B.print_addham("/home/bright/bestanden/results/linmol/subham/BeB/20/B.ham");
 
    //orthogonalize the subsystem hamiltonian terms
    ss_Be.orthogonalize();
@@ -147,10 +147,10 @@ int main(int argc, char **argv){
    subham_atomic_B.subham_atomic(ss_B);
 
    TPM subham_mf_Be;
-   subham_mf_Be.subham_mf(ss_Be);
+   subham_mf_Be.subham_pc(ss_Be);
 
    TPM subham_mf_B;
-   subham_mf_B.subham_mf(ss_B);
+   subham_mf_B.subham_pc(ss_B);
 
    cout << rdm.ddot(subham_mf_Be) << "\t" << rdm.ddot(subham_mf_B) << endl;
    cout << rdm.ddot(subham_atomic_Be) << "\t" << rdm.ddot(subham_atomic_B) << endl;

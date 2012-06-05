@@ -76,6 +76,8 @@ class CartInt {
 
       static int gN_Z();
 
+      static int gZ(int);
+
       static int gn_max();
 
       static int gl_max();
