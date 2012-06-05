@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 
    cout.precision(10);
 
-   CartInt::initfromfile("input/BeB/20/cartint.h5");
+   CartInt::init();
    SphInt::init();
 
    const int M = 2*SphInt::gdim();//dim sp hilbert space
@@ -86,7 +86,8 @@ int main(int argc, char **argv){
 
    SubSys::init(M,N);
 
-   CartInt ci("input/BeB/20/cartint.h5");
+   CartInt ci;
+   ci.norm();
 
    SphInt si(ci);
 
@@ -116,7 +117,7 @@ int main(int argc, char **argv){
    //rdm.ReadfromFile("/home/bright/bestanden/results/linmol/NO/sub/DM_out/NO-10.h5");
 
    //if old .rdm file
-   ifstream input("/home/bright/bestanden/results/linmol/BeB/nosub/DM_out/BeB-20.rdm");
+   ifstream input("/home/bright/bestanden/results/linmol/BeB/nosub/DM_out/BeB-10.rdm");
 
    for(int B = 0;B < rdm.gnr();++B)
       for(int i = 0;i < rdm.gdim(B);++i)
@@ -132,8 +133,8 @@ int main(int argc, char **argv){
    ss_B.construct_pc(rdm);
 
    //print the additional hamiltonian terms to a file in a non-orthogonal basis
-   ss_Be.print_addham("/home/bright/bestanden/results/linmol/subham/BeB/20/Be.ham");
-   ss_B.print_addham("/home/bright/bestanden/results/linmol/subham/BeB/20/B.ham");
+   ss_Be.print_addham("/home/bright/bestanden/results/linmol/subham/BeB/10/Be.ham");
+   ss_B.print_addham("/home/bright/bestanden/results/linmol/subham/BeB/10/B.ham");
 
    //orthogonalize the subsystem hamiltonian terms
    ss_Be.orthogonalize();
@@ -152,8 +153,8 @@ int main(int argc, char **argv){
    TPM subham_mf_B;
    subham_mf_B.subham_pc(ss_B);
 
-   cout << rdm.ddot(subham_mf_Be) << "\t" << rdm.ddot(subham_mf_B) << endl;
-   cout << rdm.ddot(subham_atomic_Be) << "\t" << rdm.ddot(subham_atomic_B) << endl;
+   cout << ss_Be.subocc_func(rdm) << "\t" << rdm.ddot(subham_mf_Be) << "\t" << rdm.ddot(subham_atomic_Be) << endl;
+   cout << ss_B.subocc_func(rdm) << "\t" << rdm.ddot(subham_mf_B) << "\t" << rdm.ddot(subham_atomic_B) << endl;
 
    LinIneq::clear();
 
