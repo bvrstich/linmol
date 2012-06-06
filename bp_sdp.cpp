@@ -90,6 +90,8 @@ int main(int argc, char **argv){
    CartInt ci;
    ci.norm();
 
+   ci.SaveToFile("/home/bright/bestanden/programmas/linmol/input/BeB/19/cartint.h5",false);
+/*
    SphInt si(ci);
    si.orthogonalize();
 
@@ -231,7 +233,7 @@ int main(int argc, char **argv){
    Z.gI().SaveToFile("output.h5");
 
    ci.SaveToFile("output.h5",true);
-
+*/
    PPHM::clear();
    DPM::clear();
    PHM::clear();
