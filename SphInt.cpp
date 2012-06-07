@@ -264,10 +264,10 @@ SphInt::SphInt(const CartInt &ci){
 
                   }
 
-         if(fabs(imag(c_v)) < 1.0e-10)
-            (*V)(t_i,t_j) = real(c_v);
-         else
-            cout << "What the fuck!!!" << endl;
+         if(fabs(c_v.imag()) > 1.0e-15)
+               cout << t_i << "\t" << t_j << "\t|\t" << c_v << endl;
+
+         (*V)(t_i,t_j) = real(c_v);
 
       }
 
@@ -279,15 +279,15 @@ SphInt::SphInt(const CartInt &ci){
 
 /** 
  * copy constructor
- * @param ci_c SphInt object to be copied in the newly constructed object
+ * @param si_c SphInt object to be copied in the newly constructed object
  */
-SphInt::SphInt(const SphInt &ci_c){ 
+SphInt::SphInt(const SphInt &si_c){ 
 
-   S = new Matrix(ci_c.gS());
-   T = new Matrix(ci_c.gT());
-   U = new Matrix(ci_c.gU());
+   S = new Matrix(si_c.gS());
+   T = new Matrix(si_c.gT());
+   U = new Matrix(si_c.gU());
 
-   V = new Matrix(ci_c.gV());
+   V = new Matrix(si_c.gV());
 
 }
 

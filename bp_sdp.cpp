@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 
    cout.precision(10);
 
-   CartInt::init();
+   CartInt::initfromfile("/home/bright/bestanden/results/linmol/input/BeB/TZ/20/cartint.h5");
    SphInt::init();
 
    const int M = 2*SphInt::gdim();//dim sp hilbert space
@@ -87,12 +87,10 @@ int main(int argc, char **argv){
    SUP::init(M,N);
    EIG::init(M,N);
 
-   CartInt ci;
-   ci.norm();
+   CartInt ci("/home/bright/bestanden/results/linmol/input/BeB/TZ/20/cartint.h5");
 
-   ci.SaveToFile("/home/bright/bestanden/programmas/linmol/input/BeB/19/cartint.h5",false);
-/*
    SphInt si(ci);
+/*
    si.orthogonalize();
 
    //hamiltoniaan

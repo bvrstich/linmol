@@ -380,7 +380,7 @@ void TPM::molecule(const SphInt &si){
             if(a == c)
                (*this)(B,i,j) +=  1.0/(N - 1.0) * (si.gT(b_me,d_me) + si.gU(b_me,d_me));
 
-            (*this)(B,i,j) += si.gV(a_me,b_me,c_me,d_me) + sign * si.gV(a_me,b_me,d_me,c_me);
+            //(*this)(B,i,j) += si.gV(a_me,b_me,c_me,d_me) + sign * si.gV(a_me,b_me,d_me,c_me);
 
             (*this)(B,i,j) *= norm;
 
