@@ -39,7 +39,7 @@ int main(int argc, char **argv){
 
    cout.precision(10);
 
-   CartInt::initfromfile("/home/bright/bestanden/results/linmol/input/BeB/TZ/20/cartint.h5");
+   CartInt::init();
    SphInt::init();
 
    const int M = 2*SphInt::gdim();//dim sp hilbert space
@@ -53,6 +53,7 @@ int main(int argc, char **argv){
    };
 
    int i,j;
+
    while( (j = getopt_long (argc, argv, "hn:", long_options, &i)) != -1)
       switch(j)
       {
@@ -87,10 +88,10 @@ int main(int argc, char **argv){
    SUP::init(M,N);
    EIG::init(M,N);
 
-   CartInt ci("/home/bright/bestanden/results/linmol/input/BeB/TZ/20/cartint.h5");
-
-   SphInt si(ci);
+   CartInt ci;
 /*
+   SphInt si(ci);
+
    si.orthogonalize();
 
    //hamiltoniaan
@@ -149,8 +150,9 @@ int main(int argc, char **argv){
 
       iter_dual = 0;
 
-      while(D_conv > tolerance  && iter_dual <= max_iter)
+      while(D_conv > tolerance  && iter_dual < max_iter)
       {
+
          ++tot_iter;
 
          ++iter_dual;

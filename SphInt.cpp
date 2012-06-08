@@ -264,9 +264,6 @@ SphInt::SphInt(const CartInt &ci){
 
                   }
 
-         if(fabs(c_v.imag()) > 1.0e-15)
-               cout << t_i << "\t" << t_j << "\t|\t" << c_v << endl;
-
          (*V)(t_i,t_j) = real(c_v);
 
       }
