@@ -854,7 +854,6 @@ void MxElem::Init(input & readin, double Efield){
       }
    }
    
-   #pragma omp parallel for schedule(dynamic) default(none) shared(filler,Center,CoreNumber,Type,n1xvalues,n1yvalues,n1zvalues,Efield,readin)
    for (int count1 = 0; count1<NOrbTot; count1++){
    
       int i = CoreNumber[count1];

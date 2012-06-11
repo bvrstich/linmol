@@ -66,6 +66,7 @@ int MENDELJEV = 118;
 input::input(string setupfile, bool isfile){
 
    initelements();
+
    if(isfile)
       readinsetupfile(setupfile);
    else

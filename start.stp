@@ -1,9 +1,8 @@
-Basisset=cc-pVTZ
-Charge=1
+Basisset=cc-pVDZ
+Charge=0
 RotationSymmetry=z
 
 Distances=0
 
-Cores=2
-1 Be 0 0 0
-2 B 0 0 19
+Cores=1
+1 H 0 0 0
