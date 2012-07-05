@@ -13,6 +13,7 @@ CPPSRC	= bp_sdp.cpp\
             Matrix.cpp\
             BlockMatrix.cpp\
             Vector.cpp\
+            LibInt.cpp\
             R.cpp\
             Gauss.cpp\
             input.cpp\

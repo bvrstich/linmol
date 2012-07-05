@@ -12,6 +12,7 @@
 #include <fstream>
 #include <cmath>
 #include <getopt.h>
+#include <libint2.h>
 
 using std::cout;
 using std::endl;
@@ -58,9 +59,19 @@ int main(int argc, char **argv){
 
    Tools::init();
 
-/*
-   const int M = 2*SphInt::gdim();//dim sp hilbert space
-   int N = SphInt::gN();//nr of particles
+   //here the cartesian integrals are calculated
+   CartInt::calc_integrals();
+
+   //have to be normalised before transforming to spherical
+   CartInt::norm();
+
+   //transform
+   SphInt::fill();
+
+   SphInt::orthogonalize();
+
+   const int M = 2*SI_SPM::gdim();//dim sp hilbert space
+   int N = input::NumberOfElectrons();//nr of particles
 
    struct option long_options[] =
    {
@@ -93,9 +104,6 @@ int main(int argc, char **argv){
             break;
       }
 
-
-   Tools::init(M,N);
-
    SPM::init(M,N);
    TPM::init(M,N);
    PHM::init(M,N);
@@ -105,15 +113,9 @@ int main(int argc, char **argv){
    SUP::init(M,N);
    EIG::init(M,N);
 
-   CartInt ci;
-   ci.norm();
-
-   SphInt si(ci);
-   si.orthogonalize();
-
    //hamiltoniaan
    TPM ham;
-   ham.molecule(si);
+   ham.molecule();
 
    TPM ham_copy(ham);
 
@@ -234,12 +236,12 @@ int main(int argc, char **argv){
 
       convergence = ham.ddot(Z.gI()) + u_0.ddot(X);
 
-      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << endl;
+      cout << P_conv << "\t" << D_conv << "\t" << sigma << "\t" << convergence << "\t" << ham_copy.ddot(Z.gI()) + input::gNucRepEn() << endl;
 
    }
 
    cout << endl;
-   cout << "Energy: " << ham_copy.ddot(Z.gI()) + CartInt::gNucRepEn() << endl;
+   cout << "Energy: " << ham_copy.ddot(Z.gI()) + input::gNucRepEn() << endl;
    cout << "pd gap: " << Z.ddot(X) << endl;
    cout << "dual conv: " << D_conv << endl;
    cout << "primal conv: " << P_conv << endl;
@@ -254,7 +256,7 @@ int main(int argc, char **argv){
    PHM::clear();
    TPM::clear();
    SPM::clear();
-*/
+
    Tools::clear();
 
    SphInt::clear();

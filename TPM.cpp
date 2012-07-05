@@ -318,9 +318,8 @@ double TPM::operator()(int S,int L_z,int m_a,int a,int m_b,int b,int m_c,int c,i
 
 /**
  * fill the (*this) object with the Hamiltonian that defines the molecular system.
- * @param si the input SphInt object containing the spherical matrixelements
  */
-void TPM::molecule(const SphInt &si){
+void TPM::molecule(){
 
    int a,b,c,d;
    int sign;
@@ -342,16 +341,16 @@ void TPM::molecule(const SphInt &si){
          a = t2s[B][i][0];
          b = t2s[B][i][1];
 
-         a_me = SphInt::gg2s(a);
-         b_me = SphInt::gg2s(b);
+         a_me = SI_SPM::gg2s(a);
+         b_me = SI_SPM::gg2s(b);
 
          for(int j = i;j < gdim(B);++j){
 
             c = t2s[B][j][0];
             d = t2s[B][j][1];
 
-            c_me = SphInt::gg2s(c);
-            d_me = SphInt::gg2s(d);
+            c_me = SI_SPM::gg2s(c);
+            d_me = SI_SPM::gg2s(d);
 
             //determine the norm for the basisset
             norm = 1.0;
@@ -368,19 +367,52 @@ void TPM::molecule(const SphInt &si){
 
             (*this)(B,i,j) = 0.0;
 
-            if(b == d)
-               (*this)(B,i,j) +=  1.0/(N - 1.0) * (si.gT(a_me,c_me) + si.gU(a_me,c_me));
+            if(b == d){
 
-            if(a == d)
-               (*this)(B,i,j) +=  sign /(N - 1.0) * (si.gT(b_me,c_me) + si.gU(b_me,c_me));
+               double ward = SphInt::gT()(a_me,c_me);
 
-            if(b == c)
-               (*this)(B,i,j) +=  sign /(N - 1.0) * (si.gT(a_me,d_me) + si.gU(a_me,d_me));
+               for(int core = 0;core < input::gN_Z();++core)
+                  ward += SphInt::gU(core)(a_me,c_me);
 
-            if(a == c)
-               (*this)(B,i,j) +=  1.0/(N - 1.0) * (si.gT(b_me,d_me) + si.gU(b_me,d_me));
+               (*this)(B,i,j) +=  ward/(N - 1.0);
 
-            (*this)(B,i,j) += si.gV(a_me,b_me,c_me,d_me) + sign * si.gV(a_me,b_me,d_me,c_me);
+            }
+
+            if(a == d){
+
+               double ward = SphInt::gT()(b_me,c_me);
+
+               for(int core = 0;core < input::gN_Z();++core)
+                  ward += SphInt::gU(core)(b_me,c_me);
+
+               (*this)(B,i,j) +=  sign * ward/(N - 1.0);
+
+
+            }
+
+            if(b == c){
+
+               double ward = SphInt::gT()(a_me,d_me);
+
+               for(int core = 0;core < input::gN_Z();++core)
+                  ward += SphInt::gU(core)(a_me,d_me);
+
+               (*this)(B,i,j) +=  sign * ward/(N - 1.0);
+
+            }
+
+            if(a == c){
+
+               double ward = SphInt::gT()(b_me,d_me);
+
+               for(int core = 0;core < input::gN_Z();++core)
+                  ward += SphInt::gU(core)(b_me,d_me);
+
+               (*this)(B,i,j) +=  ward/(N - 1.0);
+
+            }
+
+            (*this)(B,i,j) += SphInt::gV()(a_me,b_me,c_me,d_me) + sign * SphInt::gV()(a_me,b_me,d_me,c_me);
 
             (*this)(B,i,j) *= norm;
 

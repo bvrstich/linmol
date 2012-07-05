@@ -32,7 +32,7 @@ void DPM::init(int M_in,int N_in){
    M = M_in;
    N = N_in;
 
-   l_max = SphInt::gl_max();
+   l_max = SI_SPM::gl_max();
 
    //allocate the block list
    SM2B = new int * [2];

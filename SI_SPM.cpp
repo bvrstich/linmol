@@ -233,3 +233,20 @@ ostream &operator<<(ostream &output,SI_SPM &si_p){
    return output;
 
 }
+
+/**
+ * @param g input SPM single-particle index
+ * @return the SI_SPM single particle index s when given a SPM single-particle index g
+ */
+int SI_SPM::gg2s(int g){
+
+   int m = SPM::gg2ms(g,0);
+   int sp_in = SPM::gg2ms(g,1);
+
+   int i = SPM::gs2inl(m,sp_in,0);
+   int n = SPM::gs2inl(m,sp_in,1);
+   int l = SPM::gs2inl(m,sp_in,2);
+
+   return ginlm2s(i,n,l,m);
+
+}

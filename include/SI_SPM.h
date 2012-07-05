@@ -45,6 +45,8 @@ class SI_SPM : public Matrix {
 
       void transform(const CI_SPM &);
 
+      static int gg2s(int g);
+
       static int gs2inlm(int,int);
 
       static int ginlm2s(int,int,int,int);

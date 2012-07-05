@@ -6,7 +6,6 @@
 
 using std::ostream;
 
-class SphInt;
 class SUP;
 class DPM;
 class PHM;
@@ -55,7 +54,7 @@ class TPM : public BlockMatrix {
 
       double operator()(int,int,int,int,int,int,int,int,int,int) const;
 
-      void molecule(const SphInt &);
+      void molecule();
 
       void unit();
 
