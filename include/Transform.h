@@ -17,6 +17,7 @@ class Transform {
 
    /**
     * Output stream operator overloaded
+    * @param output the output stream e.g. cout
     * @param tf the Transform you want to print
     */ friend ostream &operator<<(ostream &output,Transform &tf);
 

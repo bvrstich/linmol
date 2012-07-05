@@ -1,86 +1,44 @@
-/*
- 
-   Program information
-   
-      ThING Is Not Gaussian is a rudimentary program to calculate
-      matrix elements of gaussian contractions using recursion
-      relations.
-      
-   Copyright notice
-
-      Copyright 2011, 2011 Sebastian Wouters
-      <sebastianwouters@gmail.com>
-      
-   Copyright permission
-   
-      This file is part of ThING Is Not Gaussian.
-
-      ThING Is Not Gaussian is free software: you can redistribute
-      it and/or modify it under the terms of the GNU General 
-      Public License as published by the Free Software Foundation,
-      either version 3 of the License, or (at your option) any
-      later version.
-
-      ThING Is Not Gaussian is distributed in the hope that it will
-      be useful, but WITHOUT ANY WARRANTY; without even the implied
-      warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-      See the GNU General Public License for more details.
-
-      You should have received a copy of the GNU General Public
-      License along with ThING Is Not Gaussian. If not, see 
-      <http://www.gnu.org/licenses/>.
-      
-   File information R.h and R.cpp
-   
-      R is a container class for a vector. Basic operations are available.
-    
-*/
-
 #ifndef R_H
 #define R_H
 
 #include "preamble.h"
+#include "Vector.h"
 
-class R{
+/**
+ * @author Brecht Verstichel
+ * @date 15-06-2012\n\n
+ * This is a class written for real space vectors, it enherits from the Vector class, it's special
+ * because it only has three entries, and the set function makes use of that, and it's too much of 
+ * a hassle to remove it from Sebastian's original ThING.
+ */
+class R : public Vector {
 
-   friend ostream &operator<<(ostream &output, R &);
+   /**
+    * Ostream overloader
+    * @param output the ostream to write the info to
+    * @param r_p the R of which the coordinates need to be written
+    */
+   friend ostream &operator<<(ostream &output,const R &r_p);
 
    public:
 
       //Constructor
+      R();
+
       R(double, double, double);
 
       //Copy constructor
-      R(R &);
+      R(const R &);
 
       //Destructor
       virtual ~R();
 
-      //Getters
-      double gxco();
-      double gyco();
-      double gzco();
-
       //Setter
       void set(double, double, double);
 
-      //Distance
-      double DistanceSquared(R &);
-
-      //Product
-      double product(R &);
-
    private:
 
-      //!x-co
-      double xco;
 
-      //!y-co
-      double yco;
-
-      //!z-co
-      double zco;
-      
 };
 
 #endif

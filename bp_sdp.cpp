@@ -39,9 +39,26 @@ int main(int argc, char **argv){
 
    cout.precision(10);
 
+   input::init("start.stp");
+
+   LibInt::init();
+
+   CI_SPM::init();
+   CI_TPM::init();
+   CI_SPPM::init();
+   CI_SPPM_m::init();
+   CI_TPPM::init();
+
    CartInt::init();
+
+   SI_SPM::init();
+   SI_TPM::init();
+
    SphInt::init();
 
+   Tools::init();
+
+/*
    const int M = 2*SphInt::gdim();//dim sp hilbert space
    int N = SphInt::gN();//nr of particles
 
@@ -232,20 +249,32 @@ int main(int argc, char **argv){
 
    Z.gI().SaveToFile("output.h5");
 
-   ci.SaveToFile("output.h5",true);
-
    PPHM::clear();
    DPM::clear();
    PHM::clear();
    TPM::clear();
    SPM::clear();
-
+*/
    Tools::clear();
 
    SphInt::clear();
+
+   SI_TPM::clear();
+   SI_SPM::clear();
+
    CartInt::clear();
 
+   CI_TPPM::clear();
+   CI_SPPM_m::clear();
+   CI_SPPM::clear();
+   CI_TPM::clear();
+   CI_SPM::clear();
+
+   input::clear();
+   LibInt::clear();
+
    return 0;
+
 }
 
 /* vim: set ts=3 sw=3 expandtab :*/

@@ -44,7 +44,7 @@
 
 class Gauss{
 
-   friend ostream &operator<<(ostream &output, Gauss &);
+   friend ostream &operator<<(ostream &output,const Gauss &);
 
    public:
 
@@ -52,25 +52,24 @@ class Gauss{
       Gauss(int);
 
       //Copy constructor
-      Gauss(Gauss &);
+      Gauss(const Gauss &);
 
       //Destructor
       virtual ~Gauss();
 
       //Getters
-      int gNtypes();
+      int gNtypes() const;
 
-      bool ginit();
+      bool ginit() const;
 
-      int gNcontr(int);
+      int gNcontr(int) const;
 
-      char gtype(int);
+      char gtype(int) const;
 
-      double galpha(int, int);
+      double galpha(int, int) const;
 
-      double gprefactors(int, int);
+      double gprefactors(int, int) const;
 
-      //Setters
       void set(int, int, double *, double *, char);
 
    private:
@@ -96,6 +95,5 @@ class Gauss{
 };
 
 #endif
-
 
 /* vim: set ts=3 sw=3 expandtab :*/

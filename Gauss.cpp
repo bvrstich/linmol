@@ -43,44 +43,53 @@
 
 /**
  * Constructor for the Gauss class
- * @param Ntypes the number of different contractions for the atom under consideration
+ * @param NumberOfTypes the number of different contractions for the atom under consideration
  */
 Gauss::Gauss(int NumberOfTypes){
 
    Ntypes = NumberOfTypes;
-   Ncontr = new int[Ntypes];
-   type = new char[Ntypes];
-   alpha = new double*[Ntypes];
-   prefactors = new double*[Ntypes];
+
+   Ncontr = new int [Ntypes];
+   type = new char [Ntypes];
+   alpha = new double * [Ntypes];
+   prefactors = new double * [Ntypes];
+
    init = false;
 
 }
-
 
 /** 
  * Copy constructor for the Gauss class
  * @param Gauss_c the Gauss object to be copied
  */
-Gauss::Gauss(Gauss & Gauss_c){
+Gauss::Gauss(const Gauss & Gauss_c){
 
    Ntypes = Gauss_c.gNtypes();
-   Ncontr = new int[Ntypes];
-   type = new char[Ntypes];
-   alpha = new double*[Ntypes];
-   prefactors = new double*[Ntypes];
+
+   Ncontr = new int [Ntypes];
+   type = new char [Ntypes];
+   alpha = new double * [Ntypes];
+   prefactors = new double * [Ntypes];
+
    init = Gauss_c.ginit();
 
-   if (init) {
+   if(init){
+
       for (int cnt=0; cnt<Ntypes; cnt++){
+
          Ncontr[cnt] = Gauss_c.gNcontr(cnt);
          type[cnt] = Gauss_c.gtype(cnt);
          alpha[cnt] = new double[Ncontr[cnt]];
          prefactors[cnt] = new double[Ncontr[cnt]];
+
          for (int cnt2=0; cnt2<Ncontr[cnt]; cnt2++){
+
             alpha[cnt][cnt2] = Gauss_c.galpha(cnt,cnt2);
             prefactors[cnt][cnt2] = Gauss_c.gprefactors(cnt,cnt2);
+
          }
       }
+
    }
 
 }
@@ -92,10 +101,14 @@ Gauss::Gauss(Gauss & Gauss_c){
 Gauss::~Gauss(){
 
    if (init) {
+
       for (int cnt=0; cnt<Ntypes; cnt++){
+
          delete [] alpha[cnt];
          delete [] prefactors[cnt];
+
       }
+
    }
 
    delete [] Ncontr;
@@ -110,7 +123,7 @@ Gauss::~Gauss(){
  * Getter function for the variable Ntypes
  * @return Ntypes the number of different contractions for the atom under consideration
  */
-int Gauss::gNtypes(){
+int Gauss::gNtypes() const{
 
    return Ntypes;
 
@@ -121,36 +134,33 @@ int Gauss::gNtypes(){
  * Getter function for the variable init
  * @return init whether on or more of the alpha[i]; prefactors[i] arrays have been allocated
  */
-bool Gauss::ginit(){
+bool Gauss::ginit() const{
 
    return init;
 
 }
-
 
 /**
  * Getter function for the number of gaussians of the i-th contraction
  * @param i the number of the contraction
  * @return Ncontr[i] the number of gaussians of the i-th contraction
  */
-int Gauss::gNcontr(int i){
+int Gauss::gNcontr(int i) const{
 
    return Ncontr[i];
 
 }
-
 
 /**
  * Getter function for the type of orbital the i-th contraction approximates
  * @param i the number of the contraction
  * @return type[i] the type of orbital the i-th contraction approximates
  */
-char Gauss::gtype(int i){
+char Gauss::gtype(int i) const{
 
    return type[i];
 
 }
-
 
 /**
  * Getter function for the j-th exponent of the i-th contraction
@@ -158,12 +168,11 @@ char Gauss::gtype(int i){
  * @param j the number of the exponent
  * @return alpha[i][j] the j-th exponent of the i-th contraction
  */
-double Gauss::galpha(int i, int j){
+double Gauss::galpha(int i, int j) const{
 
    return alpha[i][j];
 
 }
-
 
 /**
  * Getter function for the j-th coefficient of the i-th contraction
@@ -171,12 +180,11 @@ double Gauss::galpha(int i, int j){
  * @param j the number of the coefficient
  * @return prefeactors[i][j] the j-th coefficient of the i-th contraction
  */
-double Gauss::gprefactors(int i, int j){
+double Gauss::gprefactors(int i, int j) const{
 
    return prefactors[i][j];
 
 }
-
 
 /**
  * Setter function for all the information of the i-th contraction
@@ -193,29 +201,36 @@ void Gauss::set(int i, int Ngaussian, double * alphas, double * coeff, char orbi
    Ncontr[i] = Ngaussian;
    alpha[i] = new double[Ngaussian];
    prefactors[i] = new double[Ngaussian];
-   for (int cnt=0; cnt<Ngaussian; cnt++){
+
+   for(int cnt=0;cnt < Ngaussian;cnt++){
+
       alpha[i][cnt] = alphas[cnt];
       prefactors[i][cnt] = coeff[cnt];
+
    }
+
    type[i] = orbitaltype;
 
 }
-
 
 /**
  * Ostream overloader
  * @param output the ostream to write the info to
  * @param krusty the Gauss of which the info needs to be written
  */
-ostream &operator<<(ostream &output, Gauss & krusty){
+ostream &operator<<(ostream &output,const Gauss &krusty){
 
    output << "# types = " << krusty.gNtypes() << endl;
+
    for (int cnt=0; cnt<krusty.gNtypes(); cnt++){
+
       output << "    nr. " << cnt+1 << " is of type " << krusty.gtype(cnt) << " and has " << krusty.gNcontr(cnt) << " contractions." << endl;
-      for (int cnt2=0; cnt2<krusty.gNcontr(cnt); cnt2++){
+
+      for (int cnt2=0; cnt2<krusty.gNcontr(cnt); cnt2++)
          output << "        contr nr. " << cnt2+1 << " has exponent " << krusty.galpha(cnt,cnt2) << " and prefactor " << krusty.gprefactors(cnt,cnt2) << endl;
-      }
+      
    }
+
    return output;
 
 }

@@ -28,7 +28,7 @@ void SPM::init(int M_in,int N_in) {
    M = M_in;
    N = N_in;
 
-   l_max = SphInt::gl_max();
+   l_max = SI_SPM::gl_max();
 
    //allocate
    s2inl = new vector< vector<int> > [2*l_max + 1];
@@ -37,14 +37,14 @@ void SPM::init(int M_in,int N_in) {
    
    for(int m = 0;m < 2*l_max + 1;++m){
 
-      inl2s[m] = new int ** [SphInt::gN_Z()];
+      inl2s[m] = new int ** [input::gN_Z()];
 
-      for(int i = 0;i < SphInt::gN_Z();++i){
+      for(int i = 0;i < input::gN_Z();++i){
 
-         inl2s[m][i] = new int * [SphInt::gn_max()];
+         inl2s[m][i] = new int * [SI_SPM::gn_max()];
 
-         for(int n = 0;n < SphInt::gn_max();++n)
-            inl2s[m][i][n] = new int [SphInt::gl_max() + 1];
+         for(int n = 0;n < SI_SPM::gn_max();++n)
+            inl2s[m][i][n] = new int [SI_SPM::gl_max() + 1];
 
       }
 
@@ -57,13 +57,13 @@ void SPM::init(int M_in,int N_in) {
 
       int iter = 0;
 
-      for(int s = 0;s < SphInt::gdim();++s){
+      for(int s = 0;s < SI_SPM::gdim();++s){
 
-         if(SphInt::gs2inlm(s,3) == m){
+         if(SI_SPM::gs2inlm(s,3) == m){
 
-            v[0] = SphInt::gs2inlm(s,0);//i
-            v[1] = SphInt::gs2inlm(s,1);//n
-            v[2] = SphInt::gs2inlm(s,2);//l
+            v[0] = SI_SPM::gs2inlm(s,0);//i
+            v[1] = SI_SPM::gs2inlm(s,1);//n
+            v[2] = SI_SPM::gs2inlm(s,2);//l
 
             s2inl[m + l_max].push_back(v);
 
@@ -110,9 +110,9 @@ void SPM::clear(){
 
    for(int m = 0;m < 2*l_max + 1;++m){
 
-      for(int i = 0;i < SphInt::gN_Z();++i){
+      for(int i = 0;i < input::gN_Z();++i){
 
-         for(int n = 0;n < SphInt::gn_max();++n)
+         for(int n = 0;n < SI_SPM::gn_max();++n)
             delete [] inl2s[m][i][n];
 
          delete [] inl2s[m][i];

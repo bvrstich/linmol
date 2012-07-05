@@ -11,125 +11,52 @@ using std::vector;
 #include "Matrix.h"
 #include "input.h"
 
+class CI_SPM;
+class CI_TPM;
+
 /**
  * @author Brecht Verstichel
- * @date 12-04-2012\n\n
+ * @date 13-04-2012\n\n
  * This class CartInt is a class written for the storage of matrixelements in a cartesian Gaussian basis
- * The goal is to translate ThING input to a framework where I can transform it to a spherical basis.
+ * In this class the different integrals are calculated using the libint library
  */
 class CartInt {
 
-   /**
-    * Output stream operator overloaded
-    * @param ci_p the CartInt you want to print
-    */
-   friend ostream &operator<<(ostream &output,CartInt &ci_p);
-
    public:
       
-      //constructor
-      CartInt();
+      static const CI_SPM &gS();
 
-      //copy constructor
-      CartInt(const CartInt &);
+      static const CI_SPM &gT();
 
-      CartInt(const char *filename);
+      static const CI_SPM &gU(int);
 
-      //destructor
-      virtual ~CartInt();
+      static const CI_TPM &gV();
 
-      const Matrix &gS() const;
+      static void norm();
 
-      Matrix &gS();
+      static void orthogonalize();
 
-      const Matrix &gT() const;
+      static void calc_integrals();
 
-      Matrix &gT();
+      static void print();
 
-      const Matrix &gU() const;
-
-      Matrix &gU();
-
-      const Matrix &gV() const;
-
-      Matrix &gV();
-
-      void norm();
-
-      void orthogonalize();
-
-      double gS(int,int) const;
-
-      double gT(int,int) const;
-
-      double gU(int,int) const;
-
-      double gV(int,int,int,int) const;
-
-      static int gs2inlxyz(int,int);
-
-      static int ginlxyz2s(int,int,int,int,int,int);
-
-      static int gdim();
-
-      static int gN_Z();
-
-      static int gn_max();
-
-      static int gl_max();
-
-      static int gN();
-
-      static double gNucRepEn();
-
-      static void init(string inputdata = "start.stp", bool isfile = true);
-
-      static void initfromfile(const char *filename);
+      static void init();
 
       static void clear();
 
-      int SaveToFile(const char *filename,bool append = false) const;
-
    private:
 
-      //!static objects needed to construct and destruct all the lists
-      static int l_max,n_max,N_Z;
-
-      //!nuclear repulsion energy
-      static double NucRepEn;
-
-      //!nr of electrons
-      static int N;
-
-      //!input object contains all info about system
-      static input *readin;
-
-      //!list to switch between matrix index and physical quantum numbers
-      static vector< vector<int> > s2inlxyz;
-
-      //!list to switch between matrix index and physical quantum numbers
-      static int ******inlxyz2s;
-
-      //!list relating tp to sp indices
-      static vector< vector<int> > t2s;
-
-      //!list relating tp to sp indices
-      static int **s2t;
-
-      //!dimension of the basisset
-      static int dim;
-      
       //!overlapmatrix
-      Matrix *S;
+      static CI_SPM *S;
 
       //!kinetic energy matrix
-      Matrix *T;
+      static CI_SPM *T;
 
       //!nuclear attraction energy matrix
-      Matrix *U;
+      static CI_SPM **U;
 
       //!electronic repulsion matrix
-      Matrix *V;
+      static CI_TPM *V;
 
 };
 

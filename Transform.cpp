@@ -34,7 +34,7 @@ Transform::Transform(int i,int n,int l,int m){
       ind = new int [dim];
 
       coef[0] = new complex<double>(1.0,0.0);
-      ind[0] = CartInt::ginlxyz2s(i,n,l,0,0,0);
+      ind[0] = CI_SPM::ginlxyz2s(i,n,l,0,0,0);
 
    }
    else if(l == 1){
@@ -48,10 +48,10 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.0/sqrt(2.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,0);
 
          coef[1] = new complex<double>(0.0,1.0/sqrt(2.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,0);
 
       }
       else if(m == 0){
@@ -62,7 +62,7 @@ Transform::Transform(int i,int n,int l,int m){
          ind = new int [dim];
 
          coef[0] = new complex<double>(1.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,0,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,0,0,1);
 
       }
       else if(m == -1){
@@ -74,10 +74,10 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.0/sqrt(2.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,0);
 
          coef[1] = new complex<double>(0.0,-1.0/sqrt(2.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,0);
 
       }
 
@@ -93,13 +93,13 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(3.0/8.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,0);
 
          coef[1] = new complex<double>(-sqrt(3.0/8.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,0);
 
          coef[2] = new complex<double>(0.0,1.0/sqrt(2.0));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,0);
 
       }
       else if(m == 1){
@@ -111,10 +111,10 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.0/sqrt(2.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,1);
 
          coef[1] = new complex<double>(0.0,1.0/sqrt(2.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,1);
 
       }
       else if(m == 0){
@@ -126,13 +126,13 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,0,0,2);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,0,0,2);
 
          coef[1] = new complex<double>(-0.5,0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,2,0,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,2,0,0);
 
          coef[2] = new complex<double>(-0.5,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,0,2,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,0,2,0);
 
       }
       else if(m == -1){
@@ -144,10 +144,10 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.0/sqrt(2.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,1);
 
          coef[1] = new complex<double>(0.0,-1.0/sqrt(2.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,1);
 
       }
       else if(m == -2){
@@ -159,13 +159,13 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(3.0/8.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,0);
 
          coef[1] = new complex<double>(-sqrt(3.0/8.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,0);
 
          coef[2] = new complex<double>(0.0,-1.0/sqrt(2.0));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,0);
 
       }
 
@@ -181,16 +181,16 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0)/4.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,3,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,3,0,0);
 
          coef[1] = new complex<double>(0.0,-sqrt(5.0)/4.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,3,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,3,0);
 
          coef[2] = new complex<double>(-0.75,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,2,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,2,0);
 
          coef[3] = new complex<double>(0.0,0.75);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,2,1,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,2,1,0);
 
       }
       else if(m == 2){
@@ -201,13 +201,13 @@ Transform::Transform(int i,int n,int l,int m){
          ind = new int [dim];
 
          coef[0] = new complex<double>(sqrt(3.0/8.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,1);
 
          coef[1] = new complex<double>(-sqrt(3.0/8.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,1);
 
          coef[2] = new complex<double>(0.0,1.0/sqrt(2.0));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,1);
 
       }
       else if(m == 1){
@@ -218,22 +218,22 @@ Transform::Transform(int i,int n,int l,int m){
          ind = new int [dim];
 
          coef[0] = new complex<double>(sqrt(3.0/5.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,2);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,2);
 
          coef[1] = new complex<double>(0.0,sqrt(3.0/5.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,2);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,2);
 
          coef[2] = new complex<double>(-sqrt(3.0)/4.0,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,3,0,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,3,0,0);
 
          coef[3] = new complex<double>(0.0,-sqrt(3.0)/4.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,0,3,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,0,3,0);
 
          coef[4] = new complex<double>(-sqrt(3.0/5.0)*0.25,0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,2,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,2,0);
 
          coef[5] = new complex<double>(0.0,-sqrt(3.0/5.0)*0.25);
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,1,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,1,0);
 
       }
       else if(m == 0){
@@ -244,13 +244,13 @@ Transform::Transform(int i,int n,int l,int m){
          ind = new int [dim];
 
          coef[0] = new complex<double>(1.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,0,0,3);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,0,0,3);
 
          coef[1] = new complex<double>(-1.5/sqrt(5.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,2,0,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,2,0,1);
 
          coef[2] = new complex<double>(-1.5/sqrt(5.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,0,2,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,0,2,1);
 
       }
       else if(m == -1){
@@ -261,22 +261,22 @@ Transform::Transform(int i,int n,int l,int m){
          ind = new int [dim];
 
          coef[0] = new complex<double>(sqrt(3.0/5.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,2);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,2);
 
          coef[1] = new complex<double>(0.0,-sqrt(3.0/5.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,2);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,2);
 
          coef[2] = new complex<double>(-sqrt(3.0)/4.0,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,3,0,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,3,0,0);
 
          coef[3] = new complex<double>(0.0,sqrt(3.0)/4.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,0,3,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,0,3,0);
 
          coef[4] = new complex<double>(-sqrt(3.0/5.0)*0.25,0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,2,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,2,0);
 
          coef[5] = new complex<double>(0.0,sqrt(3.0/5.0)*0.25);
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,1,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,1,0);
 
       }
       else if(m == -2){
@@ -287,13 +287,13 @@ Transform::Transform(int i,int n,int l,int m){
          ind = new int [dim];
 
          coef[0] = new complex<double>(sqrt(3.0/8.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,1);
 
          coef[1] = new complex<double>(-sqrt(3.0/8.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,1);
 
          coef[2] = new complex<double>(0.0,-1.0/sqrt(2.0));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,1);
 
       }
       else if(m == -3){
@@ -305,16 +305,16 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0)/4.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,3,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,3,0,0);
 
          coef[1] = new complex<double>(0.0,sqrt(5.0)/4.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,3,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,3,0);
 
          coef[2] = new complex<double>(-0.75,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,2,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,2,0);
 
          coef[3] = new complex<double>(0.0,-0.75);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,2,1,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,2,1,0);
 
       }
 
@@ -330,19 +330,19 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(35.0/2.0)/8.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,4,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,4,0,0);
 
          coef[1] = new complex<double>(sqrt(35.0/2.0)/8.0,0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,4,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,4,0);
 
          coef[2] = new complex<double>(-0.75*sqrt(1.5),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,2,2,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,2,2,0);
 
          coef[3] = new complex<double>(0.0,sqrt(5.0/8.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,3,1,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,3,1,0);
 
          coef[4] = new complex<double>(0.0,-sqrt(5.0/8.0));
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,3,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,3,0);
 
       }
       else if(m == 3){
@@ -354,16 +354,16 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0)/4.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,3,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,3,0,1);
 
          coef[1] = new complex<double>(0.0,-sqrt(5.0)/4.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,3,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,3,1);
 
          coef[2] = new complex<double>(-0.75,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,2,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,2,1);
 
          coef[3] = new complex<double>(0.0,0.75);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,2,1,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,2,1,1);
 
       }
       else if(m == 2){
@@ -375,25 +375,25 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.5*sqrt(3.0/14),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,2);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,2);
 
          coef[1] = new complex<double>(-1.5*sqrt(3.0/14),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,2);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,2);
 
          coef[2] = new complex<double>(0.0,3.0/sqrt(14));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,2);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,2);
 
          coef[3] = new complex<double>(0.25*sqrt(2.5),0.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,4,0,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,4,0,0);
 
          coef[4] = new complex<double>(-0.25*sqrt(2.5),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,0,4,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,0,4,0);
 
          coef[5] = new complex<double>(0.0,-0.5*sqrt(5.0/14.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,3,1,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,3,1,0);
 
          coef[6] = new complex<double>(0.0,-0.5*sqrt(5.0/14.0));
-         ind[6] = CartInt::ginlxyz2s(i,n,l,1,3,0);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,1,3,0);
 
       }
       else if(m == 1){
@@ -405,22 +405,22 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0/7.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,3);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,3);
 
          coef[1] = new complex<double>(0.0,sqrt(5.0/7.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,3);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,3);
 
          coef[2] = new complex<double>(-0.75*sqrt(5.0/7.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,3,0,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,3,0,1);
 
          coef[3] = new complex<double>(0.0,-0.75*sqrt(5.0/7.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,0,3,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,0,3,1);
 
          coef[4] = new complex<double>(-0.75/sqrt(7.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,2,1);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,2,1);
 
          coef[5] = new complex<double>(0.0,-0.75/sqrt(7.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,1,1);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,1,1);
 
       }
       else if(m == 0){
@@ -432,22 +432,22 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,0,0,4);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,0,0,4);
 
          coef[1] = new complex<double>(3.0/8.0,0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,4,0,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,4,0,0);
 
          coef[2] = new complex<double>(3.0/8.0,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,0,4,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,0,4,0);
 
          coef[3] = new complex<double>(-3.0*sqrt(3.0/35.0),0.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,2,0,2);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,2,0,2);
 
          coef[4] = new complex<double>(-3.0*sqrt(3.0/35.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,0,2,2);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,0,2,2);
 
          coef[5] = new complex<double>(0.75*sqrt(3.0/35.0),0.0);
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,2,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,2,0);
 
       }
       else if(m == -1){
@@ -459,22 +459,22 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0/7.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,3);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,3);
 
          coef[1] = new complex<double>(0.0,-sqrt(5.0/7.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,3);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,3);
 
          coef[2] = new complex<double>(-0.75*sqrt(5.0/7.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,3,0,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,3,0,1);
 
          coef[3] = new complex<double>(0.0,0.75*sqrt(5.0/7.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,0,3,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,0,3,1);
 
          coef[4] = new complex<double>(-0.75/sqrt(7.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,2,1);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,2,1);
 
          coef[5] = new complex<double>(0.0,0.75/sqrt(7.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,1,1);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,1,1);
 
       }
       else if(m == -2){
@@ -486,25 +486,25 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.5*sqrt(3.0/14),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,2);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,2);
 
          coef[1] = new complex<double>(-1.5*sqrt(3.0/14),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,2);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,2);
 
          coef[2] = new complex<double>(0.0,-3.0/sqrt(14));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,2);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,2);
 
          coef[3] = new complex<double>(0.25*sqrt(2.5),0.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,4,0,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,4,0,0);
 
          coef[4] = new complex<double>(-0.25*sqrt(2.5),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,0,4,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,0,4,0);
 
          coef[5] = new complex<double>(0.0,0.5*sqrt(5.0/14.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,3,1,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,3,1,0);
 
          coef[6] = new complex<double>(0.0,0.5*sqrt(5.0/14.0));
-         ind[6] = CartInt::ginlxyz2s(i,n,l,1,3,0);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,1,3,0);
 
       }
       else if(m == -3){
@@ -516,16 +516,16 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0)/4.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,3,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,3,0,1);
 
          coef[1] = new complex<double>(0.0,sqrt(5.0)/4.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,3,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,3,1);
 
          coef[2] = new complex<double>(-0.75,0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,2,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,2,1);
 
          coef[3] = new complex<double>(0.0,-0.75);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,2,1,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,2,1,1);
 
 
       }
@@ -538,19 +538,19 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(35.0/2.0)/8.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,4,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,4,0,0);
 
          coef[1] = new complex<double>(sqrt(35.0/2.0)/8.0,0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,4,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,4,0);
 
          coef[2] = new complex<double>(-0.75*sqrt(1.5),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,2,2,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,2,2,0);
 
          coef[3] = new complex<double>(0.0,-sqrt(5.0/8.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,3,1,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,3,1,0);
 
          coef[4] = new complex<double>(0.0,sqrt(5.0/8.0));
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,3,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,3,0);
 
       }
 
@@ -566,22 +566,22 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(3.0/16.0*sqrt(7.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,5,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,5,0,0);
 
          coef[1] = new complex<double>(0.0,3.0/16.0*sqrt(7.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,5,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,5,0);
 
          coef[2] = new complex<double>(5.0/16.0*sqrt(7.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,4,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,4,0);
 
          coef[3] = new complex<double>(0.0,5.0/16.0*sqrt(7.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,4,1,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,4,1,0);
 
          coef[4] = new complex<double>(-5.0/8.0*sqrt(3.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,3,2,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,3,2,0);
 
          coef[5] = new complex<double>(0.0,-5.0/8.0*sqrt(3.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,3,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,3,0);
 
       }
       else if(m == 4){
@@ -593,19 +593,19 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(17.5)/8.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,4,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,4,0,1);
 
          coef[1] = new complex<double>(sqrt(17.5)/8.0,0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,4,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,4,1);
 
          coef[2] = new complex<double>(-0.75*sqrt(1.5),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,2,2,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,2,2,1);
 
          coef[3] = new complex<double>(0.0,0.5*sqrt(2.5));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,3,1,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,3,1,1);
 
          coef[4] = new complex<double>(0.0,-0.5*sqrt(2.5));
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,3,1);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,3,1);
 
       }
       else if(m == 3){
@@ -617,34 +617,34 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(0.5*sqrt(5.0/3.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,3,0,2);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,3,0,2);
 
          coef[1] = new complex<double>(0.0,-0.5*sqrt(5.0/3.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,3,2);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,3,2);
 
          coef[2] = new complex<double>(-0.5*sqrt(3.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,2,2);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,2,2);
 
          coef[3] = new complex<double>(0.0,0.5*sqrt(3.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,2,1,2);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,2,1,2);
 
          coef[4] = new complex<double>(-sqrt(35.0)/16.0,0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,5,0,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,5,0,0);
 
          coef[5] = new complex<double>(0.0,sqrt(35.0)/16.0);
-         ind[5] = CartInt::ginlxyz2s(i,n,l,0,5,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,0,5,0);
 
          coef[6] = new complex<double>(sqrt(35.0)/16.0,0.0);
-         ind[6] = CartInt::ginlxyz2s(i,n,l,1,4,0);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,1,4,0);
 
          coef[7] = new complex<double>(0.0,-sqrt(35.0)/16.0);
-         ind[7] = CartInt::ginlxyz2s(i,n,l,4,1,0);
+         ind[7] = CI_SPM::ginlxyz2s(i,n,l,4,1,0);
 
          coef[8] = new complex<double>(sqrt(5.0/3.0)/8.0,0.0);
-         ind[8] = CartInt::ginlxyz2s(i,n,l,3,2,0);
+         ind[8] = CI_SPM::ginlxyz2s(i,n,l,3,2,0);
 
          coef[9] = new complex<double>(0.0,-sqrt(5.0/3.0)/8.0);
-         ind[9] = CartInt::ginlxyz2s(i,n,l,2,3,0);
+         ind[9] = CI_SPM::ginlxyz2s(i,n,l,2,3,0);
 
       }
       else if(m == 2){
@@ -656,25 +656,25 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0/8.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,3);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,3);
 
          coef[1] = new complex<double>(-sqrt(5.0/8.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,3);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,3);
 
          coef[2] = new complex<double>(0.0,sqrt(5.0/6.0));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,3);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,3);
 
          coef[3] = new complex<double>(-0.25*sqrt(35.0/6.0),0.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,4,0,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,4,0,1);
 
          coef[4] = new complex<double>(0.25*sqrt(35.0/6.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,0,4,1);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,0,4,1);
 
          coef[5] = new complex<double>(0.0,-0.5*sqrt(5.0/6.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,3,1,1);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,3,1,1);
 
          coef[6] = new complex<double>(0.0,-0.5*sqrt(5.0/6.0));
-         ind[6] = CartInt::ginlxyz2s(i,n,l,1,3,1);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,1,3,1);
 
       }
       else if(m == 1){
@@ -686,40 +686,40 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0/6.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,4);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,4);
 
          coef[1] = new complex<double>(0.0,sqrt(5.0/6.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,4);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,4);
 
          coef[2] = new complex<double>(-1.5*sqrt(5.0/14.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,3,0,2);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,3,0,2);
 
          coef[3] = new complex<double>(0.0,-1.5*sqrt(5.0/14.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,0,3,2);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,0,3,2);
 
          coef[4] = new complex<double>(-1.5/sqrt(14.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,2,2);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,2,2);
 
          coef[5] = new complex<double>(0.0,-1.5/sqrt(14.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,1,2);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,1,2);
 
          coef[6] = new complex<double>(sqrt(7.5)/8.0,0.0);
-         ind[6] = CartInt::ginlxyz2s(i,n,l,5,0,0);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,5,0,0);
 
          coef[7] = new complex<double>(0.0,sqrt(7.5)/8.0);
-         ind[7] = CartInt::ginlxyz2s(i,n,l,0,5,0);
+         ind[7] = CI_SPM::ginlxyz2s(i,n,l,0,5,0);
 
          coef[8] = new complex<double>(sqrt(5.0/6.0)/8.0,0.0);
-         ind[8] = CartInt::ginlxyz2s(i,n,l,1,4,0);
+         ind[8] = CI_SPM::ginlxyz2s(i,n,l,1,4,0);
 
          coef[9] = new complex<double>(0.0,sqrt(5.0/6.0)/8.0);
-         ind[9] = CartInt::ginlxyz2s(i,n,l,4,1,0);
+         ind[9] = CI_SPM::ginlxyz2s(i,n,l,4,1,0);
 
          coef[10] = new complex<double>(0.25*sqrt(5.0/14.0),0.0);
-         ind[10] = CartInt::ginlxyz2s(i,n,l,3,2,0);
+         ind[10] = CI_SPM::ginlxyz2s(i,n,l,3,2,0);
 
          coef[11] = new complex<double>(0.0,0.25*sqrt(5.0/14.0));
-         ind[11] = CartInt::ginlxyz2s(i,n,l,2,3,0);
+         ind[11] = CI_SPM::ginlxyz2s(i,n,l,2,3,0);
 
       }
       else if(m == 0){
@@ -731,22 +731,22 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(1.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,0,0,5);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,0,0,5);
 
          coef[1] = new complex<double>(-5.0/sqrt(21.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,2,0,3);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,2,0,3);
 
          coef[2] = new complex<double>(-5.0/sqrt(21.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,0,2,3);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,0,2,3);
 
          coef[3] = new complex<double>(5.0/8.0,0.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,4,0,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,4,0,1);
 
          coef[4] = new complex<double>(5.0/8.0,0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,0,4,1);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,0,4,1);
 
          coef[5] = new complex<double>(0.25*sqrt(15.0/7.0),0.0);
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,2,1);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,2,1);
 
       }
       else if(m == -1){
@@ -758,40 +758,40 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0/6.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,1,0,4);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,1,0,4);
 
          coef[1] = new complex<double>(0.0,-sqrt(5.0/6.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,1,4);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,1,4);
 
          coef[2] = new complex<double>(-1.5*sqrt(5.0/14.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,3,0,2);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,3,0,2);
 
          coef[3] = new complex<double>(0.0,1.5*sqrt(5.0/14.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,0,3,2);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,0,3,2);
 
          coef[4] = new complex<double>(-1.5/sqrt(14.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,2,2);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,2,2);
 
          coef[5] = new complex<double>(0.0,1.5/sqrt(14.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,1,2);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,1,2);
 
          coef[6] = new complex<double>(sqrt(7.5)/8.0,0.0);
-         ind[6] = CartInt::ginlxyz2s(i,n,l,5,0,0);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,5,0,0);
 
          coef[7] = new complex<double>(0.0,-sqrt(7.5)/8.0);
-         ind[7] = CartInt::ginlxyz2s(i,n,l,0,5,0);
+         ind[7] = CI_SPM::ginlxyz2s(i,n,l,0,5,0);
 
          coef[8] = new complex<double>(sqrt(5.0/6.0)/8.0,0.0);
-         ind[8] = CartInt::ginlxyz2s(i,n,l,1,4,0);
+         ind[8] = CI_SPM::ginlxyz2s(i,n,l,1,4,0);
 
          coef[9] = new complex<double>(0.0,-sqrt(5.0/6.0)/8.0);
-         ind[9] = CartInt::ginlxyz2s(i,n,l,4,1,0);
+         ind[9] = CI_SPM::ginlxyz2s(i,n,l,4,1,0);
 
          coef[10] = new complex<double>(0.25*sqrt(5.0/14.0),0.0);
-         ind[10] = CartInt::ginlxyz2s(i,n,l,3,2,0);
+         ind[10] = CI_SPM::ginlxyz2s(i,n,l,3,2,0);
 
          coef[11] = new complex<double>(0.0,-0.25*sqrt(5.0/14.0));
-         ind[11] = CartInt::ginlxyz2s(i,n,l,2,3,0);
+         ind[11] = CI_SPM::ginlxyz2s(i,n,l,2,3,0);
 
       }
       else if(m == -2){
@@ -803,25 +803,25 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(5.0/8.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,2,0,3);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,2,0,3);
 
          coef[1] = new complex<double>(-sqrt(5.0/8.0),0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,2,3);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,2,3);
 
          coef[2] = new complex<double>(0.0,-sqrt(5.0/6.0));
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,1,3);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,1,3);
 
          coef[3] = new complex<double>(-0.25*sqrt(35.0/6.0),0.0);
-         ind[3] = CartInt::ginlxyz2s(i,n,l,4,0,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,4,0,1);
 
          coef[4] = new complex<double>(0.25*sqrt(35.0/6.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,0,4,1);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,0,4,1);
 
          coef[5] = new complex<double>(0.0,0.5*sqrt(5.0/6.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,3,1,1);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,3,1,1);
 
          coef[6] = new complex<double>(0.0,0.5*sqrt(5.0/6.0));
-         ind[6] = CartInt::ginlxyz2s(i,n,l,1,3,1);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,1,3,1);
 
       }
       else if(m == -3){
@@ -833,34 +833,34 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(0.5*sqrt(5.0/3.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,3,0,2);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,3,0,2);
 
          coef[1] = new complex<double>(0.0,0.5*sqrt(5.0/3.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,3,2);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,3,2);
 
          coef[2] = new complex<double>(-0.5*sqrt(3.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,2,2);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,2,2);
 
          coef[3] = new complex<double>(0.0,-0.5*sqrt(3.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,2,1,2);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,2,1,2);
 
          coef[4] = new complex<double>(-sqrt(35.0)/16.0,0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,5,0,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,5,0,0);
 
          coef[5] = new complex<double>(0.0,-sqrt(35.0)/16.0);
-         ind[5] = CartInt::ginlxyz2s(i,n,l,0,5,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,0,5,0);
 
          coef[6] = new complex<double>(sqrt(35.0)/16.0,0.0);
-         ind[6] = CartInt::ginlxyz2s(i,n,l,1,4,0);
+         ind[6] = CI_SPM::ginlxyz2s(i,n,l,1,4,0);
 
          coef[7] = new complex<double>(0.0,sqrt(35.0)/16.0);
-         ind[7] = CartInt::ginlxyz2s(i,n,l,4,1,0);
+         ind[7] = CI_SPM::ginlxyz2s(i,n,l,4,1,0);
 
          coef[8] = new complex<double>(sqrt(5.0/3.0)/8.0,0.0);
-         ind[8] = CartInt::ginlxyz2s(i,n,l,3,2,0);
+         ind[8] = CI_SPM::ginlxyz2s(i,n,l,3,2,0);
 
          coef[9] = new complex<double>(0.0,sqrt(5.0/3.0)/8.0);
-         ind[9] = CartInt::ginlxyz2s(i,n,l,2,3,0);
+         ind[9] = CI_SPM::ginlxyz2s(i,n,l,2,3,0);
 
       }
       else if(m == -4){
@@ -872,19 +872,19 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(sqrt(17.5)/8.0,0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,4,0,1);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,4,0,1);
 
          coef[1] = new complex<double>(sqrt(17.5)/8.0,0.0);
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,4,1);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,4,1);
 
          coef[2] = new complex<double>(-0.75*sqrt(1.5),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,2,2,1);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,2,2,1);
 
          coef[3] = new complex<double>(0.0,-0.5*sqrt(2.5));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,3,1,1);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,3,1,1);
 
          coef[4] = new complex<double>(0.0,0.5*sqrt(2.5));
-         ind[4] = CartInt::ginlxyz2s(i,n,l,1,3,1);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,1,3,1);
 
       }
       else if(m == -5){
@@ -896,22 +896,22 @@ Transform::Transform(int i,int n,int l,int m){
 
          //start the transformation
          coef[0] = new complex<double>(3.0/16.0*sqrt(7.0),0.0);
-         ind[0] = CartInt::ginlxyz2s(i,n,l,5,0,0);
+         ind[0] = CI_SPM::ginlxyz2s(i,n,l,5,0,0);
 
          coef[1] = new complex<double>(0.0,-3.0/16.0*sqrt(7.0));
-         ind[1] = CartInt::ginlxyz2s(i,n,l,0,5,0);
+         ind[1] = CI_SPM::ginlxyz2s(i,n,l,0,5,0);
 
          coef[2] = new complex<double>(5.0/16.0*sqrt(7.0),0.0);
-         ind[2] = CartInt::ginlxyz2s(i,n,l,1,4,0);
+         ind[2] = CI_SPM::ginlxyz2s(i,n,l,1,4,0);
 
          coef[3] = new complex<double>(0.0,-5.0/16.0*sqrt(7.0));
-         ind[3] = CartInt::ginlxyz2s(i,n,l,4,1,0);
+         ind[3] = CI_SPM::ginlxyz2s(i,n,l,4,1,0);
 
          coef[4] = new complex<double>(-5.0/8.0*sqrt(3.0),0.0);
-         ind[4] = CartInt::ginlxyz2s(i,n,l,3,2,0);
+         ind[4] = CI_SPM::ginlxyz2s(i,n,l,3,2,0);
 
          coef[5] = new complex<double>(0.0,5.0/8.0*sqrt(3.0));
-         ind[5] = CartInt::ginlxyz2s(i,n,l,2,3,0);
+         ind[5] = CI_SPM::ginlxyz2s(i,n,l,2,3,0);
 
       }
 

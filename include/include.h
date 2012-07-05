@@ -43,26 +43,40 @@
 #include "Vector.h"
 #include "BlockVector.h"
 
+#include "LibInt.h"
+
+#include "R.h"
+#include "Gauss.h"
+#include "input.h"
+
+#include "preamble.h"
+
+#include "CI_SPM.h"
+#include "CI_TPM.h"
+#include "CI_SPPM.h"
+#include "CI_SPPM_m.h"
+#include "CI_TPPM.h"
+
+#include "CartInt.h"
+
+#include "Transform.h"
+
+#include "SI_SPM.h"
+#include "SI_TPM.h"
+
+#include "SphInt.h"
+
+#include "Transform.h"
+
+#include "Tools.h"
+
 #include "SPM.h"
 #include "TPM.h"
 #include "PHM.h"
 #include "DPM.h"
 #include "PPHM.h"
 
-#include "R.h"
-#include "Gauss.h"
-#include "input.h"
-#include "MxElem.h"
-#include "MxElemFiller.h"
 
-#include "preamble.h"
-
-#include "CartInt.h"
-#include "SphInt.h"
-
-#include "Transform.h"
-
-#include "Tools.h"
 
 #include "SUP.h"
 #include "EIG.h"

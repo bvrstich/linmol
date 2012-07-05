@@ -10,74 +10,30 @@ using std::vector;
 
 #include "Matrix.h"
 #include "input.h"
-#include "CartInt.h"
 
 /**
  * @author Brecht Verstichel
- * @date 13-04-2012\n\n
+ * @date 05-07-2012\n\n
  * This class SphInt is a class written for the storage of matrixelements in a spherical Gaussian basis
- * First the matrixelements are constructed using ThING, then they are transformed to a spherical basis in this class
+ * First the matrixelements are constructed in Cartesian orbitals in CartInt, then they are transformed to a spherical basis in this class
  */
 class SphInt {
 
-   /**
-    * Output stream operator overloaded
-    * @param si_p the SphInt you want to print
-    */
-   friend ostream &operator<<(ostream &output,SphInt &si_p);
-
    public:
       
-      //constructor
-      SphInt(const CartInt &);
+      static const SI_SPM &gS();
 
-      //copy constructor
-      SphInt(const SphInt &);
+      static const SI_SPM &gT();
 
-      //destructor
-      virtual ~SphInt();
+      static const SI_SPM &gU(int);
 
-      const Matrix &gS() const;
+      static const SI_TPM &gV();
 
-      Matrix &gS();
+      static void orthogonalize();
 
-      const Matrix &gT() const;
+      static void print();
 
-      Matrix &gT();
-
-      const Matrix &gU() const;
-
-      Matrix &gU();
-
-      const Matrix &gV() const;
-
-      Matrix &gV();
-
-      double gS(int,int) const;
-
-      double gT(int,int) const;
-
-      double gU(int,int) const;
-
-      double gV(int,int,int,int) const;
-
-      void orthogonalize();
-
-      static int gn_max();
-
-      static int gN_Z();
-
-      static int gs2inlm(int,int);
-
-      static int ginlm2s(int,int,int,int);
-
-      static int gg2s(int);
-
-      static int gl_max();
-
-      static int gdim();
-
-      static int gN();
+      static void fill();
 
       static void init();
 
@@ -85,39 +41,17 @@ class SphInt {
 
    private:
 
-      //!static objects needed to construct and destruct all the lists
-      static int l_max,n_max,N_Z;
-
-      //!nuclear repulsion energy
-      static double NucRepEn;
-
-      //!nr of particles
-      static int N;
-
-      static vector< vector<int> > s2inlm;
-
-      static int ****inlm2s;
-
-      //!list relating tp to sp indices
-      static vector< vector<int> > t2s;
-
-      //!list relating tp to sp indices
-      static int **s2t;
-
-      //!dimension of the basisset
-      static int dim;
-      
       //!overlapmatrix
-      Matrix *S;
+      static SI_SPM *S;
 
       //!kinetic energy matrix
-      Matrix *T;
+      static SI_SPM *T;
 
       //!nuclear attraction energy matrix
-      Matrix *U;
+      static SI_SPM **U;
 
       //!electronic repulsion matrix
-      Matrix *V;
+      static SI_TPM *V;
 
 };
 

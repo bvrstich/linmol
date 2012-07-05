@@ -15,12 +15,17 @@ CPPSRC	= bp_sdp.cpp\
             Vector.cpp\
             R.cpp\
             Gauss.cpp\
-            MxElemFiller.cpp\
-            MxElem.cpp\
             input.cpp\
+            CI_SPM.cpp\
+            CI_SPPM.cpp\
+            CI_SPPM_m.cpp\
+            CI_TPM.cpp\
+            CI_TPPM.cpp\
             CartInt.cpp\
-            SphInt.cpp\
             Transform.cpp\
+            SI_SPM.cpp\
+            SI_TPM.cpp\
+            SphInt.cpp\
             SPM.cpp\
             TPM.cpp\
             PHM.cpp\
@@ -37,9 +42,9 @@ OBJ	= $(CPPSRC:.cpp=.o)
 
 BRIGHT_ROOT= .
 
-INCLUDE = ./include
+INCLUDE = ./include -I/usr/local/libint/2.0.0-stable/include -I/usr/local/libint/2.0.0-stable/include/libint2
 
-LIBS= -llapack -lblas -lgmp -lgmpxx -lgsl -lhdf5
+LIBS= -L/usr/local/libint/2.0.0-stable/lib -llapack -lblas -lgmp -lgmpxx -lgsl -lhdf5 -lint2
 
 CC	= gcc
 CXX	= g++
