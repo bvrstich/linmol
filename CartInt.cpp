@@ -587,7 +587,6 @@ ostream &operator<<(ostream &output,CartInt &ci_p){
    output << "Nuclear attraction energy:" << endl;
    output << endl;
 
-   //kinetic energy
    for(int s_i = 0;s_i < ci_p.dim;++s_i)
       for(int s_j = 0;s_j < ci_p.dim;++s_j){
 

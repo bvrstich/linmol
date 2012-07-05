@@ -784,20 +784,19 @@ double MxElemFiller::FactHelper(int ni){
    if (ni==0)
       return 1.0;
 
-   unsigned long int n = 2*ni-1;
-   mpz_class fact;
-   mpz_fac_ui(fact.get_mpz_t(),n);
-   n = fact.get_ui();
-   mpz_fac_ui(fact.get_mpz_t(),n);
+   int tmp = ni - 1;
+   int value = 2*ni - 1;
 
-   signed long int expon;
+   while(tmp > 0){
 
-   double result = mpz_get_d_2exp(&expon,fact.get_mpz_t());
-   return pow(1.0/result,0.5)*pow(0.5,0.5*double(expon));
+      value *= 2*tmp - 1;
+
+      --tmp;
+
+   }
+
+   return 1.0/sqrt((double)value);
 
 }
-
-
-
 
 /* vim: set ts=3 sw=3 expandtab :*/

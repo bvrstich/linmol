@@ -89,9 +89,9 @@ int main(int argc, char **argv){
    EIG::init(M,N);
 
    CartInt ci;
-/*
-   SphInt si(ci);
+   ci.norm();
 
+   SphInt si(ci);
    si.orthogonalize();
 
    //hamiltoniaan
@@ -233,7 +233,7 @@ int main(int argc, char **argv){
    Z.gI().SaveToFile("output.h5");
 
    ci.SaveToFile("output.h5",true);
-*/
+
    PPHM::clear();
    DPM::clear();
    PHM::clear();
