@@ -3,5 +3,6 @@ Charge=0
 
 Distances=0
 
-Cores=1
-1 Be 0 0 0
+Cores=2
+1 C 0 0 0
+2 C 0 0 2

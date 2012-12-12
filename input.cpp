@@ -38,7 +38,7 @@ void input::init(string setupfile){
 
    for (int i = 0;i < N_Z;i++)
       for (int j = i + 1;j < N_Z;j++)
-         NucRepEn += Z[i] * Z[j] / sqrt(r[i]->ddot(*r[j]));
+         NucRepEn += Z[i] * Z[j] / sqrt(r[i]->dist_sqrd(*r[j]));
 
 }
 

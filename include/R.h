@@ -36,6 +36,8 @@ class R : public Vector {
       //Setter
       void set(double, double, double);
 
+      double dist_sqrd(const R &r_d) const;
+
    private:
 
 

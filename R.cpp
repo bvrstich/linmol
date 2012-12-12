@@ -54,4 +54,18 @@ void R::set(double xco, double yco, double zco){
 
 }
 
+/**
+ * @return the squared distance between to R objects
+ */
+double R::dist_sqrd(const R &r_d) const{
+
+   double ward = 0.0;
+
+   for(int i = 0;i < 3;++i)
+      ward += ((*this)[i] - r_d[i])*((*this)[i] - r_d[i]);
+
+   return ward;
+
+}
+
 /* vim: set ts=3 sw=3 expandtab :*/
