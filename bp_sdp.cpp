@@ -149,7 +149,7 @@ int main(int argc, char **argv){
    //what does this do?
    double sigma = 1.0;
 
-   double tolerance = 1.0e-5;
+   double tolerance = 1.0e-4;
 
    double D_conv(1.0),P_conv(1.0),convergence(1.0);
 
@@ -249,7 +249,10 @@ int main(int argc, char **argv){
    cout << endl;
    cout << "total nr of iterations = " << tot_iter << endl;
 
-   Z.gI().SaveToFile("output.h5");
+   ofstream out("phm.out");
+   out.precision(15);
+
+   out << Z.gG();
 
    PPHM::clear();
    DPM::clear();

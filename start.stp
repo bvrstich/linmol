@@ -1,8 +1,8 @@
-Basisset=cc-pVDZ
+Basisset=6-31G-test
 Charge=0
 
 Distances=0
 
 Cores=2
-1 C 0 0 0
-2 C 0 0 2
+1 Li 0 0 0
+2 Li 0 0 5

@@ -11,7 +11,7 @@
 #include <stdlib.h>
 #include <vector>
 #include <math.h>
-#include <gmpxx.h>
+//#include <gmpxx.h>
 
 using std::cout;
 using std::endl;
