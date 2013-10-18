@@ -71,7 +71,7 @@ int main(int argc, char **argv){
    SphInt::orthogonalize();
 
    const int M = 2*SI_SPM::gdim();//dim sp hilbert space
-   int N = input::NumberOfElectrons();//nr of particles
+   int N = //input::NumberOfElectrons();//nr of particles
 
    struct option long_options[] =
    {
