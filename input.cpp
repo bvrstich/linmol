@@ -13,7 +13,7 @@ string input::basisset;
 
 int input::N_Z;
 
-int *input::Z;
+double *input::Z;
 
 R **input::r;
 
@@ -25,13 +25,16 @@ double input::NucRepEn;
  * initializes the static objects, reads in the file
  * @param setupfile filename of the setupfile of the job
  */
-void input::init(string setupfile){
+void input::init(string setupfile,double Z2){
 
    initelements();
 
    readinsetupfile(setupfile);
 
    fillgaussinfo();
+
+   Z[0] = 3;
+   Z[1] = Z2;
 
    //set the Nuclear repulsion energy
    NucRepEn = 0.0;
@@ -101,11 +104,12 @@ string input::gbasisset(){
  * @param i the number of the core
  * @return the charge of the i-th core
  */
-int input::gZ(int i){
+double input::gZ(int i){
 
    return Z[i];
 
 }
+
 /**
  * Getter function for the position vector of the i-th core
  * @param i the number of the core
@@ -254,7 +258,7 @@ void input::readinsetupfile(istream &inputfile){
    pos1 = temp.find("=")+1;
    length = temp.size()-pos1;
    N_Z = atoi((temp.substr(pos1,length)).c_str());
-   Z = new int[N_Z];
+   Z = new double[N_Z];
    r = new R * [N_Z];
 
    double * cotemp = new double[3];

@@ -14,7 +14,7 @@ class input{
 
    public:
       
-      static void init(string);
+      static void init(string,double);
 
       static void clear();
 
@@ -24,7 +24,7 @@ class input{
 
       static string gbasisset();
 
-      static int gZ(int);
+      static double gZ(int);
 
       static R &gR_nc(int);
 
@@ -51,7 +51,7 @@ class input{
       static int N_Z;
 
       //!Cores (atomic number)
-      static int *Z;
+      static double *Z;
 
       //!Positions of the cores
       static R **r;

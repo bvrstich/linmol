@@ -4,5 +4,5 @@ Charge=0
 Distances=0
 
 Cores=2
-1 Li 0 0 0
-2 Li 0 0 5
+1 Li 0 0 -20
+2 Li 0 0 20

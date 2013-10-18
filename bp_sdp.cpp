@@ -40,7 +40,9 @@ int main(int argc, char **argv){
 
    cout.precision(10);
 
-   input::init("start.stp");
+   double Zpar = 3.72;
+
+   input::init("start.stp",Zpar);
 
    LibInt::init();
 
@@ -71,7 +73,7 @@ int main(int argc, char **argv){
    SphInt::orthogonalize();
 
    const int M = 2*SI_SPM::gdim();//dim sp hilbert space
-   int N = input::NumberOfElectrons();//nr of particles
+   int N = 6;//input::NumberOfElectrons();//nr of particles
 
    struct option long_options[] =
    {
@@ -149,7 +151,7 @@ int main(int argc, char **argv){
    //what does this do?
    double sigma = 1.0;
 
-   double tolerance = 1.0e-4;
+   double tolerance = 5.0e-5;
 
    double D_conv(1.0),P_conv(1.0),convergence(1.0);
 
@@ -241,7 +243,7 @@ int main(int argc, char **argv){
    }
 
    cout << endl;
-   cout << "Energy: " << ham_copy.ddot(Z.gI()) + input::gNucRepEn() << endl;
+   cout << "Energy: " << ham_copy.ddot(Z.gI())/* + input::gNucRepEn()*/ << endl;
    cout << "pd gap: " << Z.ddot(X) << endl;
    cout << "dual conv: " << D_conv << endl;
    cout << "primal conv: " << P_conv << endl;
@@ -249,10 +251,22 @@ int main(int argc, char **argv){
    cout << endl;
    cout << "total nr of iterations = " << tot_iter << endl;
 
-   ofstream out("phm.out");
-   out.precision(15);
+   SPM spm;
+   spm.bar(1.0/(N - 1.0),Z.gI());
 
-   out << Z.gG();
+   double Zocc = 0.0;
+
+   for(int B = 0;B < spm.gnr();++B){
+
+      for(int s = 3;s < 6;++s)
+         Zocc += spm(B,s,s);
+
+   }
+
+
+   cout << Zpar << "\t" << Zocc*2 << endl;
+
+   cout << spm.trace() << endl;
 
    PPHM::clear();
    DPM::clear();
