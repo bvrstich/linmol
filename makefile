@@ -43,9 +43,9 @@ OBJ	= $(CPPSRC:.cpp=.o)
 
 BRIGHT_ROOT= .
 
-INCLUDE = ./include -I/usr/local/libint/2.0.3-stable/include -I/usr/local/libint/2.0.3-stable/include/libint2
+INCLUDE = ./include -I/usr/local/libint/2.0.5-stable/include -I/usr/local/libint/2.0.5-stable/include/libint2
 
-LIBS= -L/usr/local/libint/2.0.3-stable/lib -llapack -lblas -lgsl -lhdf5 -lint2
+LIBS= -L/usr/local/libint/2.0.5-stable/lib -llapack -lblas -lgsl -lhdf5 -lint2
 
 CC	= gcc
 CXX	= g++
