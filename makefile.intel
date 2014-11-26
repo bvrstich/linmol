@@ -13,14 +13,20 @@ CPPSRC	= bp_sdp.cpp\
             Matrix.cpp\
             BlockMatrix.cpp\
             Vector.cpp\
+            LibInt.cpp\
             R.cpp\
             Gauss.cpp\
-            MxElemFiller.cpp\
-            MxElem.cpp\
             input.cpp\
+            CI_SPM.cpp\
+            CI_SPPM.cpp\
+            CI_SPPM_m.cpp\
+            CI_TPM.cpp\
+            CI_TPPM.cpp\
             CartInt.cpp\
-            SphInt.cpp\
             Transform.cpp\
+            SI_SPM.cpp\
+            SI_TPM.cpp\
+            SphInt.cpp\
             SPM.cpp\
             TPM.cpp\
             PHM.cpp\
@@ -37,18 +43,18 @@ OBJ	= $(CPPSRC:.cpp=.o)
 
 BRIGHT_ROOT= .
 
-INCLUDE = ./include
+INCLUDE = ./include -I/usr/local/libint/2.1.0-beta/include -I/usr/local/libint/2.1.0-beta/include/libint2
 
-LIBS= -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread -lgsl -lhdf5
+LIBS= -L/usr/local/libint/2.1.0-beta/lib  -lpthread -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lgsl -lhdf5 -lgsl -lhdf5 -lint2
 
-CC	= icc
-CXX	= icpc
+CC	= gcc
+CXX	= g++
 
 # -----------------------------------------------------------------------------
 #   Compiler & Linker flags
 # -----------------------------------------------------------------------------
-CFLAGS	= -I$(INCLUDE) -g -Wall -ipo -O2 -xHost -openmp
-LDFLAGS	= -g -Wall -ipo -O2 -openmp
+CFLAGS	= -I$(INCLUDE) -g -Wall -O2
+LDFLAGS	= -g -Wall -O2
 
 
 # =============================================================================
@@ -58,7 +64,7 @@ all:
 	@echo
 	@echo '  +++ Building $(BINNAME)...'
 	@echo	
-	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQGT"
+	$(MAKE) $(BRIGHT_ROOT)/$(BINNAME) DEFS="-DPQG"
 	@if test $?; then \
 	   echo; echo '*************** FAILED! ***************' ; echo; \
 	 else \

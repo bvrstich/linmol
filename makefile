@@ -45,7 +45,7 @@ BRIGHT_ROOT= .
 
 INCLUDE = ./include -I/usr/local/libint/2.1.0-beta/include -I/usr/local/libint/2.1.0-beta/include/libint2
 
-LIBS= -L/usr/local/libint/2.1.0-beta/lib -llapack -lblas -lgsl -lhdf5 -lint2
+LIBS= -L/usr/local/libint/2.1.0-beta/lib  -lpthread -lmkl_intel_lp64 -lmkl_sequential -lmkl_core -lgsl -lhdf5 -lgsl -lhdf5 -lint2
 
 CC	= gcc
 CXX	= g++
